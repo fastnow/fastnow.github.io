@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastNow 综合站点</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: '微软雅黑', sans-serif;
+            background-color: #f0f5ff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .category {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #3498db;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .links {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        a {
+            display: block;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #34495e;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            background: #3498db;
+            color: white;
+            transform: translateX(10px);
+        }
+              .personal-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #3498db;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .username {
+            font-size: 1.4em;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-button {
+            display: flex;
+            align-items: center;
+            padding: 8px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .github {
+            background: #24292e;
+            color: white;
+        }
+
+        .social-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        .social-button img {
+            width: 20px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>欢迎访问 FastNow 综合站点</h1>
+        <div class="personal-card">
+            <img src="your-avatar.jpg" alt="头像" class="avatar">
+            <div class="profile-info">
+                <div class="username"></div>
+                <div class="social-links">
+                    <a href="https://github.com/fastnow" class="social-button github" target="_blank">
+                        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub">
+                        GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="category">
+            <h2>自制（持续更新）</h2>
+            <div class="links">
+                <a href="https://fastnow.ct.ws" target="_blank">个人博客（链接不稳定）</a>
+                <a href="https://distant.rf.gd" target="_blank">网易云音乐解析站（移动不可用）</a>
+                <a href="https://wenku.rf.gd" target="_blank">名著全文在线阅读（同上）</a>
+                <a href="#" target="_blank">持续更新</a>
+            </div>
+        </div>
+      
+        <div class="category">
+            <h2>常用网站</h2>
+            <div class="links">
+                <a href="https://www.baidu.com" target="_blank">百度搜索</a>
+                <a href="https://www.zhihu.com" target="_blank">知乎</a>
+                <a href="https://github.com" target="_blank">GitHub</a>
+                <a href="https://www.bilibili.com" target="_blank">哔哩哔哩</a>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>学习资源</h2>
+            <div class="links">
+                <a href="https://www.runoob.com" target="_blank">菜鸟教程</a>
+                <a href="https://www.liaoxuefeng.com" target="_blank">廖雪峰教程</a>
+                <a href="https://leetcode.cn" target="_blank">力扣</a>
+                <a href="https://www.coursera.org" target="_blank">Coursera</a>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>实用工具</h2>
+            <div class="links">
+                <a href="https://translate.google.com" target="_blank">谷歌翻译</a>
+                <a href="https://smallpdf.com/cn" target="_blank">PDF工具</a>
+                <a href="https://www.processon.com" target="_blank">在线作图</a>
+                <a href="https://tool.lu" target="_blank">在线工具</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
