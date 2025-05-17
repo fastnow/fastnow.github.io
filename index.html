@@ -123,6 +123,11 @@
         .social-button img {
             width: 20px;
             margin-right: 8px;
+         }
+        .disabled-link {
+            pointer-events: none;
+            color: gray;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -142,7 +147,7 @@
                 <div class="username"></div>
                 <div class="social-links">
                     <a href="https://github.com/fastnow" class="social-button github" target="_blank">
-                        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub">
+                        <img src="https://avatars.githubusercontent.com/u/177708607" alt="GitHub">
                         GitHub
                     </a>
                 </div>
@@ -152,10 +157,11 @@
         <div class="category">
             <h2>自制（持续更新）</h2>
             <div class="links">
+                
                 <a href="https://fastnow.pages.dev" target="_blank">个人博客（需科学上网）</a>
                 <a href="https://distant.rf.gd" target="_blank">网易云音乐解析站（移动网络不可用）</a>
                 <a href="https://wenku.rf.gd" target="_blank">名著全文在线阅读（同上）</a>
-                <a href="#" target="_blank">持续更新</a>
+                <a href="#" target="_blank" id="myLink" class="disabled-link">持续更新</a>
             </div>
         </div>
       
@@ -189,5 +195,6 @@
             </div>
         </div>
     </div>
+
 </body>
 </html>
