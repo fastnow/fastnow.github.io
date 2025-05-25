@@ -1,125 +1,236 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>在线HTML/CSS/JS编辑器</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>在线HTML/CSS/JS编辑器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/theme/material-darker.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-      font-family: Arial, sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
 
-    .container {
-      display: flex;
-      flex: 1;
-    }
+        .container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            position: relative;
+        }
 
-    .editors {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      padding: 10px;
-      border-right: 1px solid #ccc;
-      overflow: hidden;
-    }
+        /* 代码编辑区样式 */
+        .editors {
+            display: flex;
+            flex-direction: column;
+            width: 50%;
+            background: #2d2d2d;
+            padding: 10px;
+            border-right: 2px solid #3c3c3c;
+        }
 
-    .editor-container {
-      flex: 1;
-      margin-bottom: 10px;
-      display: flex;
-      flex-direction: column;
-    }
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+            background: #252526;
+            border-radius: 4px;
+            overflow: hidden;
+        }
 
-    .editor-container h3 {
-      margin-bottom: 5px;
-      font-size: 14px;
-      color: #333;
-    }
+        .editor-header {
+            padding: 8px 12px;
+            background: #333333;
+            border-bottom: 1px solid #3c3c3c;
+            font-size: 13px;
+            font-weight: 600;
+        }
 
-    textarea {
-      flex: 1;
-      width: 100%;
-      font-family: monospace;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      padding: 5px;
-      resize: none;
-      overflow: auto;
-    }
+        .CodeMirror {
+            flex: 1;
+            font-size: 14px;
+            height: auto !important;
+        }
 
-    .preview-container {
-      flex: 1;
-      padding: 10px;
-    }
+        /* 预览区样式 */
+        .preview-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+            padding: 10px;
+        }
 
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-  </style>
+        .preview-header {
+            display: flex;
+            gap: 10px;
+            padding: 8px 0;
+            margin-bottom: 10px;
+        }
+
+        .preview-button {
+            padding: 6px 16px;
+            background: #3276b1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .preview-button:hover {
+            background: #286090;
+        }
+
+        iframe {
+            flex: 1;
+            width: 100%;
+            background: white;
+            border: 1px solid #3c3c3c;
+            border-radius: 4px;
+        }
+
+        /* 版权声明 */
+        .copyright {
+            text-align: center;
+            padding: 12px;
+            background: #252526;
+            color: #7a7a7a;
+            font-size: 12px;
+            border-top: 1px solid #3c3c3c;
+        }
+
+        /* 分割线样式 */
+        .gutter {
+            background-color: #3c3c3c;
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .gutter.gutter-horizontal {
+            cursor: col-resize;
+            width: 5px;
+        }
+
+        .gutter.gutter-vertical {
+            cursor: row-resize;
+            height: 5px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="editors">
-      <div class="editor-container">
-        <h3>HTML</h3>
-        <textarea id="html-code"></textarea>
-      </div>
-      <div class="editor-container">
-        <h3>CSS</h3>
-        <textarea id="css-code"></textarea>
-      </div>
-      <div class="editor-container">
-        <h3>JavaScript</h3>
-        <textarea id="js-code"></textarea>
-      </div>
+    <div class="container">
+        <div class="editors">
+            <div class="editor-container">
+                <div class="editor-header">HTML</div>
+                <textarea id="html-code"></textarea>
+            </div>
+            <div class="editor-container">
+                <div class="editor-header">CSS</div>
+                <textarea id="css-code"></textarea>
+            </div>
+            <div class="editor-container">
+                <div class="editor-header">JavaScript</div>
+                <textarea id="js-code"></textarea>
+            </div>
+        </div>
+        <div class="preview-container">
+            <div class="preview-header">
+                <button class="preview-button" onclick="runCode()">运行代码</button>
+                <button class="preview-button" onclick="openNewWindow()">新窗口打开</button>
+            </div>
+            <iframe id="preview"></iframe>
+        </div>
     </div>
-    <div class="preview-container">
-      <h3>预览</h3>
-      <iframe id="preview"></iframe>
+    <div class="copyright">
+        © 2025 FastNow Team | MIT License
     </div>
-  </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/javascript/javascript.min.js"></script>
+    <script src="https://gcore.jsdelivr.net/npm/split.js@1.6.5/dist/split.min.js"></script>
 
-  <script>
-    function updatePreview() {
-      const html = document.getElementById('html-code').value;
-      const css = document.getElementById('css-code').value;
-      const js = document.getElementById('js-code').value;
+    <script>
+        const editors = {
+            html: CodeMirror.fromTextArea(document.getElementById('html-code'), {
+                mode: 'htmlmixed',
+                theme: 'material-darker',
+                lineNumbers: true,
+                autoCloseTags: true
+            }),
+            css: CodeMirror.fromTextArea(document.getElementById('css-code'), {
+                mode: 'css',
+                theme: 'material-darker',
+                lineNumbers: true
+            }),
+            js: CodeMirror.fromTextArea(document.getElementById('js-code'), {
+                mode: 'javascript',
+                theme: 'material-darker',
+                lineNumbers: true
+            })
+        };
+        Split(['.editors', '.preview-container'], {
+            sizes: [50, 50],
+            minSize: 300,
+            gutterSize: 5,
+        });
 
-      const fullHTML = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <style>${css}</style>
-          </head>
-          <body>
-            ${html}
-            <script>
-              ${js}
-            <\/script>
-          </body>
-        </html>
-      `;
+        Split(['.editor-container', '.editor-container', '.editor-container'], {
+            direction: 'vertical',
+            sizes: [33, 33, 34],
+            minSize: 100,
+            gutterSize: 5,
+        });
+        function runCode() {
+            const html = editors.html.getValue();
+            const css = editors.css.getValue();
+            const js = editors.js.getValue();
 
-      const iframe = document.getElementById('preview');
-      iframe.srcdoc = fullHTML;
-    }
+            const fullHTML = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>${css}</style>
+                </head>
+                <body>
+                    ${html}
+                    <script>${js}<\/script>
+                </body>
+                </html>
+            `;
 
-    document.getElementById('html-code').addEventListener('input', updatePreview);
-    document.getElementById('css-code').addEventListener('input', updatePreview);
-    document.getElementById('js-code').addEventListener('input', updatePreview);
-
-    window.onload = updatePreview;
-  </script>
+            document.getElementById('preview').srcdoc = fullHTML;
+        }
+        function openNewWindow() {
+            const newWindow = window.open();
+            newWindow.document.write(document.getElementById('preview').srcdoc);
+        }
+        let timeout;
+        function scheduleUpdate() {
+            clearTimeout(timeout);
+            timeout = setTimeout(runCode, 500);
+        }
+        editors.html.on('change', scheduleUpdate);
+        editors.css.on('change', scheduleUpdate);
+        editors.js.on('change', scheduleUpdate);
+        editors.html.setValue('');
+        editors.css.setValue('');
+        editors.js.setValue('');
+        runCode();
+    </script>
 </body>
 </html>
