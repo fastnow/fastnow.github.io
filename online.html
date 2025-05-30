@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>在线HTML/CSS/JS编辑器</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线HTML/CSS/JS代码编辑器</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/theme/material-darker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             box-sizing: border-box;
@@ -20,6 +21,70 @@
             flex-direction: column;
             background: #1e1e1e;
             color: #d4d4d4;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #252526, #1a1a1b);
+            border-bottom: 1px solid #3c3c3c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #e2e2e2;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 i {
+            color: #42a5f5;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            padding: 10px 16px;
+            background: linear-gradient(to bottom, #3276b1, #286090);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(to bottom, #286090, #1e4e7a);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .container {
@@ -27,71 +92,144 @@
             flex: 1;
             min-height: 0;
             position: relative;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
         }
 
-        /* 代码编辑区样式 */
         .editors {
             display: flex;
             flex-direction: column;
-            width: 50%;
+            flex: 1;
             background: #2d2d2d;
-            padding: 10px;
-            border-right: 2px solid #3c3c3c;
+            padding: 15px;
+            gap: 15px;
+            overflow: auto;
+            min-height: 0;
         }
 
         .editor-container {
             flex: 1;
+            min-height: 200px;
             display: flex;
             flex-direction: column;
-            margin-bottom: 10px;
             background: #252526;
-            border-radius: 4px;
+            border-radius: 8px;
             overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s;
+        }
+
+        .editor-container:hover {
+            transform: translateY(-2px);
         }
 
         .editor-header {
-            padding: 8px 12px;
+            padding: 12px 20px;
             background: #333333;
             border-bottom: 1px solid #3c3c3c;
-            font-size: 13px;
+            font-size: 1rem;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .editor-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .editor-header::before {
+            content: "";
+            display: block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .html-header::before { background-color: #e44d26; }
+        .css-header::before { background-color: #42a5f5; }
+        .js-header::before { background-color: #ffca28; }
+
+        .editor-stats {
+            font-size: 0.9rem;
+            color: #aaa;
+            display: flex;
+            gap: 20px;
+        }
+
+        .editor-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .CodeMirror {
             flex: 1;
-            font-size: 14px;
+            font-size: 15px;
             height: auto !important;
+            overflow: auto;
         }
 
-        /* 预览区样式 */
+        .CodeMirror-scroll {
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+        }
+
         .preview-container {
             flex: 1;
             display: flex;
             flex-direction: column;
             background: #1e1e1e;
-            padding: 10px;
+            padding: 15px;
+            min-height: 0;
         }
 
         .preview-header {
             display: flex;
-            gap: 10px;
-            padding: 8px 0;
-            margin-bottom: 10px;
+            gap: 12px;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 12px;
         }
 
         .preview-button {
-            padding: 6px 16px;
-            background: #3276b1;
+            padding: 10px 18px;
+            background: linear-gradient(to bottom, #3276b1, #286090);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 13px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .preview-button:hover {
-            background: #286090;
+            background: linear-gradient(to bottom, #286090, #1e4e7a);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-stats {
+            font-size: 0.95rem;
+            color: #aaa;
+            display: flex;
+            gap: 20px;
         }
 
         iframe {
@@ -99,20 +237,20 @@
             width: 100%;
             background: white;
             border: 1px solid #3c3c3c;
-            border-radius: 4px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* 版权声明 */
         .copyright {
             text-align: center;
-            padding: 12px;
+            padding: 15px;
             background: #252526;
             color: #7a7a7a;
-            font-size: 12px;
+            font-size: 0.85rem;
             border-top: 1px solid #3c3c3c;
+            flex-shrink: 0;
         }
 
-        /* 分割线样式 */
         .gutter {
             background-color: #3c3c3c;
             background-repeat: no-repeat;
@@ -122,88 +260,536 @@
 
         .gutter.gutter-horizontal {
             cursor: col-resize;
-            width: 5px;
+            width: 7px;
         }
 
         .gutter.gutter-vertical {
             cursor: row-resize;
-            height: 5px;
+            height: 7px;
+        }
+
+        .status-bar {
+            padding: 12px 20px;
+            background: #252526;
+            border-top: 1px solid #3c3c3c;
+            font-size: 0.85rem;
+            color: #7a7a7a;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .status-section {
+            display: flex;
+            gap: 25px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-value {
+            font-weight: 600;
+            color: #d4d4d4;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-indicator.idle {
+            background-color: #4CAF50;
+            box-shadow: 0 0 8px #4CAF50;
+        }
+
+        .status-indicator.processing {
+            background-color: #FFC107;
+            box-shadow: 0 0 8px #FFC107;
+        }
+
+        .status-indicator.error {
+            background-color: #F44336;
+            box-shadow: 0 0 8px #F44336;
+        }
+
+        .performance-meter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .performance-bar {
+            width: 80px;
+            height: 10px;
+            background: #3a3a3a;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .performance-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1rem;
+            color: #7a7a7a;
+        }
+
+        .logo i {
+            color: #42a5f5;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+                overflow: hidden;
+            }
+            .editors {
+                width: 50%;
+                border-right: 2px solid #3c3c3c;
+                overflow: auto;
+            }
+            .preview-container {
+                width: 50%;
+                overflow: auto;
+            }
+            iframe {
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .editors, .preview-container {
+                width: 100%;
+                height: 50%;
+                min-height: 250px;
+            }
+            .editors {
+                border-right: none;
+                border-bottom: 2px solid #3c3c3c;
+            }
+            .status-bar {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .preview-stats {
+                display: none;
+            }
+            .header-controls {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            .preview-controls {
+                flex-wrap: wrap;
+            }
+            .control-btn, .preview-button {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .header-controls {
+                width: 100%;
+            }
+            .editor-stats {
+                display: none;
+            }
+            .editors, .preview-container {
+                min-height: 200px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="editors">
-            <div class="editor-container">
-                <div class="editor-header">HTML</div>
-                <textarea id="html-code"></textarea>
-            </div>
-            <div class="editor-container">
-                <div class="editor-header">CSS</div>
-                <textarea id="css-code"></textarea>
-            </div>
-            <div class="editor-container">
-                <div class="editor-header">JavaScript</div>
-                <textarea id="js-code"></textarea>
+    <div class="app-container">
+        <div class="header">
+            <h1><i class="fas fa-code"></i> 在线前端代码编辑器</h1>
+            <div class="header-controls">
+                <button class="control-btn" id="save-btn">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+                <button class="control-btn" id="load-btn">
+                    <i class="fas fa-folder-open"></i> 加载
+                </button>
+                <button class="control-btn" id="format-btn">
+                    <i class="fas fa-indent"></i> 格式化
+                </button>
+                <button class="control-btn" id="reset-btn">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+                <button class="control-btn" id="theme-btn">
+                    <i class="fas fa-moon"></i> 主题
+                </button>
+                <button class="control-btn" id="fullscreen-btn">
+                    <i class="fas fa-expand"></i> 全屏
+                </button>
             </div>
         </div>
-        <div class="preview-container">
-            <div class="preview-header">
-                <button class="preview-button" onclick="runCode()">运行代码</button>
-                <button class="preview-button" onclick="openNewWindow()">新窗口打开</button>
+        
+        <div class="container">
+            <div class="editors">
+                <div class="editor-container">
+                    <div class="editor-header html-header">
+                        <div class="editor-header-left">
+                            <span></span>
+                            HTML
+                        </div>
+                        <div class="editor-stats">
+                            <div class="editor-stat" title="总行数">
+                                <i class="fas fa-align-left"></i>
+                                <span id="html-lines">1</span>
+                            </div>
+                            <div class="editor-stat" title="字符数">
+                                <i class="fas fa-font"></i>
+                                <span id="html-chars">0</span>
+                            </div>
+                            <div class="editor-stat" title="光标位置">
+                                <i class="fas fa-cursor"></i>
+                                <span id="html-cursor">1:1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <textarea id="html-code"></textarea>
+                </div>
+                <div class="editor-container">
+                    <div class="editor-header css-header">
+                        <div class="editor-header-left">
+                            <span></span>
+                            CSS
+                        </div>
+                        <div class="editor-stats">
+                            <div class="editor-stat" title="总行数">
+                                <i class="fas fa-align-left"></i>
+                                <span id="css-lines">1</span>
+                            </div>
+                            <div class="editor-stat" title="字符数">
+                                <i class="fas fa-font"></i>
+                                <span id="css-chars">0</span>
+                            </div>
+                            <div class="editor-stat" title="光标位置">
+                                <i class="fas fa-cursor"></i>
+                                <span id="css-cursor">1:1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <textarea id="css-code"></textarea>
+                </div>
+                <div class="editor-container">
+                    <div class="editor-header js-header">
+                        <div class="editor-header-left">
+                            <span></span>
+                            JavaScript
+                        </div>
+                        <div class="editor-stats">
+                            <div class="editor-stat" title="总行数">
+                                <i class="fas fa-align-left"></i>
+                                <span id="js-lines">1</span>
+                            </div>
+                            <div class="editor-stat" title="字符数">
+                                <i class="fas fa-font"></i>
+                                <span id="js-chars">0</span>
+                            </div>
+                            <div class="editor-stat" title="光标位置">
+                                <i class="fas fa-cursor"></i>
+                                <span id="js-cursor">1:1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <textarea id="js-code"></textarea>
+                </div>
             </div>
-            <iframe id="preview"></iframe>
+            <div class="preview-container">
+                <div class="preview-header">
+                    <div class="preview-controls">
+                        <button class="preview-button" id="run-btn">
+                            <i class="fas fa-play"></i> 运行代码
+                        </button>
+                        <button class="preview-button" id="new-window-btn">
+                            <i class="fas fa-external-link-alt"></i> 新窗口打开
+                        </button>
+                    </div>
+                    <div class="preview-stats">
+                        <div class="editor-stat" title="渲染时间">
+                            <i class="fas fa-stopwatch"></i>
+                            <span id="render-time">0</span>ms
+                        </div>
+                        <div class="editor-stat" title="页面大小">
+                            <i class="fas fa-weight-hanging"></i>
+                            <span id="page-size">0</span>KB
+                        </div>
+                        <div class="editor-stat" title="元素数量">
+                            <i class="fas fa-cube"></i>
+                            <span id="element-count">0</span>
+                        </div>
+                    </div>
+                </div>
+                <iframe id="preview"></iframe>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-section">
+                <div class="status-item">
+                    <span class="status-indicator idle" id="status-indicator"></span>
+                    状态: <span class="status-value" id="status-text">就绪</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-code"></i>
+                    活动编辑器: <span class="status-value" id="active-editor">HTML</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-clock"></i>
+                    最后运行: <span class="status-value" id="last-run">-</span>
+                </div>
+            </div>
+            <div class="status-section">
+                <div class="status-item">
+                    <i class="fas fa-microchip"></i>
+                    性能: 
+                    <div class="performance-meter">
+                        <div class="performance-bar">
+                            <div class="performance-fill" id="performance-fill" style="width: 100%"></div>
+                        </div>
+                        <span id="performance-text">优</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-save"></i>
+                    自动保存: <span class="status-value" id="auto-save">开启</span>
+                </div>
+                <div class="status-item">
+                    <i class="fab fa-js"></i>
+                    JS执行: <span class="status-value" id="js-status">正常</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            © 2025 FastNow Team | BSD 3-Clause
+        </div>
+        
+        <div class="logo">
+            <i class="fas fa-chart-line"></i> 增强状态显示
         </div>
     </div>
-    <div class="copyright">
-        © 2025 FastNow Team | BSD 3-Clause
-    </div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/css/css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/javascript/javascript.min.js"></script>
     <script src="https://gcore.jsdelivr.net/npm/split.js@1.6.5/dist/split.min.js"></script>
 
     <script>
+        const editorOptions = {
+            theme: 'material-darker',
+            lineNumbers: true,
+            lineWrapping: true,
+            autoCloseTags: true,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            extraKeys: {
+                "Enter": (cm) => {
+                    cm.replaceSelection("\n");
+                }
+            }
+        };
+
         const editors = {
             html: CodeMirror.fromTextArea(document.getElementById('html-code'), {
-                mode: 'htmlmixed',
-                theme: 'material-darker',
-                lineNumbers: true,
-                autoCloseTags: true
+                ...editorOptions,
+                mode: 'htmlmixed'
             }),
             css: CodeMirror.fromTextArea(document.getElementById('css-code'), {
-                mode: 'css',
-                theme: 'material-darker',
-                lineNumbers: true
+                ...editorOptions,
+                mode: 'css'
             }),
             js: CodeMirror.fromTextArea(document.getElementById('js-code'), {
-                mode: 'javascript',
-                theme: 'material-darker',
-                lineNumbers: true
+                ...editorOptions,
+                mode: 'javascript'
             })
         };
-        Split(['.editors', '.preview-container'], {
-            sizes: [50, 50],
-            minSize: 300,
-            gutterSize: 5,
-        });
-
-        Split(['.editor-container', '.editor-container', '.editor-container'], {
-            direction: 'vertical',
-            sizes: [33, 33, 34],
-            minSize: 100,
-            gutterSize: 5,
-        });
+        
+        editors.html.setValue('');
+        editors.css.setValue('');
+        editors.js.setValue('');
+        
+        let activeEditor = 'html';
+        let lastRunTime = null;
+        let autoSaveEnabled = true;
+        let statusIndicator = document.getElementById('status-indicator');
+        
+        function updateEditorStats(editor, type) {
+            const content = editor.getValue();
+            const lines = editor.lineCount();
+            const cursor = editor.getCursor();
+            
+            document.getElementById(`${type}-lines`).textContent = lines;
+            document.getElementById(`${type}-chars`).textContent = content.length;
+            document.getElementById(`${type}-cursor`).textContent = `${cursor.line + 1}:${cursor.ch + 1}`;
+        }
+        
+        function setupEditorFocusListeners() {
+            editors.html.on('focus', () => {
+                activeEditor = 'html';
+                document.getElementById('active-editor').textContent = 'HTML';
+            });
+            
+            editors.css.on('focus', () => {
+                activeEditor = 'css';
+                document.getElementById('active-editor').textContent = 'CSS';
+            });
+            
+            editors.js.on('focus', () => {
+                activeEditor = 'js';
+                document.getElementById('active-editor').textContent = 'JavaScript';
+            });
+        }
+        
+        function updatePerformanceIndicator(time) {
+            const fill = document.getElementById('performance-fill');
+            const text = document.getElementById('performance-text');
+            
+            let width = 100;
+            let status = '优';
+            let color = '#4CAF50';
+            
+            if (time > 100) {
+                width = 60;
+                status = '中';
+                color = '#FFC107';
+            }
+            if (time > 300) {
+                width = 30;
+                status = '差';
+                color = '#F44336';
+            }
+            
+            fill.style.width = `${width}%`;
+            fill.style.backgroundColor = color;
+            text.textContent = status;
+            text.style.color = color;
+        }
+        
+        function updateStatusIndicator(status, text) {
+            statusIndicator.className = 'status-indicator ' + status;
+            document.getElementById('status-text').textContent = text;
+        }
+        
+        function setupLayout() {
+            if (window.editorsSplit) window.editorsSplit.destroy();
+            if (window.mainSplit) window.mainSplit.destroy();
+            
+            if (window.innerWidth < 768) {
+                window.editorsSplit = Split(['.editor-container', '.editor-container', '.editor-container'], {
+                    direction: 'vertical',
+                    sizes: [33, 33, 34],
+                    minSize: 100,
+                    gutterSize: 5,
+                });
+            } else {
+                window.mainSplit = Split(['.editors', '.preview-container'], {
+                    sizes: [50, 50],
+                    minSize: 300,
+                    gutterSize: 5,
+                });
+                
+                window.editorsSplit = Split(['.editor-container', '.editor-container', '.editor-container'], {
+                    direction: 'vertical',
+                    sizes: [40, 30, 30],
+                    minSize: 100,
+                    gutterSize: 5,
+                });
+            }
+        }
+        
+        setupLayout();
+        window.addEventListener('resize', setupLayout);
+        
         function runCode() {
+            try {
+                updateStatusIndicator('processing', '运行中...');
+                const startTime = performance.now();
+                
+                const html = editors.html.getValue();
+                const css = editors.css.getValue();
+                const js = editors.js.getValue();
+                
+                const fullHTML = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>${css}</style>
+                    </head>
+                    <body>
+                        ${html}
+                        <script>${js}<\/script>
+                    </body>
+                    </html>
+                `;
+                
+                document.getElementById('preview').srcdoc = fullHTML;
+                
+                setTimeout(() => {
+                    const endTime = performance.now();
+                    const renderTime = Math.round(endTime - startTime);
+                    const pageSize = Math.round(fullHTML.length / 1024 * 100) / 100;
+                    
+                    document.getElementById('render-time').textContent = renderTime;
+                    document.getElementById('page-size').textContent = pageSize;
+                    updatePerformanceIndicator(renderTime);
+                    
+                    lastRunTime = new Date();
+                    document.getElementById('last-run').textContent = lastRunTime.toLocaleTimeString();
+                    
+                    updateStatusIndicator('idle', '运行完成');
+                    updateElementCount();
+                }, 100);
+                
+            } catch (e) {
+                updateStatusIndicator('error', `错误: ${e.message}`);
+                document.getElementById('js-status').textContent = '错误';
+                document.getElementById('js-status').style.color = '#F44336';
+            }
+        }
+        
+        function openNewWindow() {
             const html = editors.html.getValue();
             const css = editors.css.getValue();
             const js = editors.js.getValue();
-
+            
             const fullHTML = `
                 <!DOCTYPE html>
                 <html>
                 <head>
+                    <meta charset="UTF-8">
                     <style>${css}</style>
                 </head>
                 <body>
@@ -212,24 +798,121 @@
                 </body>
                 </html>
             `;
-
-            document.getElementById('preview').srcdoc = fullHTML;
-        }
-        function openNewWindow() {
+            
             const newWindow = window.open();
-            newWindow.document.write(document.getElementById('preview').srcdoc);
+            newWindow.document.write(fullHTML);
+            newWindow.document.close();
         }
+        
+        function resetEditors() {
+            if (confirm('确定要重置所有代码吗？')) {
+                editors.html.setValue('');
+                editors.css.setValue('');
+                editors.js.setValue('');
+                runCode();
+                updateStatusIndicator('idle', '已重置编辑器');
+            }
+        }
+        
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('light-theme');
+            for (const editor of Object.values(editors)) {
+                editor.setOption('theme', isDark ? 'default' : 'material-darker');
+            }
+            document.getElementById('theme-btn').innerHTML = isDark ? 
+                '<i class="fas fa-sun"></i> 亮色' : 
+                '<i class="fas fa-moon"></i> 暗色';
+        }
+        
+        function saveCode() {
+            const code = {
+                html: editors.html.getValue(),
+                css: editors.css.getValue(),
+                js: editors.js.getValue()
+            };
+            localStorage.setItem('savedCode', JSON.stringify(code));
+            updateStatusIndicator('idle', '代码已保存');
+        }
+        
+        function loadCode() {
+            const saved = localStorage.getItem('savedCode');
+            if (saved) {
+                const { html, css, js } = JSON.parse(saved);
+                editors.html.setValue(html);
+                editors.css.setValue(css);
+                editors.js.setValue(js);
+                runCode();
+                updateStatusIndicator('idle', '代码已加载');
+            } else {
+                alert('没有找到保存的代码');
+            }
+        }
+        
+        function formatCode(editor) {
+            editor.execCommand('selectAll');
+            editor.execCommand('indentSelection');
+            updateStatusIndicator('idle', '代码已格式化');
+        }
+        
+        function setupEditorStatsUpdates() {
+            updateEditorStats(editors.html, 'html');
+            updateEditorStats(editors.css, 'css');
+            updateEditorStats(editors.js, 'js');
+            
+            editors.html.on('change', () => updateEditorStats(editors.html, 'html'));
+            editors.css.on('change', () => updateEditorStats(editors.css, 'css'));
+            editors.js.on('change', () => updateEditorStats(editors.js, 'js'));
+            
+            editors.html.on('cursorActivity', () => updateEditorStats(editors.html, 'html'));
+            editors.css.on('cursorActivity', () => updateEditorStats(editors.css, 'css'));
+            editors.js.on('cursorActivity', () => updateEditorStats(editors.js, 'js'));
+        }
+        
+        function updateElementCount() {
+            try {
+                const iframe = document.getElementById('preview');
+                if (iframe.contentDocument) {
+                    const elementCount = iframe.contentDocument.querySelectorAll('*').length;
+                    document.getElementById('element-count').textContent = elementCount;
+                }
+            } catch(e) {
+                console.log('无法获取元素数量:', e);
+            }
+        }
+        
         let timeout;
         function scheduleUpdate() {
             clearTimeout(timeout);
-            timeout = setTimeout(runCode, 500);
+            updateStatusIndicator('processing', '代码修改中...');
+            timeout = setTimeout(() => {
+                runCode();
+            }, 1500);
         }
+        
+        document.getElementById('run-btn').addEventListener('click', runCode);
+        document.getElementById('new-window-btn').addEventListener('click', openNewWindow);
+        document.getElementById('reset-btn').addEventListener('click', resetEditors);
+        document.getElementById('theme-btn').addEventListener('click', toggleTheme);
+        document.getElementById('save-btn').addEventListener('click', saveCode);
+        document.getElementById('load-btn').addEventListener('click', loadCode);
+        document.getElementById('format-btn').addEventListener('click', () => {
+            formatCode(editors.html);
+            formatCode(editors.css);
+            formatCode(editors.js);
+        });
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            document.documentElement.requestFullscreen();
+        });
+        
         editors.html.on('change', scheduleUpdate);
         editors.css.on('change', scheduleUpdate);
         editors.js.on('change', scheduleUpdate);
-        editors.html.setValue('');
-        editors.css.setValue('');
-        editors.js.setValue('');
+        
+        setupEditorFocusListeners();
+        setupEditorStatsUpdates();
+        
+        document.getElementById('preview').addEventListener('load', updateElementCount);
+        
         runCode();
     </script>
 </body>
