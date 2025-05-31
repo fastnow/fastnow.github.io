@@ -4,7 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FastNow 综合站点</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #3498db;
+            --dark-bg: #0f0f12;
+            --dark-card: rgba(23, 23, 28, 0.8);
+            --darker-card: rgba(19, 19, 24, 0.95);
+            --light-text: #f0f5ff;
+            --medium-text: #a0a5b3;
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #00c6ff;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,37 +27,185 @@
         }
 
         body {
-            font-family: '微软雅黑', sans-serif;
-            background-color: #f0f5ff;
+            font-family: 'Inter', '微软雅黑', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
             padding: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.6;
+        }
+        
+        /* 空间背景效果 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(52, 152, 219, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 198, 255, 0.05) 0%, transparent 20%),
+                linear-gradient(135deg, #0c0c12 0%, #161622 100%);
+            z-index: -2;
+        }
+        
+        .geometric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            opacity: 0.5;
+        }
+        
+        .geometric-element {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            animation: float 25s infinite linear;
+        }
+        
+        .geometric-element:nth-child(1) {
+            top: 10%;
+            left: 15%;
+            width: 300px;
+            height: 300px;
+            animation-duration: 40s;
+        }
+        
+        .geometric-element:nth-child(2) {
+            top: 70%;
+            left: 80%;
+            width: 200px;
+            height: 200px;
+            animation-duration: 35s;
+            animation-direction: reverse;
+        }
+        
+        .geometric-element:nth-child(3) {
+            top: 40%;
+            left: 60%;
+            width: 150px;
+            height: 150px;
+            animation-duration: 30s;
+        }
+        
+        .geometric-element:nth-child(4) {
+            top: 20%;
+            left: 75%;
+            width: 250px;
+            height: 250px;
+            animation-duration: 45s;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: rotate(0deg) translate3d(0, 0, 0);
+            }
+            100% {
+                transform: rotate(360deg) translate3d(20px, 50px, 0);
+            }
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+            position: relative;
         }
 
         h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            padding: 20px 0;
-            border-bottom: 2px solid #3498db;
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--light-text), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            color: var(--medium-text);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
         }
 
         .category {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
+            background: var(--darker-card);
+            border-radius: 16px;
+            padding: 25px;
             margin-bottom: 30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 0 0 1px var(--border);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(52, 152, 219, 0.1), transparent 60%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .category:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                0 0 0 1px var(--border),
+                inset 0 0 20px rgba(0, 198, 255, 0.1);
         }
 
         h2 {
-            color: #3498db;
-            margin-bottom: 15px;
-            padding-left: 10px;
-            border-left: 4px solid #3498db;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            color: var(--light-text);
+        }
+        
+        h2 i {
+            margin-right: 12px;
+            color: var(--accent);
+            font-size: 1.4rem;
         }
 
         .links {
@@ -53,37 +216,105 @@
 
         a {
             display: block;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 6px;
+            padding: 15px 20px;
+            background: var(--dark-card);
+            border-radius: 12px;
             text-decoration: none;
-            color: #34495e;
-            transition: all 0.3s ease;
+            color: var(--light-text);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        
+        a i {
+            margin-right: 12px;
+            font-size: 1.2rem;
+            color: var(--accent);
+            transition: var(--transition);
+        }
+
+        a::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0, 198, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.4s ease;
+            z-index: -1;
         }
 
         a:hover {
-            background: #3498db;
-            color: white;
-            transform: translateX(10px);
+            transform: translateX(8px);
+            border-color: rgba(0, 198, 255, 0.3);
+            background: rgba(30, 30, 40, 0.6);
         }
-              .personal-card {
-            background: #fff;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px auto;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 600px;
+        
+        a:hover::before {
+            transform: translateX(0);
+        }
+        
+        a:hover i {
+            transform: scale(1.2);
+        }
+
+        .personal-card {
+            background: var(--darker-card);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px auto;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.3),
+                inset 0 0 0 1px var(--border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            max-width: 700px;
             display: flex;
             align-items: center;
             gap: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .personal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(0, 198, 255, 0.2);
+        }
+        
+        .personal-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(0, 198, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(40%, -40%);
+            pointer-events: none;
         }
 
         .avatar {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            border: 3px solid #3498db;
+            border: 3px solid var(--accent);
             object-fit: cover;
+            background: linear-gradient(45deg, #1a2a6c, #b21f1f, #1a2a6c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            flex-shrink: 0;
         }
 
         .profile-info {
@@ -91,239 +322,372 @@
         }
 
         .username {
-            font-size: 1.4em;
-            color: #2c3e50;
-            margin-bottom: 8px;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+        }
+        
+        .username::after {
+            content: "开发者";
+            font-size: 0.9rem;
+            background: rgba(0, 198, 255, 0.2);
+            color: var(--accent);
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-left: 15px;
         }
 
         .social-links {
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .social-button {
             display: flex;
             align-items: center;
-            padding: 8px 20px;
-            border-radius: 25px;
+            padding: 10px 20px;
+            border-radius: 30px;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            font-weight: 500;
+            border: 1px solid var(--border);
+            background: var(--dark-card);
+            color: var(--light-text);
         }
-
-        .github {
-            background: #24292e;
-            color: white;
-        }
-
+        
         .social-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 198, 255, 0.1);
+            border-color: rgba(0, 198, 255, 0.3);
         }
 
-        .social-button img {
-            width: 20px;
+        .social-button i {
             margin-right: 8px;
-         }
+            font-size: 1.2rem;
+        }
+
         .disabled-link {
             pointer-events: none;
-            color: gray;
+            color: var(--medium-text);
             text-decoration: none;
+            opacity: 0.6;
+        }
+        
+        .notification {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .notification strong {
+            color: #ffc107;
+        }
+        
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.4rem;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .scroll-top.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .scroll-top:hover {
+            background: rgba(0, 198, 255, 0.1);
+            transform: translateY(-5px);
+        }
+        
+        @media (max-width: 768px) {
+            .links {
+                grid-template-columns: 1fr;
+            }
+            
+            .personal-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .social-links {
+                justify-content: center;
+            }
+            
+            .username {
+                justify-content: center;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 3D几何背景 -->
+    <div class="geometric-bg">
+        <div class="geometric-element"></div>
+        <div class="geometric-element"></div>
+        <div class="geometric-element"></div>
+        <div class="geometric-element"></div>
+    </div>
+    
     <div class="container">
-        <h1>欢迎访问 FastNow 综合站点</h1>
-                <div class="category">
-            <h2>公告</h2>
-            <div class="links">
-            <div>当前本人发布的网站仍处于测试阶段，托管于免费主机，可能存在国内访问不稳定的情况。待稳定环境搭建完成后，将第一时间更新所有访问入口。
-                <strong>建议您收藏本页面，以便及时获取最新访问地址。</strong></div>
-            </a>
+        <header>
+            <h1>FastNow 综合站点</h1>
+            <p class="subtitle">© 2025 FastNow Team | BSD 3-Clause</p>
+        </header>
+        
+        <div class="notification">
+            <div><i class="fas fa-exclamation-circle"></i> 当前本人发布的网站仍处于测试阶段，托管于免费主机，可能存在国内访问不稳定的情况。待稳定环境搭建完成后，将第一时间更新所有访问入口。
+                <strong>建议您收藏本页面，以便及时获取最新访问地址。</strong>
             </div>
-                </div>
+        </div>
+        
         <div class="personal-card">
-            <img src="https://avatars.githubusercontent.com/u/177708607" alt="头像" class="avatar">
+            <div class="avatar">
+                <i class="fas fa-user-astronaut"></i>
+            </div>
             <div class="profile-info">
-                <div class="username"></div>
+                <div class="username">FastNow</div>
                 <div class="social-links">
-                    <a href="https://github.com/fastnow" class="social-button github" target="_blank">
-                        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub">
-                        GitHub
+                    <a href="https://github.com/fastnow" class="social-button" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
                     </a>
-                    <a href="https://blog.csdn.net/2301_78143841" class="social-button github" target="_blank">
-                        <img src="https://img.icons8.com/?size=100&id=USRmR82PRih6&format=png&color=000000" alt="CSDN">
-                        CSDN
+                    <a href="https://blog.csdn.net/2301_78143841" class="social-button" target="_blank">
+                        <i class="fab fa-codepen"></i> CSDN
                     </a>
-                    <a href="https://www.cnblogs.com/fastnow" class="social-button github" target="_blank">
-                        <img src="https://images.cnblogs.com/cnblogs_com/blogs/845778/galleries/2457920/t_250515144456_FastNow_20240918_195953_0000.png" alt="博客园">
-                        博客园
+                    <a href="https://www.cnblogs.com/fastnow" class="social-button" target="_blank">
+                        <i class="fas fa-blog"></i> 博客园
                     </a>
                 </div>
             </div>
         </div>
         
         <div class="category">
-            <h2>自制（持续更新）</h2>
+            <h2><i class="fas fa-star"></i> 自制工具（持续更新）</h2>
             <div class="links">
-                <a href="/fm.html" target="_blank">在线FM播放器（持续更新）</a>
-                <a href="/online.html" target="_blank">在线HTML/CSS/JS编辑器</a>
-                <a href="https://fastnow.pages.dev" target="_blank">个人工具网（需科学上网）</a>
-                <a href="https://distant.rf.gd" target="_blank">网易云音乐解析站</a>
-                <a href="https://wenku.rf.gd" target="_blank">名著全文在线阅读</a>
-                <a href="#" target="_blank" class="disabled-link">持续更新</a>
+                <a href="/fm.html" target="_blank"><i class="fas fa-music"></i> 在线FM播放器（持续更新）</a>
+                <a href="/online.html" target="_blank"><i class="fas fa-code"></i> 在线HTML/CSS/JS编辑器</a>
+                <a href="https://fastnow.pages.dev" target="_blank"><i class="fas fa-wrench"></i> 个人工具网（需科学上网）</a>
+                <a href="https://distant.rf.gd" target="_blank"><i class="fas fa-headphones"></i> 网易云音乐解析站</a>
+                <a href="https://wenku.rf.gd" target="_blank"><i class="fas fa-book"></i> 名著全文在线阅读</a>
+                <a href="#" class="disabled-link"><i class="fas fa-plus-circle"></i> 持续更新</a>
             </div>
         </div>
       
-<div class="category">
-    <h2>常用网站</h2>
-    <div class="links">
-        <a href="https://www.baidu.com" target="_blank">百度搜索</a>
-        <a href="https://www.zhihu.com" target="_blank">知乎</a>
-        <a href="https://github.com" target="_blank">GitHub</a>
-        <a href="https://www.bilibili.com" target="_blank">哔哩哔哩</a>
-        <a href="https://www.douban.com" target="_blank">豆瓣</a>
-        <a href="https://weibo.com" target="_blank">微博</a>
-        <a href="https://www.jd.com" target="_blank">京东</a>
-        <a href="https://www.taobao.com" target="_blank">淘宝</a>
-        <a href="https://www.qq.com" target="_blank">腾讯网</a>
-        <a href="https://www.sina.com.cn" target="_blank">新浪</a>
-        <a href="https://www.163.com" target="_blank">网易</a>
-        <a href="https://tieba.baidu.com" target="_blank">贴吧</a>
-        <a href="https://www.xiaohongshu.com" target="_blank">小红书</a>
-        <a href="https://www.douyin.com" target="_blank">抖音</a>
-        <a href="https://www.toutiao.com" target="_blank">今日头条</a>
-        <a href="https://www.zhihu.com" target="_blank">知乎</a>
-        <a href="https://www.ifeng.com" target="_blank">凤凰网</a>
-        <a href="https://www.sohu.com" target="_blank">搜狐</a>
-        <a href="https://www.360.cn" target="_blank">360导航</a>
-        <a href="https://www.tianya.cn" target="_blank">天涯社区</a>
-        <a href="https://www.ithome.com" target="_blank">IT之家</a>
-        <a href="https://www.hupu.com" target="_blank">虎扑</a>
-    </div>
-</div>
+        <div class="category">
+            <h2><i class="fas fa-globe"></i> 常用网站</h2>
+            <div class="links">
+                <a href="https://www.baidu.com" target="_blank"><i class="fas fa-search"></i> 百度搜索</a>
+                <a href="https://www.zhihu.com" target="_blank"><i class="fas fa-question-circle"></i> 知乎</a>
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://www.bilibili.com" target="_blank"><i class="fas fa-play-circle"></i> 哔哩哔哩</a>
+                <a href="https://www.douban.com" target="_blank"><i class="fas fa-film"></i> 豆瓣</a>
+                <a href="https://weibo.com" target="_blank"><i class="fab fa-weibo"></i> 微博</a>
+                <a href="https://www.jd.com" target="_blank"><i class="fas fa-shopping-cart"></i> 京东</a>
+                <a href="https://www.taobao.com" target="_blank"><i class="fas fa-shopping-bag"></i> 淘宝</a>
+                <a href="https://www.qq.com" target="_blank"><i class="fab fa-qq"></i> 腾讯网</a>
+                <a href="https://www.sina.com.cn" target="_blank"><i class="fas fa-newspaper"></i> 新浪</a>
+                <a href="https://www.163.com" target="_blank"><i class="fas fa-envelope"></i> 网易</a>
+                <a href="https://tieba.baidu.com" target="_blank"><i class="fas fa-comments"></i> 贴吧</a>
+                <a href="https://www.xiaohongshu.com" target="_blank"><i class="fas fa-bookmark"></i> 小红书</a>
+                <a href="https://www.douyin.com" target="_blank"><i class="fas fa-video"></i> 抖音</a>
+                <a href="https://www.toutiao.com" target="_blank"><i class="fas fa-font"></i> 今日头条</a>
+                <a href="https://www.ifeng.com" target="_blank"><i class="fas fa-feather-alt"></i> 凤凰网</a>
+                <a href="https://www.sohu.com" target="_blank"><i class="fas fa-tv"></i> 搜狐</a>
+                <a href="https://www.360.cn" target="_blank"><i class="fas fa-shield-alt"></i> 360导航</a>
+                <a href="https://www.tianya.cn" target="_blank"><i class="fas fa-globe-asia"></i> 天涯社区</a>
+                <a href="https://www.ithome.com" target="_blank"><i class="fas fa-laptop-code"></i> IT之家</a>
+                <a href="https://www.hupu.com" target="_blank"><i class="fas fa-basketball-ball"></i> 虎扑</a>
+            </div>
+        </div>
 
-<div class="category">
-    <h2>实用工具</h2>
-    <div class="links">
-        <a href="https://translate.google.com" target="_blank">谷歌翻译</a>
-        <a href="https://smallpdf.com/cn" target="_blank">PDF工具</a>
-        <a href="https://www.processon.com" target="_blank">在线作图</a>
-        <a href="https://tool.lu" target="_blank">在线工具</a>
-        <a href="https://www.remove.bg" target="_blank">AI抠图工具</a>
-        <a href="https://docsmall.com" target="_blank">文件压缩</a>
-        <a href="https://www.excalidraw.com" target="_blank">手绘白板</a>
-        <a href="https://www.draw.io" target="_blank">流程图工具</a>
-        <a href="https://www.kapwing.com" target="_blank">视频剪辑</a>
-        <a href="https://www.trello.com" target="_blank">任务管理</a>
-        <a href="https://www.notion.so" target="_blank">知识管理</a>
-        <a href="https://www.airtable.com" target="_blank">智能表格</a>
-        <a href="https://u.tools" target="_blank">UTools效率工具</a>
-        <a href="https://www.ilovepdf.com" target="_blank">PDF处理</a>
-        <a href="https://www.canva.com" target="_blank">设计模板</a>
-        <a href="https://www.figma.com" target="_blank">协作设计</a>
-        <a href="https://www.iconfont.cn" target="_blank">图标库</a>
-        <a href="https://www.flourish.studio" target="_blank">数据可视化</a>
-        <a href="https://www.screentogif.com" target="_blank">GIF录制</a>
-        <a href="https://www.cowtransfer.com" target="_blank">奶牛快传</a>
-    </div>
-</div>
+        <div class="category">
+            <h2><i class="fas fa-tools"></i> 实用工具</h2>
+            <div class="links">
+                <a href="https://translate.google.com" target="_blank"><i class="fas fa-language"></i> 谷歌翻译</a>
+                <a href="https://smallpdf.com/cn" target="_blank"><i class="fas fa-file-pdf"></i> PDF工具</a>
+                <a href="https://www.processon.com" target="_blank"><i class="fas fa-project-diagram"></i> 在线作图</a>
+                <a href="https://tool.lu" target="_blank"><i class="fas fa-toolbox"></i> 在线工具</a>
+                <a href="https://www.remove.bg" target="_blank"><i class="fas fa-cut"></i> AI抠图工具</a>
+                <a href="https://docsmall.com" target="_blank"><i class="fas fa-compress"></i> 文件压缩</a>
+                <a href="https://www.excalidraw.com" target="_blank"><i class="fas fa-pencil-alt"></i> 手绘白板</a>
+                <a href="https://www.draw.io" target="_blank"><i class="fas fa-sitemap"></i> 流程图工具</a>
+                <a href="https://www.kapwing.com" target="_blank"><i class="fas fa-video"></i> 视频剪辑</a>
+                <a href="https://www.trello.com" target="_blank"><i class="fas fa-tasks"></i> 任务管理</a>
+                <a href="https://www.notion.so" target="_blank"><i class="fas fa-sticky-note"></i> 知识管理</a>
+                <a href="https://www.airtable.com" target="_blank"><i class="fas fa-table"></i> 智能表格</a>
+                <a href="https://u.tools" target="_blank"><i class="fas fa-bolt"></i> UTools效率工具</a>
+                <a href="https://www.ilovepdf.com" target="_blank"><i class="fas fa-file-contract"></i> PDF处理</a>
+                <a href="https://www.canva.com" target="_blank"><i class="fas fa-paint-brush"></i> 设计模板</a>
+                <a href="https://www.figma.com" target="_blank"><i class="fab fa-figma"></i> 协作设计</a>
+                <a href="https://www.iconfont.cn" target="_blank"><i class="fas fa-icons"></i> 图标库</a>
+                <a href="https://www.flourish.studio" target="_blank"><i class="fas fa-chart-line"></i> 数据可视化</a>
+                <a href="https://www.screentogif.com" target="_blank"><i class="fas fa-film"></i> GIF录制</a>
+                <a href="https://www.cowtransfer.com" target="_blank"><i class="fas fa-share-alt"></i> 奶牛快传</a>
+            </div>
+        </div>
 
-<div class="category">
-    <h2>技术开发</h2>
-    <div class="links">
-        <a href="https://vuejs.org" target="_blank">Vue.js</a>
-        <a href="https://reactjs.org" target="_blank">React</a>
-        <a href="https://angular.io" target="_blank">Angular</a>
-        <a href="https://nodejs.org" target="_blank">Node.js</a>
-        <a href="https://www.python.org" target="_blank">Python</a>
-        <a href="https://golang.org" target="_blank">Go语言</a>
-        <a href="https://www.docker.com" target="_blank">Docker</a>
-        <a href="https://kubernetes.io" target="_blank">Kubernetes</a>
-        <a href="https://www.postman.com" target="_blank">Postman</a>
-        <a href="https://stackoverflow.com" target="_blank">Stack Overflow</a>
-        <a href="https://www.git-scm.com" target="_blank">Git文档</a>
-        <a href="https://www.jetbrains.com" target="_blank">JetBrains工具</a>
-        <a href="https://www.npmjs.com" target="_blank">NPM包管理</a>
-        <a href="https://dev.to" target="_blank">开发者社区</a>
-        <a href="https://www.digitalocean.com" target="_blank">DigitalOcean</a>
-        <a href="https://aws.amazon.com" target="_blank">AWS云服务</a>
-        <a href="https://azure.microsoft.com" target="_blank">Azure云平台</a>
-        <a href="https://www.aliyun.com" target="_blank">阿里云</a>
-        <a href="https://www.tencentcloud.com" target="_blank">腾讯云</a>
-    </div>
-</div>
+        <div class="category">
+            <h2><i class="fas fa-laptop-code"></i> 技术开发</h2>
+            <div class="links">
+                <a href="https://vuejs.org" target="_blank"><i class="fab fa-vuejs"></i> Vue.js</a>
+                <a href="https://reactjs.org" target="_blank"><i class="fab fa-react"></i> React</a>
+                <a href="https://angular.io" target="_blank"><i class="fab fa-angular"></i> Angular</a>
+                <a href="https://nodejs.org" target="_blank"><i class="fab fa-node-js"></i> Node.js</a>
+                <a href="https://www.python.org" target="_blank"><i class="fab fa-python"></i> Python</a>
+                <a href="https://golang.org" target="_blank"><i class="fas fa-code"></i> Go语言</a>
+                <a href="https://www.docker.com" target="_blank"><i class="fab fa-docker"></i> Docker</a>
+                <a href="https://kubernetes.io" target="_blank"><i class="fas fa-cube"></i> Kubernetes</a>
+                <a href="https://www.postman.com" target="_blank"><i class="fas fa-paper-plane"></i> Postman</a>
+                <a href="https://stackoverflow.com" target="_blank"><i class="fab fa-stack-overflow"></i> Stack Overflow</a>
+                <a href="https://www.git-scm.com" target="_blank"><i class="fab fa-git-alt"></i> Git文档</a>
+                <a href="https://www.jetbrains.com" target="_blank"><i class="fas fa-jet-fighter"></i> JetBrains工具</a>
+                <a href="https://www.npmjs.com" target="_blank"><i class="fab fa-npm"></i> NPM包管理</a>
+                <a href="https://dev.to" target="_blank"><i class="fas fa-laptop-code"></i> 开发者社区</a>
+                <a href="https://www.digitalocean.com" target="_blank"><i class="fas fa-cloud"></i> DigitalOcean</a>
+                <a href="https://aws.amazon.com" target="_blank"><i class="fab fa-aws"></i> AWS云服务</a>
+                <a href="https://azure.microsoft.com" target="_blank"><i class="fab fa-microsoft"></i> Azure云平台</a>
+                <a href="https://www.aliyun.com" target="_blank"><i class="fas fa-cloud"></i> 阿里云</a>
+                <a href="https://www.tencentcloud.com" target="_blank"><i class="fab fa-tencent-weibo"></i> 腾讯云</a>
+            </div>
+        </div>
 
-<div class="category">
-    <h2>设计资源</h2>
-    <div class="links">
-        <a href="https://www.chuangkit.com" target="_blank">创客贴</a>
-        <a href="https://www.figma.com" target="_blank">Figma</a>
-        <a href="https://www.adobe.com" target="_blank">Adobe全家桶</a>
-        <a href="https://www.iconfont.cn" target="_blank">阿里巴巴图标库</a>
-        <a href="https://www.pexels.com" target="_blank">免费图片素材</a>
-        <a href="https://unsplash.com" target="_blank">高清无版权图片</a>
-        <a href="https://www.zcool.com.cn" target="_blank">站酷</a>
-        <a href="https://www.ui.cn" target="_blank">UI中国</a>
-        <a href="https://www.dribbble.com" target="_blank">Dribbble</a>
-        <a href="https://www.behance.net" target="_blank">Behance</a>
-        <a href="https://www.pinterest.com" target="_blank">Pinterest灵感</a>
-        <a href="https://www.colorhunt.co" target="_blank">配色方案</a>
-        <a href="https://uigradients.com" target="_blank">渐变色生成</a>
-        <a href="https://www.remove.bg" target="_blank">一键抠图</a>
-        <a href="https://www.flaticon.com" target="_blank">矢量图标</a>
-        <a href="https://www.canva.com" target="_blank">在线设计</a>
-        <a href="https://www.kapwing.com" target="_blank">视频模板</a>
-    </div>
-</div>
+        <div class="category">
+            <h2><i class="fas fa-palette"></i> 设计资源</h2>
+            <div class="links">
+                <a href="https://www.chuangkit.com" target="_blank"><i class="fas fa-paint-brush"></i> 创客贴</a>
+                <a href="https://www.figma.com" target="_blank"><i class="fab fa-figma"></i> Figma</a>
+                <a href="https://www.adobe.com" target="_blank"><i class="fas fa-desktop"></i> Adobe全家桶</a>
+                <a href="https://www.iconfont.cn" target="_blank"><i class="fas fa-icons"></i> 阿里巴巴图标库</a>
+                <a href="https://www.pexels.com" target="_blank"><i class="fas fa-image"></i> 免费图片素材</a>
+                <a href="https://unsplash.com" target="_blank"><i class="fas fa-images"></i> 高清无版权图片</a>
+                <a href="https://www.zcool.com.cn" target="_blank"><i class="fas fa-drafting-compass"></i> 站酷</a>
+                <a href="https://www.ui.cn" target="_blank"><i class="fas fa-mobile-alt"></i> UI中国</a>
+                <a href="https://www.dribbble.com" target="_blank"><i class="fab fa-dribbble"></i> Dribbble</a>
+                <a href="https://www.behance.net" target="_blank"><i class="fab fa-behance"></i> Behance</a>
+                <a href="https://www.pinterest.com" target="_blank"><i class="fab fa-pinterest"></i> Pinterest灵感</a>
+                <a href="https://www.colorhunt.co" target="_blank"><i class="fas fa-fill-drip"></i> 配色方案</a>
+                <a href="https://uigradients.com" target="_blank"><i class="fas fa-gradient"></i> 渐变色生成</a>
+                <a href="https://www.remove.bg" target="_blank"><i class="fas fa-cut"></i> 一键抠图</a>
+                <a href="https://www.flaticon.com" target="_blank"><i class="fas fa-vector-square"></i> 矢量图标</a>
+                <a href="https://www.canva.com" target="_blank"><i class="fas fa-object-group"></i> 在线设计</a>
+                <a href="https://www.kapwing.com" target="_blank"><i class="fas fa-video"></i> 视频模板</a>
+            </div>
+        </div>
 
-<div class="category">
-    <h2>效率工具</h2>
-    <div class="links">
-        <a href="https://www.notion.so" target="_blank">Notion</a>
-        <a href="https://www.flowus.cn" target="_blank">FlowUs息流</a>
-        <a href="https://www.wolai.com" target="_blank">我来笔记</a>
-        <a href="https://www.yuque.com" target="_blank">语雀文档</a>
-        <a href="https://www.xmind.cn" target="_blank">思维导图</a>
-        <a href="https://trello.com" target="_blank">Trello看板</a>
-        <a href="https://www.airtable.com" target="_blank">Airtable表格</a>
-        <a href="https://www.feishu.cn" target="_blank">飞书协作</a>
-        <a href="https://www.grammarly.com" target="_blank">英文语法检查</a>
-        <a href="https://www.deepl.com" target="_blank">DeepL翻译</a>
-        <a href="https://www.eagle.cool" target="_blank">素材管理</a>
-        <a href="https://www.snipaste.com" target="_blank">截图工具</a>
-        <a href="https://www.quicker.cn" target="_blank">快捷指令库</a>
-        <a href="https://www.listary.com" target="_blank">文件搜索</a>
-        <a href="https://www.raindrop.io" target="_blank">书签管理</a>
-    </div>
-</div>
+        <div class="category">
+            <h2><i class="fas fa-rocket"></i> 效率工具</h2>
+            <div class="links">
+                <a href="https://www.notion.so" target="_blank"><i class="fas fa-sticky-note"></i> Notion</a>
+                <a href="https://www.flowus.cn" target="_blank"><i class="fas fa-stream"></i> FlowUs息流</a>
+                <a href="https://www.wolai.com" target="_blank"><i class="fas fa-book"></i> 我来笔记</a>
+                <a href="https://www.yuque.com" target="_blank"><i class="fas fa-feather-alt"></i> 语雀文档</a>
+                <a href="https://www.xmind.cn" target="_blank"><i class="fas fa-brain"></i> 思维导图</a>
+                <a href="https://trello.com" target="_blank"><i class="fas fa-columns"></i> Trello看板</a>
+                <a href="https://www.airtable.com" target="_blank"><i class="fas fa-table"></i> Airtable表格</a>
+                <a href="https://www.feishu.cn" target="_blank"><i class="fas fa-comments"></i> 飞书协作</a>
+                <a href="https://www.grammarly.com" target="_blank"><i class="fas fa-spell-check"></i> 英文语法检查</a>
+                <a href="https://www.deepl.com" target="_blank"><i class="fas fa-language"></i> DeepL翻译</a>
+                <a href="https://www.eagle.cool" target="_blank"><i class="fas fa-folder-open"></i> 素材管理</a>
+                <a href="https://www.snipaste.com" target="_blank"><i class="fas fa-camera"></i> 截图工具</a>
+                <a href="https://www.quicker.cn" target="_blank"><i class="fas fa-bolt"></i> 快捷指令库</a>
+                <a href="https://www.listary.com" target="_blank"><i class="fas fa-search"></i> 文件搜索</a>
+                <a href="https://www.raindrop.io" target="_blank"><i class="fas fa-bookmark"></i> 书签管理</a>
+            </div>
+        </div>
 
-<div class="category">
-    <h2>学习资源</h2>
-    <div class="links">
-        <a href="https://www.w3schools.com" target="_blank">W3Schools</a>
-        <a href="https://www.runoob.com" target="_blank">菜鸟教程</a>
-        <a href="https://www.liaoxuefeng.com" target="_blank">廖雪峰教程</a>
-        <a href="https://leetcode.cn" target="_blank">力扣</a>
-        <a href="https://www.coursera.org" target="_blank">Coursera</a>
-        <a href="https://www.edx.org" target="_blank">edX</a>
-        <a href="https://www.udemy.com" target="_blank">Udemy</a>
-        <a href="https://www.khanacademy.org" target="_blank">可汗学院</a>
-        <a href="https://developer.mozilla.org" target="_blank">MDN Web Docs</a>
-        <a href="https://www.imooc.com" target="_blank">慕课网</a>
-        <a href="https://www.codecademy.com" target="_blank">Codecademy</a>
-        <a href="https://www.freecodecamp.org" target="_blank">freeCodeCamp</a>
-        <a href="https://www.datacamp.com" target="_blank">DataCamp</a>
-        <a href="https://www.udacity.com" target="_blank">优达学城</a>
-        <a href="https://www.pluralsight.com" target="_blank">Pluralsight</a>
-        <a href="https://www.oreilly.com" target="_blank">O'Reilly</a>
-        <a href="https://www.ted.com" target="_blank">TED演讲</a>
-        <a href="https://www.cnki.net" target="_blank">中国知网</a>
-        <a href="https://www.wanfangdata.com.cn" target="_blank">万方数据</a>
-        <a href="https://xueshu.baidu.com" target="_blank">百度学术</a>
-        <a href="https://scholar.google.com" target="_blank">Google学术</a>
+        <div class="category">
+            <h2><i class="fas fa-graduation-cap"></i> 学习资源</h2>
+            <div class="links">
+                <a href="https://www.w3schools.com" target="_blank"><i class="fab fa-html5"></i> W3Schools</a>
+                <a href="https://www.runoob.com" target="_blank"><i class="fas fa-book"></i> 菜鸟教程</a>
+                <a href="https://www.liaoxuefeng.com" target="_blank"><i class="fas fa-user-graduate"></i> 廖雪峰教程</a>
+                <a href="https://leetcode.cn" target="_blank"><i class="fas fa-code"></i> 力扣</a>
+                <a href="https://www.coursera.org" target="_blank"><i class="fas fa-university"></i> Coursera</a>
+                <a href="https://www.edx.org" target="_blank"><i class="fas fa-graduation-cap"></i> edX</a>
+                <a href="https://www.udemy.com" target="_blank"><i class="fas fa-video"></i> Udemy</a>
+                <a href="https://www.khanacademy.org" target="_blank"><i class="fas fa-chalkboard-teacher"></i> 可汗学院</a>
+                <a href="https://developer.mozilla.org" target="_blank"><i class="fab fa-firefox"></i> MDN Web Docs</a>
+                <a href="https://www.imooc.com" target="_blank"><i class="fas fa-laptop"></i> 慕课网</a>
+                <a href="https://www.codecademy.com" target="_blank"><i class="fas fa-laptop-code"></i> Codecademy</a>
+                <a href="https://www.freecodecamp.org" target="_blank"><i class="fas fa-campground"></i> freeCodeCamp</a>
+                <a href="https://www.datacamp.com" target="_blank"><i class="fas fa-chart-bar"></i> DataCamp</a>
+                <a href="https://www.udacity.com" target="_blank"><i class="fas fa-microchip"></i> 优达学城</a>
+                <a href="https://www.pluralsight.com" target="_blank"><i class="fas fa-eye"></i> Pluralsight</a>
+                <a href="https://www.oreilly.com" target="_blank"><i class="fas fa-book-open"></i> O'Reilly</a>
+                <a href="https://www.ted.com" target="_blank"><i class="fas fa-comment"></i> TED演讲</a>
+                <a href="https://www.cnki.net" target="_blank"><i class="fas fa-file-alt"></i> 中国知网</a>
+                <a href="https://www.wanfangdata.com.cn" target="_blank"><i class="fas fa-database"></i> 万方数据</a>
+                <a href="https://xueshu.baidu.com" target="_blank"><i class="fas fa-search"></i> 百度学术</a>
+                <a href="https://scholar.google.com" target="_blank"><i class="fab fa-google"></i> Google学术</a>
+            </div>
+        </div>
     </div>
-</div>
+    
+    <div class="scroll-top" id="scrollTop">
+        <i class="fas fa-arrow-up"></i>
     </div>
+    
+    <script>
+        const scrollTop = document.getElementById('scrollTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTop.classList.add('active');
+            } else {
+                scrollTop.classList.remove('active');
+            }
+        });
+        
+        scrollTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        const cards = document.querySelectorAll('.category');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+        
+        document.querySelectorAll('.category, .personal-card').forEach((el, index) => {
+            el.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
 </body>
 </html>
