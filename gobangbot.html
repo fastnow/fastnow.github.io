@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>五子棋AI对战</title>
+    <title>五子棋AI</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -80,29 +80,6 @@
             font-weight: bold;
         }
         
-        .score-container {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            max-width: 400px;
-            margin: 10px 0;
-        }
-        
-        .score {
-            text-align: center;
-            padding: 5px 10px;
-            border-radius: 5px;
-            background-color: #eee;
-        }
-        
-        .player-score {
-            border: 2px solid #000;
-        }
-        
-        .ai-score {
-            border: 2px solid #888;
-        }
-        
         @media (max-width: 500px) {
             h1 {
                 font-size: 1.2rem;
@@ -116,19 +93,8 @@
     </style>
 </head>
 <body>
-    <h1>五子棋AI对战</h1>
+    <h1>五子棋AI</h1>
     <div class="status" id="status">黑棋回合</div>
-    
-    <div class="score-container">
-        <div class="score player-score">
-            <div>玩家(黑)</div>
-            <div id="playerScore">0</div>
-        </div>
-        <div class="score ai-score">
-            <div>AI(白)</div>
-            <div id="aiScore">0</div>
-        </div>
-    </div>
     
     <div class="controls">
         <button id="newGameBtn">新游戏</button>
@@ -147,10 +113,6 @@
         let currentPlayer = BLACK;
         let gameHistory = [];
         let gameActive = true;
-        
-        // 评分系统
-        let playerScore = 0;
-        let aiScore = 0;
         
         function initBoard() {
             const boardElement = document.getElementById('board');
@@ -194,45 +156,23 @@
             
             if (checkWin(row, col)) {
                 gameActive = false;
-                const winner = currentPlayer === BLACK ? '玩家(黑棋)' : 'AI(白棋)';
-                document.getElementById('status').textContent = `${winner}胜利！`;
-                
-                // 更新分数 (参考中国围棋协会五子棋等级分制度)
-                if (currentPlayer === BLACK) {
-                    playerScore += 30; // 玩家胜利
-                    aiScore = Math.max(0, aiScore - 10); // AI扣分
-                } else {
-                    aiScore += 30; // AI胜利
-                    playerScore = Math.max(0, playerScore - 10); // 玩家扣分
-                }
-                updateScores();
+                document.getElementById('status').textContent = currentPlayer === BLACK ? '黑棋胜利！' : '白棋胜利！';
                 return;
             }
             
             if (isBoardFull()) {
                 gameActive = false;
                 document.getElementById('status').textContent = '平局！';
-                
-                // 平局各得10分
-                playerScore += 10;
-                aiScore += 10;
-                updateScores();
                 return;
             }
             
             currentPlayer = -currentPlayer;
-            document.getElementById('status').textContent = currentPlayer === BLACK ? '玩家回合(黑棋)' : 'AI思考中...';
+            document.getElementById('status').textContent = currentPlayer === BLACK ? '黑棋回合' : '白棋回合';
             document.getElementById('undoBtn').disabled = false;
             
-            // AI自动走棋
             if (currentPlayer === WHITE) {
-                setTimeout(aiMove, 500);
+                setTimeout(aiMove, 300);
             }
-        }
-        
-        function updateScores() {
-            document.getElementById('playerScore').textContent = playerScore;
-            document.getElementById('aiScore').textContent = aiScore;
         }
         
         function isBoardFull() {
@@ -283,17 +223,14 @@
         }
         
         function findOffensiveMove() {
-            const doubleThree = findDoubleThree();
-            if (doubleThree) return doubleThree;
+            const doubleFour = findDoubleFour();
+            if (doubleFour) return doubleFour;
             
             const threeAndFour = findThreeAndFour();
             if (threeAndFour) return threeAndFour;
             
-            const doubleFour = findDoubleFour();
-            if (doubleFour) return doubleFour;
-            
-            const forkMove = findForkMove();
-            if (forkMove) return forkMove;
+            const doubleThree = findDoubleThree();
+            if (doubleThree) return doubleThree;
             
             return null;
         }
@@ -303,11 +240,11 @@
             
             for (let i = 0; i < BOARD_SIZE; i++) {
                 for (let j = 0; j < BOARD_SIZE; j++) {
-                    if (board[i][j] === EMPTY) {
+                    if (board[i][j] === EMPTY && hasAdjacentStone(i, j)) {
                         board[i][j] = WHITE;
                         
                         let threeCount = 0;
-                        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                        const directions = [[0,1],[1,0],[1,1],[1,-1]];
                         
                         for (const [dx, dy] of directions) {
                             if (countOpenLine(i, j, dx, dy, WHITE) === 3) {
@@ -335,12 +272,12 @@
         function findThreeAndFour() {
             for (let i = 0; i < BOARD_SIZE; i++) {
                 for (let j = 0; j < BOARD_SIZE; j++) {
-                    if (board[i][j] === EMPTY) {
+                    if (board[i][j] === EMPTY && hasAdjacentStone(i, j)) {
                         board[i][j] = WHITE;
                         
                         let hasThree = false;
                         let hasFour = false;
-                        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                        const directions = [[0,1],[1,0],[1,1],[1,-1]];
                         
                         for (const [dx, dy] of directions) {
                             const count = countOpenLine(i, j, dx, dy, WHITE);
@@ -363,11 +300,11 @@
         function findDoubleFour() {
             for (let i = 0; i < BOARD_SIZE; i++) {
                 for (let j = 0; j < BOARD_SIZE; j++) {
-                    if (board[i][j] === EMPTY) {
+                    if (board[i][j] === EMPTY && hasAdjacentStone(i, j)) {
                         board[i][j] = WHITE;
                         
                         let fourCount = 0;
-                        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                        const directions = [[0,1],[1,0],[1,1],[1,-1]];
                         
                         for (const [dx, dy] of directions) {
                             if (countOpenLine(i, j, dx, dy, WHITE) === 4) {
@@ -385,62 +322,6 @@
             }
             
             return null;
-        }
-        
-        function findForkMove() {
-            const candidates = [];
-            
-            for (let i = 0; i < BOARD_SIZE; i++) {
-                for (let j = 0; j < BOARD_SIZE; j++) {
-                    if (board[i][j] === EMPTY) {
-                        board[i][j] = WHITE;
-                        
-                        let threats = 0;
-                        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
-                        
-                        for (const [dx, dy] of directions) {
-                            const line = getLine(i, j, dx, dy);
-                            if (isPotentialThreat(line, WHITE)) threats++;
-                        }
-                        
-                        board[i][j] = EMPTY;
-                        
-                        if (threats >= 2) {
-                            candidates.push({row: i, col: j, score: threats});
-                        }
-                    }
-                }
-            }
-            
-            if (candidates.length > 0) {
-                candidates.sort((a, b) => b.score - a.score);
-                return candidates[0];
-            }
-            
-            return null;
-        }
-        
-        function isPotentialThreat(line, player) {
-            const str = line.map(c => c === player ? '1' : c === EMPTY ? '0' : '2').join('');
-            const patterns = [
-                '01110', '011100', '011010', '010110', '011110', '01111', '11110'
-            ];
-            
-            return patterns.some(p => str.includes(p));
-        }
-        
-        function getLine(row, col, dx, dy) {
-            const line = [];
-            for (let step = -4; step <= 4; step++) {
-                const r = row + step * dx;
-                const c = col + step * dy;
-                if (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE) {
-                    line.push(board[r][c]);
-                } else {
-                    line.push(-player); 
-                }
-            }
-            return line;
         }
         
         function countOpenLine(row, col, dx, dy, player) {
@@ -482,7 +363,7 @@
             
             for (let i = 0; i < BOARD_SIZE; i++) {
                 for (let j = 0; j < BOARD_SIZE; j++) {
-                    if (board[i][j] === EMPTY) {
+                    if (board[i][j] === EMPTY && hasAdjacentStone(i, j)) {
                         const score = evaluatePosition(i, j);
                         
                         if (score > bestScore) {
@@ -499,19 +380,23 @@
                 return bestMoves[Math.floor(Math.random() * bestMoves.length)];
             }
             
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j] === EMPTY) {
+                        return {row: i, col: j};
+                    }
+                }
+            }
+            
             return null;
         }
         
         function evaluatePosition(row, col) {
             let score = 0;
             
-            if (hasAdjacentStone(row, col)) {
-                score += 10;
-            }
-            
             board[row][col] = WHITE;
-            score += evaluatePattern(row, col, WHITE) * 120;
-            score += evaluatePattern(row, col, BLACK) * 100;
+            score += evaluatePattern(row, col, WHITE) * 100;
+            score += evaluatePattern(row, col, BLACK) * 90;
             board[row][col] = EMPTY;
             
             const centerDist = Math.abs(row - 7) + Math.abs(col - 7);
@@ -521,7 +406,7 @@
         }
         
         function evaluatePattern(row, col, player) {
-            const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+            const directions = [[0,1],[1,0],[1,1],[1,-1]];
             let totalScore = 0;
             
             for (const [dx, dy] of directions) {
@@ -531,7 +416,6 @@
                 
                 for (let sign = -1; sign <= 1; sign += 2) {
                     let blocked = false;
-                    let currentOpen = true;
                     
                     for (let step = 1; step <= 4; step++) {
                         const r = row + sign * step * dx;
@@ -545,7 +429,7 @@
                         if (board[r][c] === player) {
                             count++;
                         } else if (board[r][c] === EMPTY) {
-                            if (currentOpen) openEnds++;
+                            openEnds++;
                             break;
                         } else {
                             blocked = true;
@@ -576,8 +460,8 @@
         }
         
         function hasAdjacentStone(row, col) {
-            for (let i = Math.max(0, row - 2); i <= Math.min(BOARD_SIZE - 1, row + 2); i++) {
-                for (let j = Math.max(0, col - 2); j <= Math.min(BOARD_SIZE - 1, col + 2); j++) {
+            for (let i = Math.max(0, row - 1); i <= Math.min(BOARD_SIZE - 1, row + 1); i++) {
+                for (let j = Math.max(0, col - 1); j <= Math.min(BOARD_SIZE - 1, col + 1); j++) {
                     if ((i !== row || j !== col) && board[i][j] !== EMPTY) {
                         return true;
                     }
@@ -605,7 +489,7 @@
         
         function checkWin(row, col) {
             const player = board[row][col];
-            const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+            const directions = [[0,1],[1,0],[1,1],[1,-1]];
             
             for (const [dx, dy] of directions) {
                 let count = 1;
@@ -650,11 +534,8 @@
             currentPlayer = lastState.player;
             
             updateBoard();
-            document.getElementById('status').textContent = currentPlayer === BLACK ? '玩家回合(黑棋)' : 'AI思考中...';
-            
-            if (gameHistory.length === 0) {
-                document.getElementById('undoBtn').disabled = true;
-            }
+            document.getElementById('status').textContent = currentPlayer === BLACK ? '黑棋回合' : '白棋回合';
+            document.getElementById('undoBtn').disabled = gameHistory.length === 0;
         }
         
         function newGame() {
@@ -664,7 +545,7 @@
             gameActive = true;
             
             updateBoard();
-            document.getElementById('status').textContent = '玩家回合(黑棋)';
+            document.getElementById('status').textContent = '黑棋回合';
             document.getElementById('undoBtn').disabled = true;
         }
         
@@ -680,6 +561,6 @@
     </script>
 <footer style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
     &copy; 2025 FastNow Studio
-</footer>
+  </footer>
 </body>
 </html>
