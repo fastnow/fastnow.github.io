@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋AI</title>
+    <meta name="copyright" content="Copyright 2025 FastNow Studio">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            margin: 10px 0;
+            font-size: 1.5rem;
+        }
+        
+        .controls {
+            margin: 10px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+        }
+        
+        #board {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1/1;
+            background-color: #e6c88c;
+            border: 2px solid #8B4513;
+        }
+        
+        .cell {
+            border: 1px solid #8B4513;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .stone {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            top: 10%;
+            left: 10%;
+        }
+        
+        .black {
+            background: radial-gradient(circle at 30% 30%, #666, #000);
+        }
+        
+        .white {
+            background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+        }
+        
+        .status {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            button {
+                padding: 6px 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>五子棋AI</h1>
+    <div class="status" id="status">黑棋回合</div>
+    
+    <div class="controls">
+        <button id="newGameBtn">新游戏</button>
+        <button id="undoBtn" disabled>悔棋</button>
+        <button id="aiMoveBtn">AI走棋</button>
+        <button id="autoPlayBtn">自动对战</button>
+    </div>
+    
+    <div id="board"></div>
+    
+    <script>
+        const BOARD_SIZE = 15;
+        const EMPTY = 0;
+        const BLACK = 1;
+        const WHITE = -1;
+        
+        let board = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(EMPTY));
+        let currentPlayer = BLACK;
+        let gameHistory = [];
+        let gameActive = true;
+        let autoPlayInterval = null;
+        
+        function initBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    
+                    if ((i === 3 || i === 7 || i === 11) && (j === 3 || j === 7 || j === 11)) {
+                        const star = document.createElement('div');
+                        star.style.width = '4px';
+                        star.style.height = '4px';
+                        star.style.backgroundColor = '#000';
+                        star.style.borderRadius = '50%';
+                        star.style.position = 'absolute';
+                        star.style.top = '48%';
+                        star.style.left = '48%';
+                        cell.appendChild(star);
+                    }
+                    
+                    cell.addEventListener('click', () => makeMove(i, j));
+                    boardElement.appendChild(cell);
+                }
+            }
+        }
+        
+        function makeMove(row, col) {
+            if (!gameActive || board[row][col] !== EMPTY) return;
+            
+            gameHistory.push({
+                board: JSON.parse(JSON.stringify(board)),
+                player: currentPlayer
+            });
+            
+            board[row][col] = currentPlayer;
+            updateBoard();
+            
+            if (checkWin(row, col)) {
+                gameActive = false;
+                document.getElementById('status').textContent = currentPlayer === BLACK ? '黑棋胜利！' : '白棋胜利！';
+                stopAutoPlay();
+                return;
+            }
+            
+            if (isBoardFull()) {
+                gameActive = false;
+                document.getElementById('status').textContent = '平局！';
+                stopAutoPlay();
+                return;
+            }
+            
+            currentPlayer = -currentPlayer;
+            document.getElementById('status').textContent = currentPlayer === BLACK ? '黑棋回合' : '白棋回合';
+            document.getElementById('undoBtn').disabled = false;
+            
+            if (autoPlayInterval && currentPlayer === WHITE) {
+                setTimeout(aiMove, 500);
+            }
+        }
+        
+        function isBoardFull() {
+            return board.every(row => row.every(cell => cell !== EMPTY));
+        }
+        
+        function aiMove() {
+            if (!gameActive || currentPlayer !== WHITE) return;
+            
+            const winningMove = findWinningMove(WHITE);
+            if (winningMove) {
+                setTimeout(() => makeMove(winningMove.row, winningMove.col), 300);
+                return;
+            }
+            
+            const blockingMove = findWinningMove(BLACK);
+            if (blockingMove) {
+                setTimeout(() => makeMove(blockingMove.row, blockingMove.col), 300);
+                return;
+            }
+            
+            const offensiveMove = findOffensiveMove();
+            if (offensiveMove) {
+                setTimeout(() => makeMove(offensiveMove.row, offensiveMove.col), 300);
+                return;
+            }
+            
+            const bestMove = findBestMove();
+            if (bestMove) {
+                setTimeout(() => makeMove(bestMove.row, bestMove.col), 300);
+            }
+        }
+        
+        function findWinningMove(player) {
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j] === EMPTY) {
+                        board[i][j] = player;
+                        if (checkWin(i, j)) {
+                            board[i][j] = EMPTY;
+                            return {row: i, col: j};
+                        }
+                        board[i][j] = EMPTY;
+                    }
+                }
+            }
+            return null;
+        }
+        
+        function findOffensiveMove() {
+            const doubleThree = findDoubleThree();
+            if (doubleThree) return doubleThree;
+            
+            const threeAndFour = findThreeAndFour();
+            if (threeAndFour) return threeAndFour;
+            
+            const doubleFour = findDoubleFour();
+            if (doubleFour) return doubleFour;
+            
+            const forkMove = findForkMove();
+            if (forkMove) return forkMove;
+            
+            return null;
+        }
+        
+        function findDoubleThree() {
+            const candidates = [];
+            
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j] === EMPTY) {
+                        board[i][j] = WHITE;
+                        
+                        let threeCount = 0;
+                        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                        
+                        for (const [dx, dy] of directions) {
+                            if (countOpenLine(i, j, dx, dy, WHITE) === 3) {
+                                threeCount++;
+                            }
+                        }
+                        
+                        if (threeCount >= 2) {
+                            candidates.push({row: i, col: j, score: threeCount});
+                        }
+                        
+                        board[i][j] = EMPTY;
+                    }
+                }
+            }
+            
+            if (candidates.length > 0) {
+                candidates.sort((a, b) => b.score - a.score);
+                return candidates[0];
+            }
+            
+            return null;
+        }
+        
+        function findThreeAndFour() {
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j] === EMPTY) {
+                        board[i][j] = WHITE;
+                        
+                        let hasThree = false;
+                        let hasFour = false;
+                        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                        
+                        for (const [dx, dy] of directions) {
+                            const count = countOpenLine(i, j, dx, dy, WHITE);
+                            if (count === 3) hasThree = true;
+                            if (count === 4) hasFour = true;
+                        }
+                        
+                        board[i][j] = EMPTY;
+                        
+                        if (hasThree && hasFour) {
+                            return {row: i, col: j};
+                        }
+                    }
+                }
+            }
+            
+            return null;
+        }
+        
+        function findDoubleFour() {
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j] === EMPTY) {
+                        board[i][j] = WHITE;
+                        
+                        let fourCount = 0;
+                        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                        
+                        for (const [dx, dy] of directions) {
+                            if (countOpenLine(i, j, dx, dy, WHITE) === 4) {
+                                fourCount++;
+                            }
+                        }
+                        
+                        board[i][j] = EMPTY;
+                        
+                        if (fourCount >= 2) {
+                            return {row: i, col: j};
+                        }
+                    }
+                }
+            }
+            
+            return null;
+        }
+        
+        function findForkMove() {
+            const candidates = [];
+            
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j] === EMPTY) {
+                        board[i][j] = WHITE;
+                        
+                        let threats = 0;
+                        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                        
+                        for (const [dx, dy] of directions) {
+                            const line = getLine(i, j, dx, dy);
+                            if (isPotentialThreat(line, WHITE)) threats++;
+                        }
+                        
+                        board[i][j] = EMPTY;
+                        
+                        if (threats >= 2) {
+                            candidates.push({row: i, col: j, score: threats});
+                        }
+                    }
+                }
+            }
+            
+            if (candidates.length > 0) {
+                candidates.sort((a, b) => b.score - a.score);
+                return candidates[0];
+            }
+            
+            return null;
+        }
+        
+        function isPotentialThreat(line, player) {
+            const str = line.map(c => c === player ? '1' : c === EMPTY ? '0' : '2').join('');
+            const patterns = [
+                '01110', '011100', '011010', '010110', '011110', '01111', '11110'
+            ];
+            
+            return patterns.some(p => str.includes(p));
+        }
+        
+        function getLine(row, col, dx, dy) {
+            const line = [];
+            for (let step = -4; step <= 4; step++) {
+                const r = row + step * dx;
+                const c = col + step * dy;
+                if (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE) {
+                    line.push(board[r][c]);
+                } else {
+                    line.push(-player); 
+                }
+            }
+            return line;
+        }
+        
+        function countOpenLine(row, col, dx, dy, player) {
+            let count = 1;
+            
+            for (let sign = -1; sign <= 1; sign += 2) {
+                let open = true;
+                
+                for (let step = 1; step <= 4; step++) {
+                    const r = row + sign * step * dx;
+                    const c = col + sign * step * dy;
+                    
+                    if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) {
+                        open = false;
+                        break;
+                    }
+                    
+                    if (board[r][c] === player) {
+                        count++;
+                    } else if (board[r][c] === EMPTY) {
+                        break;
+                    } else {
+                        open = false;
+                        break;
+                    }
+                }
+                
+                if (!open) {
+                    count = Math.max(0, count - 1);
+                }
+            }
+            
+            return count;
+        }
+        
+        function findBestMove() {
+            let bestScore = -Infinity;
+            let bestMoves = [];
+            
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j] === EMPTY) {
+                        const score = evaluatePosition(i, j);
+                        
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestMoves = [{row: i, col: j}];
+                        } else if (score === bestScore) {
+                            bestMoves.push({row: i, col: j});
+                        }
+                    }
+                }
+            }
+            
+            if (bestMoves.length > 0) {
+                return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+            }
+            
+            return null;
+        }
+        
+        function evaluatePosition(row, col) {
+            let score = 0;
+            
+            if (hasAdjacentStone(row, col)) {
+                score += 10;
+            }
+            
+            board[row][col] = WHITE;
+            score += evaluatePattern(row, col, WHITE) * 120;
+            score += evaluatePattern(row, col, BLACK) * 100;
+            board[row][col] = EMPTY;
+            
+            const centerDist = Math.abs(row - 7) + Math.abs(col - 7);
+            score += (14 - centerDist) * 2;
+            
+            return score;
+        }
+        
+        function evaluatePattern(row, col, player) {
+            const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+            let totalScore = 0;
+            
+            for (const [dx, dy] of directions) {
+                let score = 0;
+                let openEnds = 0;
+                let count = 1;
+                
+                for (let sign = -1; sign <= 1; sign += 2) {
+                    let blocked = false;
+                    let currentOpen = true;
+                    
+                    for (let step = 1; step <= 4; step++) {
+                        const r = row + sign * step * dx;
+                        const c = col + sign * step * dy;
+                        
+                        if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) {
+                            blocked = true;
+                            break;
+                        }
+                        
+                        if (board[r][c] === player) {
+                            count++;
+                        } else if (board[r][c] === EMPTY) {
+                            if (currentOpen) openEnds++;
+                            break;
+                        } else {
+                            blocked = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!blocked) openEnds++;
+                }
+                
+                if (count >= 5) {
+                    score += 10000;
+                } else if (count === 4) {
+                    if (openEnds >= 1) score += 1000;
+                    if (openEnds >= 2) score += 3000;
+                } else if (count === 3) {
+                    if (openEnds >= 1) score += 100;
+                    if (openEnds >= 2) score += 500;
+                } else if (count === 2) {
+                    if (openEnds >= 1) score += 10;
+                    if (openEnds >= 2) score += 30;
+                }
+                
+                totalScore += score;
+            }
+            
+            return totalScore;
+        }
+        
+        function hasAdjacentStone(row, col) {
+            for (let i = Math.max(0, row - 2); i <= Math.min(BOARD_SIZE - 1, row + 2); i++) {
+                for (let j = Math.max(0, col - 2); j <= Math.min(BOARD_SIZE - 1, col + 2); j++) {
+                    if ((i !== row || j !== col) && board[i][j] !== EMPTY) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        function updateBoard() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                
+                const existingStone = cell.querySelector('.stone');
+                if (existingStone) existingStone.remove();
+                
+                if (board[row][col] !== EMPTY) {
+                    const stone = document.createElement('div');
+                    stone.className = `stone ${board[row][col] === BLACK ? 'black' : 'white'}`;
+                    cell.appendChild(stone);
+                }
+            });
+        }
+        
+        function checkWin(row, col) {
+            const player = board[row][col];
+            const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+            
+            for (const [dx, dy] of directions) {
+                let count = 1;
+                
+                for (let i = 1; i < 5; i++) {
+                    const newRow = row + i * dx;
+                    const newCol = col + i * dy;
+                    
+                    if (newRow >= 0 && newRow < BOARD_SIZE && 
+                        newCol >= 0 && newCol < BOARD_SIZE && 
+                        board[newRow][newCol] === player) {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                for (let i = 1; i < 5; i++) {
+                    const newRow = row - i * dx;
+                    const newCol = col - i * dy;
+                    
+                    if (newRow >= 0 && newRow < BOARD_SIZE && 
+                        newCol >= 0 && newCol < BOARD_SIZE && 
+                        board[newRow][newCol] === player) {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                if (count >= 5) return true;
+            }
+            
+            return false;
+        }
+        
+        function undo() {
+            if (gameHistory.length === 0) return;
+            
+            const lastState = gameHistory.pop();
+            board = lastState.board;
+            currentPlayer = lastState.player;
+            
+            updateBoard();
+            document.getElementById('status').textContent = currentPlayer === BLACK ? '黑棋回合' : '白棋回合';
+            
+            if (gameHistory.length === 0) {
+                document.getElementById('undoBtn').disabled = true;
+            }
+        }
+        
+        function newGame() {
+            board = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(EMPTY));
+            currentPlayer = BLACK;
+            gameHistory = [];
+            gameActive = true;
+            
+            updateBoard();
+            document.getElementById('status').textContent = '黑棋回合';
+            document.getElementById('undoBtn').disabled = true;
+            stopAutoPlay();
+        }
+        
+        function toggleAutoPlay() {
+            if (autoPlayInterval) {
+                stopAutoPlay();
+                document.getElementById('autoPlayBtn').textContent = '自动对战';
+            } else {
+                startAutoPlay();
+                document.getElementById('autoPlayBtn').textContent = '停止自动';
+            }
+        }
+        
+        function startAutoPlay() {
+            if (!gameActive || autoPlayInterval) return;
+            
+            if (currentPlayer === WHITE) {
+                aiMove();
+            }
+            
+            autoPlayInterval = true;
+        }
+        
+        function stopAutoPlay() {
+            autoPlayInterval = null;
+        }
+        
+        function initGame() {
+            initBoard();
+            newGame();
+            
+            document.getElementById('newGameBtn').addEventListener('click', newGame);
+            document.getElementById('undoBtn').addEventListener('click', undo);
+            document.getElementById('aiMoveBtn').addEventListener('click', aiMove);
+            document.getElementById('autoPlayBtn').addEventListener('click', toggleAutoPlay);
+        }
+        
+        window.addEventListener('load', initGame);
+    </script>
+  <footer style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
+    &copy; 2025 FastNow Studio
+</footer>
+</body>
+</html>
