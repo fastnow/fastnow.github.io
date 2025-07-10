@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>在线FM播放器</title>
+    <title>在线FM电台播放器</title>
     <style>
         :root {
             --primary-color: #1db954;
@@ -204,8 +204,8 @@
 </head>
 <body>
     <header>
-        网络音乐播放器
-        <input type="text" id="search-box" placeholder="搜索歌曲...">
+        FM电台播放器
+        <input type="text" id="search-box" placeholder="搜索电台...">
     </header>
 
     <div id="music-list"></div>
@@ -227,7 +227,7 @@
     </footer>
 
     <div id="loading" class="loading-overlay" style="display: none;">
-        <div class="loading-message">正在加载音乐列表...</div>
+        <div class="loading-message">Made by FastNow Studio</div>
     </div>
 
     <script>
@@ -301,7 +301,7 @@
                 musicList = parseMusicList(textData);
                 
                 if (musicList.length === 0) {
-                    throw new Error('未找到有效音乐数据');
+                    throw new Error('未找到有效数据');
                 }
                 
                 renderMusicList();
