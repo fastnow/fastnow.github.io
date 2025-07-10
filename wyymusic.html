@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网易云音乐解析</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        #player {
+            margin-top: 20px;
+        }
+        .lyrics {
+            white-space: pre-line;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #eee;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>网易云音乐解析</h1>
+    
+    <div class="container">
+        <div>
+            <label for="searchType">搜索方式:</label>
+            <select id="searchType">
+                <option value="id">歌曲ID</option>
+                <option value="title">歌曲名称（暂不支持）</option>
+            </select>
+        </div>
+        
+        <div>
+            <label for="searchInput">输入内容:</label>
+            <input type="text" id="searchInput" placeholder="输入歌曲ID或名称">
+            <button onclick="searchMusic()">搜索</button>
+        </div>
+        
+        <div id="result" style="display: none;">
+            <h2 id="songTitle"></h2>
+            <p id="songInfo"></p>
+            
+            <div id="player">
+                <audio id="audioPlayer" controls></audio>
+                <p>如果无法播放，请 <a id="directLink" href="#" target="_blank">点击这里直接访问</a></p>
+            </div>
+            
+            <div id="lyricsContainer" class="lyrics"></div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>音乐版权归网易云音乐所有</p>
+        <p>本工具仅用于学习交流，请勿用于商业用途</p>
+        <p>© 2025 FastNow Team | BSD 3-Clause</p>
+    </footer>
+
+    <script>
+        async function searchMusic() {
+            const searchType = document.getElementById('searchType').value;
+            const searchInput = document.getElementById('searchInput').value.trim();
+            
+            if (!searchInput) {
+                alert('请输入搜索内容');
+                return;
+            }
+            
+            let apiUrl = 'https://api.paugram.com/netease/?';
+            
+            if (searchType === 'id') {
+                apiUrl += `id=${searchInput}`;
+            } else {
+                apiUrl += `title=${encodeURIComponent(searchInput)}`;
+            }
+            
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('获取音乐信息失败: ' + data.error);
+                    return;
+                }
+                
+                displayResult(data);
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            }
+        }
+        
+        function displayResult(data) {
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('songTitle').textContent = data.title;
+            document.getElementById('songInfo').textContent = `${data.artist} - ${data.album}`;
+            
+            const audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = data.link;
+            
+            document.getElementById('directLink').href = data.link;
+            
+            const lyricsContainer = document.getElementById('lyricsContainer');
+            if (data.lyric) {
+                lyricsContainer.textContent = data.lyric;
+                if (data.sub_lyric) {
+                    lyricsContainer.textContent += '\n\n' + data.sub_lyric;
+                }
+            } else {
+                lyricsContainer.textContent = '暂无歌词';
+            }
+        }
+    </script>
+</body>
+</html>
