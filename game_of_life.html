@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conway's Game of Life </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            color: black;
+        }
+        
+        h1 {
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        #game-container {
+            position: relative;
+            margin: 10px 0;
+        }
+        
+        #grid {
+            border: 1px solid black;
+            display: block;
+            background-color: white;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        button {
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 80px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 4px;
+        }
+        
+        button:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .stats {
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            button {
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 60px;
+            }
+            
+            .controls {
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Conway's Game of Life</h1>
+    
+    <div class="stats">
+        <span id="generation">世代: 0</span> | 
+        <span id="population">存活细胞: 0</span>
+    </div>
+    
+    <div id="game-container">
+        <canvas id="grid"></canvas>
+    </div>
+    
+    <div class="controls">
+        <button id="start">开始</button>
+        <button id="pause">暂停</button>
+        <button id="step">单步</button>
+        <button id="clear">清空</button>
+        <button id="random">随机</button>
+    </div>
+    
+    <div class="controls">
+        <div class="speed-control">
+            <span>速度:</span>
+            <input type="range" id="speed" min="1" max="20" value="10">
+        </div>
+        <button id="save">保存模式</button>
+        <button id="load">加载模式</button>
+    </div>
+    
+    <script>
+        // 游戏状态
+        const game = {
+            grid: null,
+            nextGrid: null,
+            width: 0,
+            height: 0,
+            cellSize: 10,
+            running: false,
+            generation: 0,
+            speed: 10,
+            interval: null,
+            drawing: false,
+            drawMode: true, // true = 绘制存活细胞, false = 擦除 okk
+            savedPattern: null
+        };
+        
+        // DOM 元素
+        const canvas = document.getElementById('grid');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('start');
+        const pauseBtn = document.getElementById('pause');
+        const stepBtn = document.getElementById('step');
+        const clearBtn = document.getElementById('clear');
+        const randomBtn = document.getElementById('random');
+        const speedControl = document.getElementById('speed');
+        const generationDisplay = document.getElementById('generation');
+        const populationDisplay = document.getElementById('population');
+        const saveBtn = document.getElementById('save');
+        const loadBtn = document.getElementById('load');
+        
+        // 初始化游戏
+        function initGame() {
+            const maxWidth = Math.min(window.innerWidth - 40, 800);
+            const maxHeight = Math.min(window.innerHeight - 200, 600);
+            
+            game.width = Math.floor(maxWidth / game.cellSize);
+            game.height = Math.floor(maxHeight / game.cellSize);
+            
+            canvas.width = game.width * game.cellSize;
+            canvas.height = game.height * game.cellSize;
+            
+            game.grid = createEmptyGrid();
+            game.nextGrid = createEmptyGrid();
+            
+            drawGrid();
+            
+            // 事件监听器 pe/pc gg
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchend', handleTouchEnd);
+            
+            startBtn.addEventListener('click', startGame);
+            pauseBtn.addEventListener('click', pauseGame);
+            stepBtn.addEventListener('click', stepGame);
+            clearBtn.addEventListener('click', clearGrid);
+            randomBtn.addEventListener('click', randomizeGrid);
+            speedControl.addEventListener('input', updateSpeed);
+            saveBtn.addEventListener('click', savePattern);
+            loadBtn.addEventListener('click', loadPattern);
+        }
+        
+        // 创建空网格
+        function createEmptyGrid() {
+            const grid = new Array(game.height);
+            for (let i = 0; i < game.height; i++) {
+                grid[i] = new Array(game.width).fill(0);
+            }
+            return grid;
+        }
+        
+        // 网格
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制细胞 important
+            ctx.fillStyle = 'black';
+            for (let y = 0; y < game.height; y++) {
+                for (let x = 0; x < game.width; x++) {
+                    if (game.grid[y][x] === 1) {
+                        ctx.fillRect(
+                            x * game.cellSize, 
+                            y * game.cellSize, 
+                            game.cellSize, 
+                            game.cellSize
+                        );
+                    }
+                }
+            }
+            
+            // 绘制网格
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 0.5;
+            
+            // 垂直
+            for (let x = 0; x <= game.width; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x * game.cellSize, 0);
+                ctx.lineTo(x * game.cellSize, game.height * game.cellSize);
+                ctx.stroke();
+            }
+            
+            // 水平
+            for (let y = 0; y <= game.height; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * game.cellSize);
+                ctx.lineTo(game.width * game.cellSize, y * game.cellSize);
+                ctx.stroke();
+            }
+            
+            // 更新
+            updateStats();
+        }
+        
+        // 更新
+        function updateStats() {
+            const population = game.grid.flat().filter(cell => cell === 1).length;
+            generationDisplay.textContent = `世代: ${game.generation}`;
+            populationDisplay.textContent = `存活细胞: ${population}`;
+        }
+        
+        // 计算下一代
+        function computeNextGeneration() {
+            for (let y = 0; y < game.height; y++) {
+                for (let x = 0; x < game.width; x++) {
+                    const neighbors = countLiveNeighbors(x, y);
+                    
+                    // 应用生命游戏规则
+                    if (game.grid[y][x] === 1) {
+                        // 存活细胞
+                        game.nextGrid[y][x] = (neighbors === 2 || neighbors === 3) ? 1 : 0;
+                    } else {
+                        // 死亡细胞
+                        game.nextGrid[y][x] = (neighbors === 3) ? 1 : 0;
+                    }
+                }
+            }
+            
+            // 交换
+            [game.grid, game.nextGrid] = [game.nextGrid, game.grid];
+            game.generation++;
+            
+            // 绘制
+            drawGrid();
+        }
+        
+        // 算
+        function countLiveNeighbors(x, y) {
+            let count = 0;
+            
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue; // 跳过自身
+                    
+                    const nx = (x + dx + game.width) % game.width;
+                    const ny = (y + dy + game.height) % game.height;
+                    
+                    count += game.grid[ny][nx];
+                }
+            }
+            
+            return count;
+        }
+        
+        function startGame() {
+            if (!game.running) {
+                game.running = true;
+                game.interval = setInterval(computeNextGeneration, 1000 / game.speed);
+            }
+        }
+        
+        function pauseGame() {
+            if (game.running) {
+                game.running = false;
+                clearInterval(game.interval);
+            }
+        }
+        
+        function stepGame() {
+            pauseGame();
+            computeNextGeneration();
+        }
+        
+        function clearGrid() {
+            pauseGame();
+            game.grid = createEmptyGrid();
+            game.generation = 0;
+            drawGrid();
+        }
+        
+        // 随机填充网格 kewu?
+        function randomizeGrid() {
+            pauseGame();
+            for (let y = 0; y < game.height; y++) {
+                for (let x = 0; x < game.width; x++) {
+                    game.grid[y][x] = Math.random() > 0.7 ? 1 : 0;
+                }
+            }
+            game.generation = 0;
+            drawGrid();
+        }
+        
+        // 更新速度
+        function updateSpeed() {
+            game.speed = parseInt(speedControl.value);
+            if (game.running) {
+                pauseGame();
+                startGame();
+            }
+        }
+        
+        // 保存当前模式
+        function savePattern() {
+            game.savedPattern = JSON.parse(JSON.stringify(game.grid));
+            alert('当前模式已保存');
+        }
+        
+        // 加载保存的模式
+        function loadPattern() {
+            if (game.savedPattern) {
+                pauseGame();
+                game.grid = JSON.parse(JSON.stringify(game.savedPattern));
+                game.generation = 0;
+                drawGrid();
+            } else {
+                alert('没有保存的模式');
+            }
+        }
+        
+        // 鼠标/触摸事件处理
+        function getCellFromEvent(e) {
+            let x, y;
+            
+            if (e.touches) {
+                const rect = canvas.getBoundingClientRect();
+                x = e.touches[0].clientX - rect.left;
+                y = e.touches[0].clientY - rect.top;
+            } else {
+                x = e.offsetX;
+                y = e.offsetY;
+            }
+            
+            const cellX = Math.floor(x / game.cellSize);
+            const cellY = Math.floor(y / game.cellSize);
+            
+            return { x: cellX, y: cellY };
+        }
+        
+        function handleMouseDown(e) {
+            if (e.button !== 0) return; // 只处理左键
+            
+            game.drawing = true;
+            const cell = getCellFromEvent(e);
+            game.drawMode = game.grid[cell.y][cell.x] === 0;
+            toggleCell(cell.x, cell.y);
+        }
+        
+        function handleMouseMove(e) {
+            if (game.drawing) {
+                const cell = getCellFromEvent(e);
+                game.grid[cell.y][cell.x] = game.drawMode ? 1 : 0;
+                drawGrid();
+            }
+        }
+        
+        function handleMouseUp() {
+            game.drawing = false;
+        }
+        
+        function handleTouchStart(e) {
+            e.preventDefault();
+            game.drawing = true;
+            const cell = getCellFromEvent(e);
+            game.drawMode = game.grid[cell.y][cell.x] === 0;
+            toggleCell(cell.x, cell.y);
+        }
+        
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (game.drawing) {
+                const cell = getCellFromEvent(e);
+                game.grid[cell.y][cell.x] = game.drawMode ? 1 : 0;
+                drawGrid();
+            }
+        }
+        
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            game.drawing = false;
+        }
+        
+        function toggleCell(x, y) {
+            if (x >= 0 && x < game.width && y >= 0 && y < game.height) {
+                game.grid[y][x] = game.grid[y][x] === 0 ? 1 : 0;
+                drawGrid();
+            }
+        }
+        
+        // 窗口大小改变时重新初始化
+        window.addEventListener('resize', () => {
+            pauseGame();
+            initGame();
+        });
+        
+        // 初始化游戏
+        initGame();
+    </script>
+<footer style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
+    &copy; 2025 FastNow Team | BSD 3-Clause
+</footer>
+</body>
+</html>
