@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>颜文字字典</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #444;
+            margin-bottom: 30px;
+        }
+        
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #search {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .kaomoji-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .kaomoji-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .kaomoji-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .kaomoji {
+            font-size: 24px;
+            margin-right: 20px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .meaning {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .tags {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .tag {
+            display: inline-block;
+            background-color: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .copy-notice {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .filter-btn.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>简约颜文字字典</h1>
+    
+    <div class="search-container">
+        <input type="text" id="search" placeholder="搜索颜文字或含义...">
+        <button id="random-btn">随机10个</button>
+    </div>
+    
+    <div class="filter-buttons">
+        <div class="filter-btn active" data-tag="全部">全部</div>
+    </div>
+    
+    <div class="kaomoji-container" id="kaomoji-list">
+        <div class="loading">加载颜文字数据中...</div>
+    </div>
+    
+    <div class="copy-notice" id="copy-notice">已复制到剪贴板</div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const kaomojiList = document.getElementById('kaomoji-list');
+            const searchInput = document.getElementById('search');
+            const randomBtn = document.getElementById('random-btn');
+            const copyNotice = document.getElementById('copy-notice');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            let allKaomojis = [];
+            
+            fetch('https://gcore.jsdelivr.net/gh/FastNow-Studio/tmiro@latest/kaomoji.txt')
+                .then(response => {
+                    if (!response.ok) throw new Error('网络响应不正常');
+                    return response.text();
+                })
+                .then(data => {
+                    allKaomojis = parseKaomojiData(data);
+                    renderKaomojiList(allKaomojis);
+                    
+                    searchInput.addEventListener('input', handleSearch);
+                    randomBtn.addEventListener('click', getRandomKaomojis);
+                    
+                    filterButtons.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            filterButtons.forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            filterKaomojis(btn.dataset.tag);
+                        });
+                    });
+                })
+                .catch(error => {
+                    kaomojiList.innerHTML = `<div class="error">加载颜文字数据失败: ${error.message}</div>`;
+                    console.error('加载数据出错:', error);
+                });
+            
+            function parseKaomojiData(text) {
+                return text.split('\n')
+                    .filter(line => line.trim() !== '')
+                    .map(line => {
+                        const parts = line.split(',');
+                        const kaomoji = parts[0].trim();
+                        const meaning = parts[1]?.trim() || '';
+                        const tags = parts.slice(2).map(tag => tag.trim()).filter(tag => tag);
+                        
+                        return {
+                            kaomoji,
+                            meaning,
+                            tags
+                        };
+                    });
+            }
+            
+            function renderKaomojiList(kaomojis) {
+                if (kaomojis.length === 0) {
+                    kaomojiList.innerHTML = '<div class="loading">没有找到匹配的颜文字</div>';
+                    return;
+                }
+                
+                kaomojiList.innerHTML = kaomojis.map(item => `
+                    <div class="kaomoji-item" data-kaomoji="${item.kaomoji}">
+                        <div class="kaomoji">${item.kaomoji}</div>
+                        <div>
+                            <div class="meaning">${item.meaning}</div>
+                            <div class="tags">
+                                ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.querySelectorAll('.kaomoji-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        copyToClipboard(item.dataset.kaomoji);
+                        showCopyNotice();
+                    });
+                });
+            }
+            
+            function handleSearch() {
+                const searchTerm = this.value.toLowerCase().trim();
+                const activeTag = document.querySelector('.filter-btn.active').dataset.tag;
+                
+                let filtered = allKaomojis;
+                
+                if (activeTag !== '全部') {
+                    filtered = filtered.filter(item => 
+                        item.tags.some(tag => tag === activeTag)
+                    );
+                }
+                
+                if (searchTerm) {
+                    filtered = filtered.filter(item => 
+                        item.kaomoji.toLowerCase().includes(searchTerm) || 
+                        item.meaning.toLowerCase().includes(searchTerm) || 
+                        item.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+                }
+                
+                renderKaomojiList(filtered);
+            }
+            
+            function filterKaomojis(tag) {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                let filtered = allKaomojis;
+                
+                if (tag !== '全部') {
+                    filtered = filtered.filter(item => 
+                        item.tags.some(t => t === tag)
+                    );
+                }
+                
+                if (searchTerm) {
+                    filtered = filtered.filter(item => 
+                        item.kaomoji.toLowerCase().includes(searchTerm) || 
+                        item.meaning.toLowerCase().includes(searchTerm) || 
+                        item.tags.some(t => t.toLowerCase().includes(searchTerm))
+                    );
+                }
+                
+                renderKaomojiList(filtered);
+            }
+            
+            function getRandomKaomojis() {
+                if (allKaomojis.length === 0) return;
+               
+                const shuffled = [...allKaomojis].sort(() => 0.5 - Math.random());
+                const randomKaomojis = shuffled.slice(0, 10);
+                
+                renderKaomojiList(randomKaomojis);
+            }
+            
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).catch(err => {
+                    console.error('复制失败:', err);
+                });
+            }
+            
+            function showCopyNotice() {
+                copyNotice.style.opacity = '1';
+                setTimeout(() => {
+                    copyNotice.style.opacity = '0';
+                }, 1500);
+            }
+        });
+    </script>
+<footer style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
+    &copy; 2025 FastNow Studio | BSD 3-Clause
+</footer>
+</body>
+</html>
