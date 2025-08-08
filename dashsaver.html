@@ -8,15 +8,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DashSaver</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: system-ui, sans-serif;
-        }
         .loader-indicator {
             position: fixed;
             top: 0;
@@ -25,82 +18,54 @@
             background: #f8f9fa;
             padding: 12px;
             text-align: center;
+            font-family: system-ui, sans-serif;
             z-index: 10000;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        #app-container {
-            width: 100%;
-            height: 100vh;
-            border: none;
-            display: block;
-            margin-top: 0;
         }
     </style>
 </head>
 <body>
     <div class="loader-indicator">LOADING...</div>
-    <iframe id="app-container" sandbox="allow-scripts allow-same-origin allow-popups allow-modals"></iframe>
-
+    <div style="margin-top: 20px; font-size: 0.8rem; color: #FF0000; text-align: center;">请全屏使用</div>
+    <iframe id="app-container" 
+            style="width:100%; height:100vh; border:none;"
+            sandbox="allow-scripts allow-same-origin"></iframe>
+<footer style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;"> &copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | MIT-Clause</footer>
     <script>
-        const CONFIG = {
-            cacheTTL: 3600000
-        };
-
-        let lastFetchTime = 0;
-
         function getContentUrl() {
-            return `https://gcore.jsdelivr.net/gh/fastnow/DashSaver@main/source/html/index.html?ts=${Date.now()}`;
+            return `https://gcore.jsdelivr.net/gh/fastnow/DashSaver@latest/source/html/index.html?ts=${Date.now()}`;
         }
 
         async function loadApp() {
             try {
                 const iframe = document.getElementById('app-container');
-                const loader = document.querySelector('.loader-indicator');
-
-                const now = Date.now();
-                const useCache = (now - lastFetchTime) < CONFIG.cacheTTL && sessionStorage.getItem('cachedHtml');
                 
-                if (useCache) {
-                    iframe.srcdoc = sessionStorage.getItem('cachedHtml');
-                } else {
-                    const response = await fetch(getContentUrl());
-                    if (!response.ok) throw new Error(`HTTP错误: ${response.status}`);
-                    const html = await response.text();
-
-                    sessionStorage.setItem('cachedHtml', html);
-                    lastFetchTime = now;
-                    
-                    iframe.srcdoc = html;
-                }
+                const response = await fetch(getContentUrl());
+                if (!response.ok) throw new Error(`HTTP错误: ${response.status}`);
+                const html = await response.text();
+                
+                iframe.srcdoc = html;
                 
                 iframe.onload = () => {
-                    loader.style.display = 'none';
+                    document.querySelector('.loader-indicator').style.display = 'none';
                 };
                 
             } catch (error) {
-                console.error('加载错误:', error);
-                showError(error);
+                console.error('错误:', error);
+                document.querySelector('.loader-indicator').innerHTML = `
+                    <div style="color:red; padding:1rem;">
+                        <h3>错误</h3>
+                        <p>${error.message}</p>
+                        <button onclick="window.location.reload()" 
+                                style="padding:8px 16px;background:#4285f4;color:white;border:none;border-radius:4px;">
+                            重试
+                        </button>
+                    </div>
+                `;
             }
-
-        function showError(error) {
-            const loader = document.querySelector('.loader-indicator');
-            loader.innerHTML = `
-                <div style="color:red; padding:1rem;">
-                    <h3>加载错误</h3>
-                    <p>${error.message}</p>
-                    <button onclick="loadApp()" 
-                            style="padding:8px 16px;background:#4285f4;color:white;border:none;border-radius:4px;cursor:pointer;">
-                        重试
-                    </button>
-                </div>
-            `;
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadApp);
-        } else {
-            window.requestIdleCallback(loadApp);
-        }
+        window.addEventListener('DOMContentLoaded', loadApp);
     </script>
 </body>
 </html>
