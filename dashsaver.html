@@ -1,11 +1,11 @@
 <!DOCTYPE html>
+<html lang="zh-CN">
 <!-- 
     DashSaver - A web application loader
-    Copyright (c) 2025 FastNow Studio
-    License: MIT
+    Copyright (c) 2023 Your Company/Name
+    License: MIT (or your preferred license)
     GitHub: https://github.com/fastnow/DashSaver
 -->
-<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <title>DashSaver</title>
@@ -26,19 +26,20 @@
 </head>
 <body>
     <div class="loader-indicator">LOADING...</div>
-    <div style="margin-top: 20px; font-size: 0.8rem; color: #FF0000; text-align: center;">请全屏使用</div>
+    <div style="color: red; text-align: center;">请全屏使用</div>
     <iframe id="app-container" 
             style="width:100%; height:100vh; border:none;"
             sandbox="allow-scripts allow-same-origin"></iframe>
-<footer style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;"> &copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | MIT-Clause</footer>
+<footer style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;"> &copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | MIT</footer>
     <script>
+
         function getContentUrl() {
-            return `https://gcore.jsdelivr.net/gh/fastnow/DashSaver@latest/source/html/index.html?ts=${Date.now()}`;
+            return `https://gcore.jsdelivr.net/gh/fastnow/DashSaver@main/source/html/index.html?ts=${Date.now()}`;
         }
 
         async function loadApp() {
             try {
-                const iframe = document.getElementById('app-container');
+                iframe = document.getElementById('app-container');
                 
                 const response = await fetch(getContentUrl());
                 if (!response.ok) throw new Error(`HTTP错误: ${response.status}`);
