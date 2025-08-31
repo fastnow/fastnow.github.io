@@ -7,7 +7,7 @@
     
     <meta name="description" content="FastNow Studio - 提供创新的网页工具、游戏模拟和媒体娱乐应用。探索我们的伪诗词加密系统、屏保仪表盘、星体模拟器等高质量项目。">
     <meta name="keywords" content="FastNow, 网页工具, 在线应用, 游戏模拟, 伪诗词加密, 屏保仪表盘, 星体模拟, 五子棋AI">
-    <meta name="author" content="FastNow">
+    <meta name="author" content="FastNow Team">
     <meta property="og:title" content="FastNow Studio - 创新网页应用集合">
     <meta property="og:description" content="探索FastNow Studio的各种创新网页工具、游戏模拟和媒体娱乐应用。">
     <meta property="og:type" content="website">
@@ -16,6 +16,79 @@
     
     <title>FastNow Studio - 创新网页工具与应用集合</title>
     <style>
+        #global-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #fafafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loader-content {
+            text-align: center;
+        }
+        
+        .loader-logo {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            color: #222;
+            letter-spacing: 2px;
+        }
+        
+        .progress-loader {
+            width: 250px;
+            background: rgba(236, 236, 238, 0.253);
+            height: 4px;
+            border-radius: 7px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        .progress {
+            width: 1px;
+            height: 4px;
+            border-radius: 7px;
+            background: #222;
+            transition: 0.5s;
+            animation: loading1274 2s ease infinite;
+        }
+        
+        .loader-text {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        @keyframes loading1274 {
+            0% {
+                width: 0%;
+            }
+            10% {
+                width: 10%;
+            }
+            50% {
+                width: 40%;
+            }
+            60% {
+                width: 60%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+        
+        .page-content {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -251,6 +324,23 @@
             text-decoration: underline;
         }
         
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(236, 236, 238, 0.253);
+            z-index: 9998;
+            display: none;
+        }
+        
+        .page-loader .progress {
+            height: 3px;
+            background: #222;
+            animation: loading1274 1.5s ease infinite;
+        }
+        
         @media (max-width: 600px) {
             .personal-card {
                 flex-direction: column;
@@ -270,153 +360,237 @@
                 overflow-x: auto;
                 padding-bottom: 5px;
             }
+            
+            .loader-logo {
+                font-size: 2rem;
+            }
+            
+            .progress-loader {
+                width: 200px;
+            }
         }
     </style>
 </head>
-<link rel="stylesheet" href="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
-<script src="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
-<script src="https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script>
-<meting-js
-    server="netease" 
-    type="playlist" 
-    id="13089847854"
-    fixed="true" 
-    mini="true"
-    order="random"
-    loop="all"
-    preload="auto"
-    list-folded="false">
-</meting-js>
 <body>
-    <header>
-        <h1>FastNow Studio</h1>
-        <p class="subtitle">创新网页工具与应用集合 - 提供伪诗词加密、屏保仪表盘、星体模拟器等高质量项目</p>
-    </header>
-    
-    <div class="notification">
-        <div>FastNow Studio致力于开发创新的网页应用和工具。当前项目处于测试阶段，托管于免费主机，可能存在访问不稳定的情况。
-            <strong>建议您收藏本页面，以便及时获取最新访问地址。</strong>
+    <div id="global-loader">
+        <div class="loader-content">
+            <div class="loader-logo">FastNow Studio</div>
+            <div class="progress-loader">
+                <div class="progress"></div>
+            </div>
+            <div class="loader-text">LOADING...</div>
         </div>
     </div>
     
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="搜索项目..." />
+    <div class="page-loader" id="pageLoader">
+        <div class="progress"></div>
     </div>
     
-    <div class="personal-card">
-        <div class="avatar">
-            <img src="https://avatars.githubusercontent.com/u/177708607" alt="FastNow 头像">
+    <div class="page-content">
+        <header>
+            <h1>FastNow Studio</h1>
+            <p class="subtitle">创新网页工具与应用集合 - 提供伪诗词加密、屏保仪表盘、星体模拟器等高质量项目</p>
+        </header>
+        
+        <div class="notification">
+            <div>FastNow Studio致力于开发创新的网页应用和工具。当前项目处于测试阶段，托管于免费主机，可能存在访问不稳定的情况。
+                <strong>建议您收藏本页面，以便及时获取最新访问地址。</strong>
+            </div>
         </div>
-        <div class="profile-info">
-            <div class="username">FastNow</div>
-            <div class="social-links">
-                <a href="https://github.com/fastnow" class="social-button" target="_blank">
-                    GitHub
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="搜索项目..." />
+        </div>
+        
+        <div class="personal-card">
+            <div class="avatar">
+                <img src="https://avatars.githubusercontent.com/u/177708607" alt="FastNow 头像">
+            </div>
+            <div class="profile-info">
+                <div class="username">FastNow</div>
+                <div class="social-links">
+                    <a href="https://github.com/fastnow" class="social-button" target="_blank">
+                        GitHub
+                    </a>
+                    <a href="https://blog.csdn.net/2301_78143841" class="social-button" target="_blank">
+                        CSDN
+                    </a>
+                    <a href="https://www.cnblogs.com/fastnow" class="social-button" target="_blank">
+                        博客园
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="category-tabs">
+            <div class="category-tab active" data-category="all">全部项目</div>
+            <div class="category-tab" data-category="tools">实用工具</div>
+            <div class="category-tab" data-category="games">游戏/模拟</div>
+            <div class="category-tab" data-category="media">媒体娱乐</div>
+            <div class="category-tab" data-category="web">网页应用</div>
+        </div>
+        
+        <div class="category">
+            <h2>已发布的项目</h2>
+            <div class="links">
+                <a href="/micige_cipher.html" class="project-item" data-category="tools" data-date="2025-8-30">
+                    <div class="project-title">秘词阁·伪诗词信息加密系统<span class="project-date">2025-8-30</span></div>
+                    <div class="project-desc">基于伪诗词的信息加密系统，保护您的隐私数据</div>
                 </a>
-                <a href="https://blog.csdn.net/2301_78143841" class="social-button" target="_blank">
-                    CSDN
+                
+                <a href="/dashsaver.html" class="project-item" data-category="tools" data-date="2025-8-22">
+                    <div class="project-title">DashSaver屏保仪表盘<span class="project-date">2025-8-22</span></div>
+                    <div class="project-desc">将您的屏幕保护程序变为信息仪表盘</div>
                 </a>
-                <a href="https://www.cnblogs.com/fastnow" class="social-button" target="_blank">
-                    博客园
+                
+                <a href="https://wangmou-yaa.github.io/F+Launcher.html" class="project-item" data-category="tools" data-date="2023-02-13">
+                    <div class="project-title">F(AST)＋Launcher<span class="project-date">2023-02-13</span></div>
+                    <div class="project-desc">Minecraft JAVA 启动器，助您快速部署游戏环境</div>
+                </a>
+                
+                <a href="/astral_simulation.html" class="project-item" data-category="games" data-date="2025-7-11">
+                    <div class="project-title">2D星体运行模拟<span class="project-date">2025-7-11</span></div>
+                    <div class="project-desc">探索宇宙中星体运行规律的2D模拟器</div>
+                </a>
+                
+                <a href="https://adba.ct.ws" class="project-item" data-category="web" data-date="2024-10-4">
+                    <div class="project-title">ADBAPI·随机二次元图片API<span class="project-date">2024-10-4</span></div>
+                    <div class="project-desc">为开发者提供的随机二次元图片API服务</div>
+                </a>
+                
+                <a href="/gobangbot.html" class="project-item" data-category="games" data-date="2025-7-20">
+                    <div class="project-title">五子棋AI<span class="project-date">2025-7-20</span></div>
+                    <div class="project-desc">挑战人工智能五子棋对手</div>
+                </a>
+                
+                <a href="/fm.html" class="project-item" data-category="media" data-date="2024-12-10">
+                    <div class="project-title">在线FM播放器（持续更新）<span class="project-date">2024-12-10</span></div>
+                    <div class="project-desc">在线收听各种FM电台节目</div>
+                </a>
+                
+                <a href="/online.html" class="project-item" data-category="tools" data-date="2024-08-27">
+                    <div class="project-title">HTML/CSS/JS编辑器<span class="project-date">2024-08-27</span></div>
+                    <div class="project-desc">在线编写和预览HTML、CSS和JavaScript代码</div>
+                </a>
+                
+                <a href="https://wangmou-yaa.github.io" class="project-item" data-category="web" data-date="2023-01-01">
+                    <div class="project-title">软件项目发布站<span class="project-date">2023-01-01</span></div>
+                    <div class="project-desc">FastNow Studio软件项目发布平台</div>
+                </a>
+                
+                <a href="/kaomoji.html" class="project-item" data-category="tools" data-date="2025-08-02">
+                    <div class="project-title">颜文字字典<span class="project-date">2025-08-02</span></div>
+                    <div class="project-desc">丰富的颜文字表情集合，一键复制使用</div>
+                </a>
+                
+                <a href="https://fastnow.pages.dev" class="project-item" data-category="tools" data-date="2023-01-01">
+                    <div class="project-title">个人工具站（VPN）<span class="project-date">2023-01-01</span></div>
+                    <div class="project-desc">各种实用在线工具集合</div>
+                </a>
+                
+                <a href="/wyymusic.html" class="project-item" data-category="media" data-date="2025-02-07">
+                    <div class="project-title">网易云音乐解析<span class="project-date">2025-02-07</span></div>
+                    <div class="project-desc">网易云音乐资源解析与下载工具</div>
+                </a>
+                
+                <a href="/game_of_life.html" class="project-item" data-category="games" data-date="2024-11-18">
+                    <div class="project-title">康威的生命游戏<span class="project-date">2024-11-18</span></div>
+                    <div class="project-desc">经典的细胞自动机模拟游戏</div>
+                </a>
+                
+                <a href="https://wenku.rf.gd" class="project-item" data-category="web" data-date="2024-11-05">
+                    <div class="project-title">毛泽东选集在线阅读<span class="project-date">2024-11-05</span></div>
+                    <div class="project-desc">提供毛泽东选集的在线阅读体验</div>
+                </a>
+                
+                <a class="project-item disabled-link" data-category="none" data-date="1145-14-19">
+                    <div class="project-title">持续更新<span class="project-date">2022-06-28</span></div>
+                    <div class="project-desc">更多项目正在开发中，敬请期待</div>
                 </a>
             </div>
         </div>
+        
+        <footer>
+            <a href="https://icp.gov.moe/?keyword=20255560" target="_blank">萌ICP备20255560号</a>
+            <p>© <script>document.write(new Date().getFullYear())</script> FastNow Team | BSD 3-Clause</p>
+        </footer>
     </div>
-    
-    <div class="category-tabs">
-        <div class="category-tab active" data-category="all">全部项目</div>
-        <div class="category-tab" data-category="tools">实用工具</div>
-        <div class="category-tab" data-category="games">游戏/模拟</div>
-        <div class="category-tab" data-category="media">媒体娱乐</div>
-        <div class="category-tab" data-category="web">网页应用</div>
-    </div>
-    
-    <div class="category">
-        <h2>已发布的项目</h2>
-        <div class="links">
-            <a href="/micige_cipher.html" class="project-item" data-category="tools" data-date="2025-8-30">
-                <div class="project-title">秘词阁·伪诗词信息加密系统<span class="project-date">2025-8-30</span></div>
-                <div class="project-desc">基于伪诗词的信息加密系统，保护您的隐私数据</div>
-            </a>
-            
-            <a href="/dashsaver.html" class="project-item" data-category="tools" data-date="2025-8-22">
-                <div class="project-title">DashSaver屏保仪表盘<span class="project-date">2025-8-22</span></div>
-                <div class="project-desc">将您的屏幕保护程序变为信息仪表盘</div>
-            </a>
-            
-            <a href="https://wangmou-yaa.github.io/F+Launcher.html" class="project-item" data-category="tools" data-date="2023-02-13">
-                <div class="project-title">F(AST)＋Launcher<span class="project-date">2023-02-13</span></div>
-                <div class="project-desc">Minecraft JAVA 启动器，助您快速部署游戏环境</div>
-            </a>
-            
-            <a href="/astral_simulation.html" class="project-item" data-category="games" data-date="2025-7-11">
-                <div class="project-title">2D星体运行模拟<span class="project-date">2025-7-11</span></div>
-                <div class="project-desc">探索宇宙中星体运行规律的2D模拟器</div>
-            </a>
-            
-            <a href="https://adba.ct.ws" class="project-item" data-category="web" data-date="2024-10-4">
-                <div class="project-title">ADBAPI·随机二次元图片API<span class="project-date">2024-10-4</span></div>
-                <div class="project-desc">为开发者提供的随机二次元图片API服务</div>
-            </a>
-            
-            <a href="/gobangbot.html" class="project-item" data-category="games" data-date="2025-7-20">
-                <div class="project-title">五子棋AI<span class="project-date">2025-7-20</span></div>
-                <div class="project-desc">挑战人工智能五子棋对手</div>
-            </a>
-            
-            <a href="/fm.html" class="project-item" data-category="media" data-date="2024-12-10">
-                <div class="project-title">在线FM播放器（持续更新）<span class="project-date">2024-12-10</span></div>
-                <div class="project-desc">在线收听各种FM电台节目</div>
-            </a>
-            
-            <a href="/online.html" class="project-item" data-category="tools" data-date="2024-08-27">
-                <div class="project-title">HTML/CSS/JS编辑器<span class="project-date">2024-08-27</span></div>
-                <div class="project-desc">在线编写和预览HTML、CSS和JavaScript代码</div>
-            </a>
-            
-            <a href="https://wangmou-yaa.github.io" class="project-item" data-category="web" data-date="2023-01-01">
-                <div class="project-title">软件项目发布站<span class="project-date">2023-01-01</span></div>
-                <div class="project-desc">FastNow Studio软件项目发布平台</div>
-            </a>
-            
-            <a href="/kaomoji.html" class="project-item" data-category="tools" data-date="2025-08-02">
-                <div class="project-title">颜文字字典<span class="project-date">2025-08-02</span></div>
-                <div class="project-desc">丰富的颜文字表情集合，一键复制使用</div>
-            </a>
-            
-            <a href="https://fastnow.pages.dev" class="project-item" data-category="tools" data-date="2023-01-01">
-                <div class="project-title">个人工具站（VPN）<span class="project-date">2023-01-01</span></div>
-                <div class="project-desc">各种实用在线工具集合</div>
-            </a>
-            
-            <a href="/wyymusic.html" class="project-item" data-category="media" data-date="2025-02-07">
-                <div class="project-title">网易云音乐解析<span class="project-date">2025-02-07</span></div>
-                <div class="project-desc">网易云音乐资源解析与下载工具</div>
-            </a>
-            
-            <a href="/game_of_life.html" class="project-item" data-category="games" data-date="2024-11-18">
-                <div class="project-title">康威的生命游戏<span class="project-date">2024-11-18</span></div>
-                <div class="project-desc">经典的细胞自动机模拟游戏</div>
-            </a>
-            
-            <a href="https://wenku.rf.gd" class="project-item" data-category="web" data-date="2024-11-05">
-                <div class="project-title">毛泽东选集在线阅读<span class="project-date">2024-11-05</span></div>
-                <div class="project-desc">提供毛泽东选集的在线阅读体验</div>
-            </a>
-            
-            <a class="project-item disabled-link" data-category="none" data-date="1145-14-19">
-                <div class="project-title">持续更新<span class="project-date">2022-06-28</span></div>
-                <div class="project-desc">更多项目正在开发中，敬请期待</div>
-            </a>
-        </div>
-    </div>
-    
-    <footer>
-        <a href="https://icp.gov.moe/?keyword=20255560" target="_blank">萌ICP备20255560号</a>
-        <p>© <script>document.write(new Date().getFullYear())</script> FastNow Team | BSD 3-Clause</p>
-    </footer>
 
     <script>
+        // 页面加载处理
+        document.addEventListener('DOMContentLoaded', function() {
+            // 模拟加载过程
+            simulateLoading();
+        });
+        
+        function simulateLoading() {
+            const minLoadTime = 1500;
+            const startTime = Date.now();
+            
+            // 检查加载
+            function checkResourcesLoaded() {
+                const currentTime = Date.now();
+                const elapsedTime = currentTime - startTime;
+                
+                if (elapsedTime >= minLoadTime && document.readyState === 'complete') {
+                    // 加载完成
+                    hideGlobalLoader();
+                } else {
+                    setTimeout(checkResourcesLoaded, 50);
+                }
+            }
+            
+            checkResourcesLoaded();
+            
+            setTimeout(hideGlobalLoader, 10000);
+        }
+        
+        // 加载完成后页面动画
+        function hideGlobalLoader() {
+            const globalLoader = document.getElementById('global-loader');
+            const pageContent = document.querySelector('.page-content');
+            
+            globalLoader.style.opacity = '0';
+            
+            setTimeout(function() {
+                pageContent.style.opacity = '1';
+                
+                setTimeout(function() {
+                    globalLoader.style.display = 'none';
+                }, 100);
+            }, 100);
+        }
+        
+        function showPageLoader() {
+            const pageLoader = document.getElementById('pageLoader');
+            pageLoader.style.display = 'block';
+        }
+        
+        function hidePageLoader() {
+            const pageLoader = document.getElementById('pageLoader');
+            pageLoader.style.display = 'none';
+        }
+        
+        // 链接点击处理
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // 站内可
+                if (this.href && !this.classList.contains('disabled-link')) {
+                    const isExternal = this.target === '_blank' || 
+                                      this.hostname !== window.location.hostname;
+                    
+                    if (!isExternal) {
+                        e.preventDefault();
+                        showPageLoader();
+                        
+                        setTimeout(() => {
+                            window.location.href = this.href;
+                        }, 500);
+                    }
+                }
+            });
+        });
+        
         const searchInput = document.getElementById('searchInput');
         const projectItems = document.querySelectorAll('.project-item');
         
@@ -474,7 +648,7 @@
             });
         }
         
-        document.addEventListener('DOMContentLoaded', sortProjectsByDate);
+        sortProjectsByDate();
     </script>
 </body>
 </html>
