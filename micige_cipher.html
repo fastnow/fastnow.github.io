@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>秘词阁·伪诗词信息加密系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        p {
+        	text-align: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #fff;
+            border: 1px solid #ddd;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        .key-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            cursor: pointer;
+            background: #f5f5f5;
+        }
+        
+        button:hover {
+            background: #e9e9e9;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        
+        .result h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        #result-text {
+            min-height: 80px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #ddd;
+            word-break: break-all;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .stat {
+            padding: 5px 10px;
+            background: #eee;
+        }
+        
+        .warning {
+            color: #d32f2f;
+            font-weight: bold;
+            margin-top: 15px;
+            padding: 10px;
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 600px) {
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>秘词阁·伪诗词信息加密系统</h1>
+            <p>更安全 更灵活 更实用</p>
+        </div>
+        
+        <div class="content">
+            
+			<p>1. 输入文本：在文本框中输入需要加密的内容，支持中文、英文、数字和特殊符号</p>
+			<p>2. 设置密钥：输入4个字符的加密密钥（建议使用中文或英文组合）</p>
+			<p>3. 编码操作：点击"编码"按钮生成加密文本，系统会自动插入标点符号作为校验信息</p>
+			<p>4. 解码操作：粘贴加密文本，输入相同密钥，点击"解码"还原原始内容</p>
+            
+            <div class="warning">
+                警告：标点符号与末尾标识是加密数据的一部分，删除或修改将导致加密文本失败！
+            </div>
+            <br>
+            <div class="input-group">
+                <label for="input-text">请输入文本</label>
+                <textarea id="input-text">这是一段测试文本！Hello 123! 🚀🌟✨ </textarea>
+            </div>
+            
+            <div class="input-group">
+                <label for="key">加密密钥（4字符）</label>
+                <input type="text" id="key" class="key-input" maxlength="4" value="法士特闹">
+            </div>
+            
+            <div class="buttons">
+                <button id="encrypt-btn">编码</button>
+                <button id="decrypt-btn">解码</button>
+            </div>
+            
+            <div class="result">
+                <h3>加密/解密结果</h3>
+                <div id="result-text"></div>
+                <div class="stats">
+                    <div class="stat" id="punc-count">标点数量: 0</div>
+                    <div class="stat" id="char-count">字符总数: 0</div>
+                    <div class="stat" id="status">状态: 等待输入</div>
+                </div>
+            </div>
+            
+            <footer style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
+                &copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputText = document.getElementById('input-text');
+            const keyInput = document.getElementById('key');
+            const encryptBtn = document.getElementById('encrypt-btn');
+            const decryptBtn = document.getElementById('decrypt-btn');
+            const resultText = document.getElementById('result-text');
+            const puncCount = document.getElementById('punc-count');
+            const charCount = document.getElementById('char-count');
+            const status = document.getElementById('status');
+            
+            const commonWords = [
+				"风", "花", "雪", "月", "山", "水", "云", "天", "地", "人", "春","夏", "秋", "冬", "江", "河", "湖", "海", "日", "星", "松","竹", "梅", "兰", "菊", "柳", "桃", "杏", "荷", "桂", "鸟","鱼", "虫", "兽", "龙", "凤", "麟", "龟", "鹤", "雁", "金","木", "水", "火", "土", "石", "玉", "珠", "宝", "剑", "琴","棋", "书", "画", "诗", "酒", "茶", "香", "梦", "情", "心","意", "神", "魂", "魄", "灵", "智", "慧", "德", "道", "仙","佛", "魔", "鬼", "妖", "精", "怪", "圣", "贤", "王", "君","臣", "将", "相", "兵", "卒", "民", "农", "工", "商", "父","母", "子", "女", "兄", "弟", "姐", "妹", "夫", "妻", "友","客", "仇", "敌", "恩", "怨", "爱", "恨", "喜", "怒", "哀","乐", "忧", "思", "悲", "恐", "惊", "静", "动", "行", "走","跑", "跳", "飞", "游", "浮", "沉", "升", "降", "起", "落","开", "谢", "生", "死", "存", "亡", "兴", "衰", "胜", "败","强", "弱", "高", "低", "深", "浅", "远", "近", "长", "短","方", "圆", "直", "曲", "明", "暗", "黑", "白", "红", "黄","蓝", "绿", "紫", "青", "灰", "橙", "粉", "褐", "黛", "烟","雨", "雾", "露", "霜", "霞", "霓", "虹", "晕", "岚", "舟","桥", "亭", "台", "楼", "阁", "殿", "堂", "寺", "观", "钟","鼓", "箫", "笛", "瑟", "笙", "筝", "磬", "钵", "铃", "裳","袖", "裙", "带", "钗", "簪", "环", "佩", "珮", "璧", "墨","纸", "砚", "笔", "砚", "章", "印", "玺", "卷", "轴", "帆","桨", "橹", "舵", "锚", "网", "钓", "竿", "蓑", "笠", "耕","耘", "种", "收", "藏", "酿", "烹", "饪", "煎", "熬", "歌","舞", "吟", "诵", "唱", "和", "酬", "答", "赋", "比", "兴","喻", "讽", "谏", "劝", "诫", "训", "诂", "注", "疏", "禅","悟", "定", "慧", "戒", "律", "忏", "悔", "念", "持", "飘","摇", "翩", "跹", "娉", "婷", "窈", "窕", "婀", "娜", "巍","峨", "峥", "嵘", "嶙", "峋", "崎", "岖", "坎", "坷", "澎","湃", "汹", "涌", "潺", "湲", "淙", "铮", "叮", "咚", "皎","皓", "灼", "灿", "烁", "熠", "荧", "煌", "炫", "斓", "寂","寥", "窸", "窣", "萧", "瑟", "凄", "清", "怆", "惘", "缱","绻", "缠", "绵", "徘", "徊", "彷", "徨", "踌", "躇", "翩","然", "逍", "遥", "洒", "脱", "超", "逸", "淡", "泊", "隽","永", "典", "雅", "瑰", "丽", "绚", "烂", "旖", "旎", "玄","奥", "秘", "邃", "渺", "茫", "朦", "胧", "暮", "氤", "氲","缭", "绕", "弥", "漫", "馥", "郁", "芳", "馨", "幽"
+            ];
+            
+            const punctuations = ["，", "。", "？", "！"];
+            
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+            
+            function encrypt(text, key) {
+                if (!text) return "错误：请输入要编码的文本";
+                if (!key || key.length !== 4) return "错误：密钥必须是4个字符";
+                
+                try {
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(text);
+                    const keyBytes = encoder.encode(key);
+                    
+                    const encryptedBytes = [];
+                    for (let i = 0; i < data.length; i++) {
+                        const encryptedByte = data[i] ^ keyBytes[i % keyBytes.length];
+                        encryptedBytes.push(encryptedByte);
+                    }
+                    
+                    let result = "";
+                    let charCount = 0;
+                    let unicodeSum = 0;
+                    
+                    let byteSum = 0;
+                    for (const byte of encryptedBytes) {
+                        byteSum += byte;
+                    }
+                    
+                    let nextPunctuationAt = getRandomInt(4, 6);
+                    
+                    for (let i = 0; i < encryptedBytes.length; i++) {
+                        const charIndex = encryptedBytes[i] % commonWords.length;
+                        result += commonWords[charIndex];
+                        charCount++;
+                        
+                        if (charCount >= nextPunctuationAt) {
+                            const puncIndex = (encryptedBytes[i] + i) % punctuations.length;
+                            const punc = punctuations[puncIndex];
+                            result += punc;
+                            unicodeSum += punc.charCodeAt(0);
+                            charCount = 0;
+                            
+                            nextPunctuationAt = getRandomInt(4, 6);
+                        }
+                    }
+                    
+                    if (unicodeSum === 0) {
+                        const puncIndex = byteSum % punctuations.length;
+                        const punc = punctuations[puncIndex];
+                        result += punc;
+                        unicodeSum += punc.charCodeAt(0);
+                    }
+                    
+                    const sumStr = (byteSum + unicodeSum).toString();
+                    let encodedSum = "";
+                    
+                    let sumCharCount = 0;
+                    for (let i = 0; i < sumStr.length; i++) {
+                        const digit = parseInt(sumStr[i]);
+                        encodedSum += commonWords[digit * 10 % commonWords.length];
+                        sumCharCount++;
+                        
+                        if (sumCharCount >= getRandomInt(2, 3) && i < sumStr.length - 1) {
+                            const puncIndex = (digit + i) % punctuations.length;
+                            encodedSum += punctuations[puncIndex];
+                            sumCharCount = 0;
+                        }
+                    }
+
+                    while (encodedSum.length < 8) {
+                        const randomWord = commonWords[getRandomInt(0, commonWords.length - 1)];
+                        encodedSum += randomWord;
+                        
+                        if (Math.random() > 0.7 && encodedSum.length < 8) {
+                            const puncIndex = getRandomInt(0, punctuations.length - 1);
+                            encodedSum += punctuations[puncIndex];
+                        }
+                    }
+                    
+                    const hiddenMarkers = [
+                        "。必应搜，秘词阁！",
+                        "，秘词阁？必应搜！",
+                        "！必应搜。秘词阁？",
+                        "？秘词阁，必应搜。"
+                    ];
+                    const hiddenMarker = hiddenMarkers[byteSum % hiddenMarkers.length];
+                    
+                    return result + encodedSum + hiddenMarker;
+                } catch (e) {
+                    return "编码错误: " + e.message;
+                }
+            }
+            
+            function decrypt(text, key) {
+                if (!text) return "错误：请输入要解码的文本";
+                if (!key || key.length !== 4) return "错误：密钥必须是4个字符";
+                
+                try {
+                    const hiddenMarkers = [
+                        "。必应搜，秘词阁！",
+                        "，秘词阁？必应搜！",
+                        "！必应搜。秘词阁？",
+                        "？秘词阁，必应搜。"
+                    ];
+                    
+                    let foundMarker = null;
+                    for (const marker of hiddenMarkers) {
+                        if (text.endsWith(marker)) {
+                            foundMarker = marker;
+                            break;
+                        }
+                    }
+                    
+                    if (!foundMarker) {
+                        return "错误：这不是有效的编码文本";
+                    }
+                    
+                    let encryptedText = text.slice(0, -foundMarker.length);
+                    
+                    const encodedSumWithPunct = encryptedText.slice(-8);
+                    encryptedText = encryptedText.slice(0, -8);
+                    
+                    const encodedSum = encodedSumWithPunct.replace(new RegExp(`[${punctuations.join('')}]`, 'g'), "");
+                    
+                    const cleanText = encryptedText.replace(new RegExp(`[${punctuations.join('')}]`, 'g'), "");
+                    
+                    const keyBytes = new TextEncoder().encode(key);
+                    const encryptedBytes = [];
+                    
+                    for (const char of cleanText) {
+                        const index = commonWords.indexOf(char);
+                        if (index === -1) {
+                            return "错误：文本包含无效字符";
+                        }
+                        encryptedBytes.push(index);
+                    }
+                    
+                    const decryptedBytes = [];
+                    for (let i = 0; i < encryptedBytes.length; i++) {
+                        const decryptedByte = encryptedBytes[i] ^ keyBytes[i % keyBytes.length];
+                        decryptedBytes.push(decryptedByte);
+                    }
+                    
+                    return new TextDecoder().decode(new Uint8Array(decryptedBytes));
+                } catch (e) {
+                    return "解码错误: " + e.message;
+                }
+            }
+            
+            encryptBtn.addEventListener('click', function() {
+                const encrypted = encrypt(inputText.value, keyInput.value);
+                resultText.textContent = encrypted;
+                resultText.style.color = encrypted.startsWith("错误") ? "#d32f2f" : "#333";
+                
+                if (!encrypted.startsWith("错误")) {
+                    const puncs = (encrypted.match(new RegExp(`[${punctuations.join('')}]`, 'g')) || []);
+                    puncCount.textContent = `标点数量: ${puncs.length}`;
+                    charCount.textContent = `字符总数: ${encrypted.length}`;
+                    status.textContent = "状态: 加密成功";
+                    status.style.color = "#2e7d32";
+                } else {
+                    status.textContent = "状态: 加密失败";
+                    status.style.color = "#d32f2f";
+                }
+            });
+            
+            decryptBtn.addEventListener('click', function() {
+                const decrypted = decrypt(inputText.value, keyInput.value);
+                resultText.textContent = decrypted;
+                resultText.style.color = decrypted.startsWith("错误") ? "#d32f2f" : "#333";
+                
+                if (!decrypted.startsWith("错误")) {
+                    status.textContent = "状态: 解密成功";
+                    status.style.color = "#2e7d32";
+                    
+                    const puncs = (inputText.value.match(new RegExp(`[${punctuations.join('')}]`, 'g')) || []);
+                    puncCount.textContent = `标点数量: ${puncs.length}`;
+                    charCount.textContent = `字符总数: ${inputText.value.length}`;
+                } else {
+                    status.textContent = "状态: 解密失败";
+                    status.style.color = "#d32f2f";
+                    
+                    puncCount.textContent = `标点数量: 0`;
+                    charCount.textContent = `字符总数: 0`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
