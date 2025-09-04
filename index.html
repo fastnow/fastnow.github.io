@@ -500,10 +500,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 模拟加载过程
             simulateLoading();
+            
+            // 初始化项目排序
+            sortProjectsByDate();
         });
         
         function simulateLoading() {
-            const minLoadTime = 1500;
+            const minLoadTime = 800;
             const startTime = Date.now();
             
             // 检查加载
@@ -511,7 +514,7 @@
                 const currentTime = Date.now();
                 const elapsedTime = currentTime - startTime;
                 
-                if (elapsedTime >= minLoadTime && document.readyState === 'complete') {
+                if (elapsedTime >= minLoadTime || document.readyState === 'complete') {
                     // 加载完成
                     hideGlobalLoader();
                 } else {
@@ -520,8 +523,6 @@
             }
             
             checkResourcesLoaded();
-            
-            setTimeout(hideGlobalLoader, 10000);
         }
         
         // 加载完成后页面动画
@@ -539,36 +540,6 @@
                 }, 100);
             }, 100);
         }
-        
-        function showPageLoader() {
-            const pageLoader = document.getElementById('pageLoader');
-            pageLoader.style.display = 'block';
-        }
-        
-        function hidePageLoader() {
-            const pageLoader = document.getElementById('pageLoader');
-            pageLoader.style.display = 'none';
-        }
-        
-        // 链接点击处理
-        document.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // 暂定 不使用
-                if (this.href && !this.classList.contains('disabled-link')) {
-                    const isExternal = this.target === '_blank' || 
-                                      this.hostname !== window.location.hostname;
-                    
-                    if (!isExternal) {
-                        e.preventDefault();
-                        showPageLoader();
-                        
-                        setTimeout(() => {
-                            window.location.href = this.href;
-                        }, 500);
-                    }
-                }
-            });
-        });
         
         const searchInput = document.getElementById('searchInput');
         const projectItems = document.querySelectorAll('.project-item');
@@ -626,8 +597,6 @@
                 linksContainer.appendChild(item);
             });
         }
-        
-        sortProjectsByDate();
     </script>
 </body>
 </html>
