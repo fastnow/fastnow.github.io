@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="免费在线页面源代码查看器，获取任何网页的HTML源代码">
+    <meta name="keywords" content="源代码查看器,HTML源代码,网页源代码,源码查看">
+    <meta name="author" content="源代码查看器">
+    <title>页面源代码查看器 - 在线获取网页HTML源码</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f5f7ff;
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #4a6fc7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .input-section {
+            padding: 20px;
+            background: #f8f9ff;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .url-input, .proxy-input, .header-input, .post-data-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .url-input:focus, .proxy-input:focus, .header-input:focus, .post-data-input:focus {
+            border-color: #4a6fc7;
+            outline: none;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-container input {
+            margin-right: 10px;
+        }
+        
+        .fetch-button {
+            background: #4a6fc7;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.3s;
+            margin-bottom: 10px;
+        }
+        
+        .fetch-button:hover {
+            background: #3a5bb8;
+        }
+        
+        .toggle-advanced {
+            background: transparent;
+            color: #4a6fc7;
+            border: 1px solid #4a6fc7;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .toggle-advanced:hover {
+            background: #f0f4ff;
+        }
+        
+        .advanced-options {
+            display: none;
+            border: 1px solid #eaeaea;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #fff;
+        }
+        
+        .advanced-options h3 {
+            margin-bottom: 15px;
+            color: #4a6fc7;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+        
+        .option-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .option-item {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .results-section {
+            padding: 20px;
+        }
+        
+        .code-container {
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .code-header {
+            background: #f6f8fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e1e4e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .code-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-button {
+            background: #4a6fc7;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .action-button:hover {
+            background: #3a5bb8;
+        }
+        
+        pre {
+            margin: 0;
+            padding: 15px;
+            overflow: auto;
+            max-height: 500px;
+            background: #fdfdfd;
+        }
+        
+        code {
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-left: 3px solid #4a6fc7;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        
+        @media (min-width: 768px) {
+            .input-group {
+                display: flex;
+                gap: 15px;
+            }
+            
+            .url-input {
+                margin-bottom: 0;
+            }
+            
+            .fetch-button {
+                width: auto;
+                min-width: 150px;
+            }
+            
+            .button-group {
+                display: flex;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>页面源代码查看器</h1>
+            <p class="description">输入URL获取任何网页的HTML源代码</p>
+        </header>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="url-input">网页URL</label>
+                <input type="url" id="url-input" class="url-input" placeholder="https://example.com" value="https://">
+            </div>
+            
+            <button class="toggle-advanced" id="toggle-advanced">显示高级选项</button>
+            
+            <div class="advanced-options" id="advanced-options">
+                <h3>高级选项</h3>
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="use-proxy">
+                    <label for="use-proxy">使用CORS代理</label>
+                </div>
+                
+                <div id="proxy-container">
+                    <label for="proxy-input">自定义代理URL (可选)</label>
+                    <input type="text" id="proxy-input" class="proxy-input" placeholder="https://yourproxy.com/?url=">
+                    <small>留空使用默认代理：https://api.allorigins.win/raw?url=</small>
+                </div>
+                
+                <div class="option-row">
+                    <div class="option-item">
+                        <label for="user-agent">User-Agent (可选)</label>
+                        <input type="text" id="user-agent" class="header-input" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64)">
+                    </div>
+                    
+                    <div class="option-item">
+                        <label for="referer">Referer (可选)</label>
+                        <input type="text" id="referer" class="header-input" placeholder="https://example.com">
+                    </div>
+                </div>
+                
+                <div class="option-row">
+                    <div class="option-item">
+                        <label for="cookie">Cookie (可选)</label>
+                        <input type="text" id="cookie" class="header-input" placeholder="name=value; name2=value2">
+                    </div>
+                    
+                    <div class="option-item">
+                        <label for="request-method">请求方法</label>
+                        <select id="request-method" class="header-input">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="post-data-container" style="display: none;">
+                    <label for="post-data">POST数据 (可选)</label>
+                    <textarea id="post-data" class="post-data-input" placeholder="key1=value1&key2=value2" rows="3"></textarea>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button id="fetch-button" class="fetch-button">获取源代码</button>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>正在获取页面源代码...</p>
+            </div>
+            
+            <div class="error" id="error-message">
+                无法获取页面源代码。请检查URL是否正确，并确保网站允许被访问。
+            </div>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <span>页面源代码</span>
+                    <div class="code-actions">
+                        <button id="copy-button" class="action-button">复制代码</button>
+                        <button id="download-button" class="action-button">下载代码</button>
+                    </div>
+                </div>
+                <pre><code id="source-code"></code></pre>
+            </div>
+        </div>
+    </div>
+    
+    <footer style="margin-top: 10px; font-size: 0.8rem; color: #666; text-align: center;"> &copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlInput = document.getElementById('url-input');
+            const useProxyCheckbox = document.getElementById('use-proxy');
+            const proxyContainer = document.getElementById('proxy-container');
+            const proxyInput = document.getElementById('proxy-input');
+            const userAgentInput = document.getElementById('user-agent');
+            const refererInput = document.getElementById('referer');
+            const cookieInput = document.getElementById('cookie');
+            const requestMethodSelect = document.getElementById('request-method');
+            const postDataContainer = document.getElementById('post-data-container');
+            const postDataInput = document.getElementById('post-data');
+            const fetchButton = document.getElementById('fetch-button');
+            const loadingElement = document.querySelector('.loading');
+            const errorElement = document.getElementById('error-message');
+            const codeContainer = document.querySelector('.code-container');
+            const sourceCodeElement = document.getElementById('source-code');
+            const copyButton = document.getElementById('copy-button');
+            const downloadButton = document.getElementById('download-button');
+            const toggleAdvancedButton = document.getElementById('toggle-advanced');
+            const advancedOptions = document.getElementById('advanced-options');
+            
+            // 代理选项
+            proxyContainer.style.display = useProxyCheckbox.checked ? 'block' : 'none';
+            
+            useProxyCheckbox.addEventListener('change', function() {
+                proxyContainer.style.display = this.checked ? 'block' : 'none';
+            });
+            
+            toggleAdvancedButton.addEventListener('click', function() {
+                if (advancedOptions.style.display === 'block') {
+                    advancedOptions.style.display = 'none';
+                    toggleAdvancedButton.textContent = '显示高级选项';
+                } else {
+                    advancedOptions.style.display = 'block';
+                    toggleAdvancedButton.textContent = '隐藏高级选项';
+                }
+            });
+            
+            // POST数据输入框
+            requestMethodSelect.addEventListener('change', function() {
+                postDataContainer.style.display = this.value === 'POST' ? 'block' : 'none';
+            });
+            
+            // 获取代码
+            fetchButton.addEventListener('click', function() {
+                let url = urlInput.value.trim();
+                
+                // 添加https://前缀（如果没有协议部分）
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                    urlInput.value = url;
+                }
+                
+                // 验证格式
+                try {
+                    new URL(url);
+                } catch (e) {
+                    showError('请输入有效的URL地址');
+                    return;
+                }
+                
+                loadingElement.style.display = 'block';
+                errorElement.style.display = 'none';
+                codeContainer.style.display = 'none';
+                
+                // 确定是否使用代理
+                let fetchUrl = url;
+                let useProxy = useProxyCheckbox.checked;
+                
+                if (useProxy) {
+                    const proxy = proxyInput.value.trim() || 'https://api.allorigins.win/raw?url=';
+                    fetchUrl = proxy + encodeURIComponent(url);
+                }
+                
+                // 准备请求
+                const requestOptions = {
+                    method: requestMethodSelect.value,
+                    headers: {}
+                };
+                
+                // 添加请求头
+                if (userAgentInput.value.trim()) {
+                    requestOptions.headers['User-Agent'] = userAgentInput.value.trim();
+                }
+                
+                if (refererInput.value.trim()) {
+                    requestOptions.headers['Referer'] = refererInput.value.trim();
+                }
+                
+                if (cookieInput.value.trim()) {
+                    requestOptions.headers['Cookie'] = cookieInput.value.trim();
+                }
+                
+                // 添加POST数据
+                if (requestMethodSelect.value === 'POST' && postDataInput.value.trim()) {
+                    requestOptions.body = postDataInput.value.trim();
+                    
+                    // 如果没有指定Content-Type，默认使用application/x-www-form-urlencoded
+                    if (!requestOptions.headers['Content-Type']) {
+                        requestOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+                    }
+                }
+                
+                // 如果是代理请求，需要将自定义请求头作为参数传递
+                if (useProxy) {
+                    // 将自定义请求头添加到代理URL参数中
+                    const headersParam = encodeURIComponent(JSON.stringify(requestOptions.headers));
+                    fetchUrl += `&headers=${headersParam}`;
+                    
+                    // 添加方法参数
+                    if (requestOptions.method !== 'GET') {
+                        fetchUrl += `&method=${requestOptions.method}`;
+                    }
+                    
+                    // 添加POST数据
+                    if (requestOptions.body) {
+                        fetchUrl += `&body=${encodeURIComponent(requestOptions.body)}`;
+                    }
+                    
+                    // 使用代理时，直接使用GET请求
+                    fetch(fetchUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('网络响应不正常: ' + response.status);
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            displaySourceCode(html);
+                        })
+                        .catch(error => {
+                            showError('获取页面源代码时出错: ' + error.message);
+                            loadingElement.style.display = 'none';
+                        });
+                } else {
+                    fetch(fetchUrl, requestOptions)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('网络响应不正常: ' + response.status);
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            displaySourceCode(html);
+                        })
+                        .catch(error => {
+                            showError('获取页面源代码时出错: ' + error.message);
+                            loadingElement.style.display = 'none';
+                        });
+                }
+            });
+            
+            // 显示代码
+            function displaySourceCode(html) {
+                // 转义HTML标签
+                const escapedHtml = html
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+                
+                sourceCodeElement.innerHTML = escapedHtml;
+                codeContainer.style.display = 'block';
+                loadingElement.style.display = 'none';
+            }
+            
+            // 复制代码
+            copyButton.addEventListener('click', function() {
+                const textToCopy = sourceCodeElement.textContent;
+                
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        copyButton.textContent = '已复制!';
+                        setTimeout(() => {
+                            copyButton.textContent = '复制代码';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        alert('复制失败: ' + err);
+                    });
+            });
+            
+            // 下载代码
+            downloadButton.addEventListener('click', function() {
+                const textToDownload = sourceCodeElement.textContent;
+                const url = urlInput.value.trim();
+                const domain = url.replace(/^(https?:\/\/)?(www\.)?/i, '').split('/')[0];
+                const filename = `${domain}-source-code.html`;
+                
+                const element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(textToDownload));
+                element.setAttribute('download', filename);
+                
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                
+                element.click();
+                
+                document.body.removeChild(element);
+            });
+            
+            // 显示错误
+            function showError(message) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                loadingElement.style.display = 'none';
+            }
+            
+            urlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    fetchButton.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
