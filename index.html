@@ -37,51 +37,92 @@
         .loader-logo {
             font-size: 2.5rem;
             font-weight: 300;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             color: #222;
             letter-spacing: 2px;
         }
         
-        .progress-loader {
-            width: 250px;
-            background: rgba(236, 236, 238, 0.253);
-            height: 4px;
-            border-radius: 7px;
-            margin: 0 auto;
-            overflow: hidden;
+        .loader {
+            position: relative;
+            font-size: 16px;
+            width: 5.5em;
+            height: 5.5em;
+            margin: 0 auto 30px auto;
         }
-        
-        .progress {
-            width: 1px;
-            height: 4px;
-            border-radius: 7px;
-            background: #222;
-            transition: 0.5s;
-            animation: loading1274 2s ease infinite;
+
+        .loader:before {
+            content: '';
+            position: absolute;
+            transform: translate(-50%, -50%) rotate(45deg);
+            height: 100%;
+            width: 4px;
+            background: #ddd;
+            left: 50%;
+            top: 50%;
+        }
+
+        .loader:after {
+            content: '';
+            position: absolute;
+            left: 0.2em;
+            bottom: 0.18em;
+            width: 1em;
+            height: 1em;
+            background-color: #000;
+            border-radius: 15%;
+            animation: rollingRock 2.5s cubic-bezier(.79, 0, .47, .97) infinite;
+        }
+
+        @keyframes rollingRock {
+            0% {
+                transform: translate(0, -1em) rotate(-45deg)
+            }
+
+            5% {
+                transform: translate(0, -1em) rotate(-50deg)
+            }
+
+            20% {
+                transform: translate(1em, -2em) rotate(47deg)
+            }
+
+            25% {
+                transform: translate(1em, -2em) rotate(45deg)
+            }
+
+            30% {
+                transform: translate(1em, -2em) rotate(40deg)
+            }
+
+            45% {
+                transform: translate(2em, -3em) rotate(137deg)
+            }
+
+            50% {
+                transform: translate(2em, -3em) rotate(135deg)
+            }
+
+            55% {
+                transform: translate(2em, -3em) rotate(130deg)
+            }
+
+            70% {
+                transform: translate(3em, -4em) rotate(217deg)
+            }
+
+            75% {
+                transform: translate(3em, -4em) rotate(220deg)
+            }
+
+            100% {
+                transform: translate(0, -1em) rotate(-225deg)
+            }
         }
         
         .loader-text {
             margin-top: 15px;
             font-size: 0.9rem;
             color: #666;
-        }
-        
-        @keyframes loading1274 {
-            0% {
-                width: 0%;
-            }
-            10% {
-                width: 10%;
-            }
-            50% {
-                width: 40%;
-            }
-            60% {
-                width: 60%;
-            }
-            100% {
-                width: 100%;
-            }
         }
         
         .page-content {
@@ -348,8 +389,8 @@
                 font-size: 2rem;
             }
             
-            .progress-loader {
-                width: 200px;
+            .loader {
+                font-size: 14px;
             }
         }
     </style>
@@ -358,10 +399,8 @@
     <div id="global-loader">
         <div class="loader-content">
             <div class="loader-logo">FastNow Studio</div>
-            <div class="progress-loader">
-                <div class="progress"></div>
-            </div>
-            <div class="loader-text">LOADING...</div>
+            <div class="loader"></div>
+            <div class="loader-text">LOADING · 页面加载中</div>
         </div>
     </div>
     
@@ -377,13 +416,9 @@
             </div>
         </div>
         
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="搜索项目..." />
-        </div>
-        
         <div class="personal-card">
             <div class="avatar">
-                <img src="https://avatars.githubusercontent.com/u/177708607" alt="FastNow 头像">
+                <img src="https://avatars.githubusercontent.com/u/177708607" alt="头像">
             </div>
             <div class="profile-info">
                 <div class="username">FastNow</div>
@@ -400,6 +435,11 @@
                 </div>
             </div>
         </div>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="搜索项目..." />
+        </div>
+        
         
         <div class="category-tabs">
             <div class="category-tab active" data-category="all">全部项目</div>
@@ -418,13 +458,13 @@
                 </a>
                 
                 <a href="/micige_cipher.html" class="project-item" data-category="tools" data-date="2025-8-30">
-                    <div class="project-title">秘词阁·伪诗词信息加密系统<span class="project-date">2025-8-30</span></div>
+                    <div class="project-title">秘加块·伪诗词信息加密系统<span class="project-date">2025-8-30</span></div>
                     <div class="project-desc">基于伪诗词的信息加密系统，保护您的隐私数据</div>
                 </a>
                 
                 <a href="/dashsaver.html" class="project-item" data-category="tools" data-date="2025-8-22">
                     <div class="project-title">DashSaver屏保仪表盘<span class="project-date">2025-8-22</span></div>
-                    <div class="project-desc">将您的屏幕保护程序变为信息仪表盘</div>
+                    <div class="project-desc">使您用上更优质，更灵动的纯前端屏保</div>
                 </a>
                 
                 <a href="https://wangmou-yaa.github.io/F+Launcher.html" class="project-item" data-category="tools" data-date="2023-02-13">
@@ -450,6 +490,11 @@
                 <a href="/fm.html" class="project-item" data-category="media" data-date="2024-12-10">
                     <div class="project-title">在线FM播放器（持续更新）<span class="project-date">2024-12-10</span></div>
                     <div class="project-desc">在线收听各种FM电台节目</div>
+                </a>
+                
+                <a href="/getcode.html" class="project-item" data-category="tools" data-date="2025-9-21">
+                    <div class="project-title">网站源代码获取<span class="project-date">2025-9-21</span></div>
+                    <div class="project-desc">在线页面源代码查看器，获取任何网页的HTML源代码</div>
                 </a>
                 
                 <a href="/online.html" class="project-item" data-category="tools" data-date="2024-08-27">
@@ -501,36 +546,53 @@
     </div>
 
     <script>
-        // 页面加载处理
         document.addEventListener('DOMContentLoaded', function() {
-            // 模拟加载过程
-            simulateLoading();
-            
-            // 初始化项目排序
             sortProjectsByDate();
+            waitForResources();
         });
         
-        function simulateLoading() {
-            const minLoadTime = 800;
-            const startTime = Date.now();
+        function waitForResources() {
+            // 确保已加载完成
+            const images = document.querySelectorAll('img');
+            let loadedImages = 0;
+            const totalImages = images.length;
             
-            // 检查加载
-            function checkResourcesLoaded() {
-                const currentTime = Date.now();
-                const elapsedTime = currentTime - startTime;
-                
-                if (elapsedTime >= minLoadTime || document.readyState === 'complete') {
-                    // 加载完成
-                    hideGlobalLoader();
+            if (totalImages === 0) {
+                checkPageStatus();
+                return;
+            }
+            
+            // 监听加载
+            images.forEach(img => {
+                if (img.complete) {
+                    loadedImages++;
                 } else {
-                    setTimeout(checkResourcesLoaded, 50);
+                    img.addEventListener('load', imageLoaded);
+                    img.addEventListener('error', imageLoaded); // 失败继续加载，下面有保障
+                }
+            });
+            
+            function imageLoaded() {
+                loadedImages++;
+                if (loadedImages >= totalImages) {
+                    checkPageStatus();
                 }
             }
             
-            checkResourcesLoaded();
+            // 设置超时，防止资源永不加载
+            setTimeout(checkPageStatus, 5000);
         }
         
-        // 加载完成后页面动画
+        function checkPageStatus() {
+            // 确保DOM已完全解析
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', hideGlobalLoader);
+            } else {
+                setTimeout(hideGlobalLoader, 300);
+            }
+        }
+        
+        // 加载完成后动画
         function hideGlobalLoader() {
             const globalLoader = document.getElementById('global-loader');
             const pageContent = document.querySelector('.page-content');
@@ -542,10 +604,11 @@
                 
                 setTimeout(function() {
                     globalLoader.style.display = 'none';
-                }, 100);
-            }, 100);
+                }, 500);
+            }, 300);
         }
         
+        // 搜索
         const searchInput = document.getElementById('searchInput');
         const projectItems = document.querySelectorAll('.project-item');
         
@@ -588,6 +651,7 @@
             });
         });
         
+        // 排序
         function sortProjectsByDate() {
             const linksContainer = document.querySelector('.links');
             const items = Array.from(projectItems);
