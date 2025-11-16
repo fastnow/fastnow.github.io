@@ -14,8 +14,236 @@
     <meta property="og:url" content="https://fastnow.github.io">
     <meta name="robots" content="index, follow">
     
+    <link rel="stylesheet" href="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
+    <script src="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+    <script src="https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+ 
+    <meting-js 
+        server="netease" 
+        type="playlist" 
+        id="13089847854"
+        fixed="true" 
+        mini="true"
+        order="random"
+        loop="all"
+        preload="auto"
+        list-folded="false">
+    </meting-js>
     <title>FastNow Studio - 创新网页工具与应用集合</title>
-    <style>
+    <style>      
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(221, 221, 221, 0.6);
+            --card-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            --header-border: #222;
+            --button-bg: #222;
+            --button-text: #fff;
+            --accent-color: #222;
+            --sidebar-bg: rgba(255, 255, 255, 0.95);
+            --sidebar-text: #222;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: rgba(30, 30, 30, 0.85);
+            --card-border: rgba(70, 70, 70, 0.6);
+            --card-shadow: 0 2px 12px rgba(0,0,0,0.2);
+            --header-border: #e0e0e0;
+            --button-bg: #e0e0e0;
+            --button-text: #121212;
+            --accent-color: #e0e0e0;
+            --sidebar-bg: rgba(30, 30, 30, 0.95);
+            --sidebar-text: #e0e0e0;
+        }
+
+        .banner {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            padding: 0 20px;
+            position: relative;
+            background: url(https://t.alcy.cc/ycy) center/cover no-repeat fixed;
+            margin-bottom: 40px;
+        }
+        .banner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 1;
+        }
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+        .banner-title {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+        .banner-desc {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            min-height: 1.5em;
+        }
+        
+		.banner-content {
+		    position: relative;
+		    z-index: 2;
+		    max-width: 800px;
+		    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+		}
+
+		.banner-title,
+		.banner-desc {
+		    mix-blend-mode: difference;
+		    color: #fff;
+		}
+
+		@supports not (mix-blend-mode: difference) {
+		    .banner-title,
+		    .banner-desc {
+		        mix-blend-mode: normal;
+		        color: #fff;
+		        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+		    }
+		}
+
+        @keyframes fadeOut {
+            to { opacity: 0; }
+        }
+        
+        .scroll-down {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+            40% { transform: translateY(-15px) translateX(-50%); }
+            60% { transform: translateY(-7px) translateX(-50%); }
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            cursor: pointer;
+            border: none;
+            color: #222;
+            font-size: 1.2rem;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-toggle.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 30%;
+            max-width: 320px;
+            min-width: 240px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.08);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            padding: 30px 20px;
+            overflow-y: auto;
+        }
+        .sidebar.show {
+            transform: translateX(0);
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(221, 221, 221, 0.5);
+        }
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--sidebar-text);
+        }
+        .sidebar-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .sidebar-close:hover {
+            color: var(--sidebar-text);
+        }
+        .sidebar-menu {
+            list-style: none;
+        }
+        .sidebar-menu li {
+            margin-bottom: 12px;
+        }
+        .sidebar-menu a {
+            display: block;
+            padding: 10px 15px;
+            border-radius: 6px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--sidebar-text);
+        }
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(221, 221, 221, 0.5);
+            margin: 25px 0;
+        }
+        .sidebar-footer {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            padding-top: 15px;
+        }
+
         #global-loader {
             position: fixed;
             top: 0;
@@ -29,11 +257,9 @@
             z-index: 9999;
             transition: opacity 0.5s ease-out;
         }
-        
         .loader-content {
             text-align: center;
         }
-        
         .loader-logo {
             font-size: 2.5rem;
             font-weight: 300;
@@ -41,7 +267,6 @@
             color: #222;
             letter-spacing: 2px;
         }
-        
         .loader {
             position: relative;
             font-size: 16px;
@@ -49,7 +274,6 @@
             height: 5.5em;
             margin: 0 auto 30px auto;
         }
-
         .loader:before {
             content: '';
             position: absolute;
@@ -60,7 +284,6 @@
             left: 50%;
             top: 50%;
         }
-
         .loader:after {
             content: '';
             position: absolute;
@@ -72,330 +295,416 @@
             border-radius: 15%;
             animation: rollingRock 2.5s cubic-bezier(.79, 0, .47, .97) infinite;
         }
-
         @keyframes rollingRock {
-            0% {
-                transform: translate(0, -1em) rotate(-45deg)
-            }
-
-            5% {
-                transform: translate(0, -1em) rotate(-50deg)
-            }
-
-            20% {
-                transform: translate(1em, -2em) rotate(47deg)
-            }
-
-            25% {
-                transform: translate(1em, -2em) rotate(45deg)
-            }
-
-            30% {
-                transform: translate(1em, -2em) rotate(40deg)
-            }
-
-            45% {
-                transform: translate(2em, -3em) rotate(137deg)
-            }
-
-            50% {
-                transform: translate(2em, -3em) rotate(135deg)
-            }
-
-            55% {
-                transform: translate(2em, -3em) rotate(130deg)
-            }
-
-            70% {
-                transform: translate(3em, -4em) rotate(217deg)
-            }
-
-            75% {
-                transform: translate(3em, -4em) rotate(220deg)
-            }
-
-            100% {
-                transform: translate(0, -1em) rotate(-225deg)
-            }
+            0% { transform: translate(0, -1em) rotate(-45deg) }
+            5% { transform: translate(0, -1em) rotate(-50deg) }
+            20% { transform: translate(1em, -2em) rotate(47deg) }
+            25% { transform: translate(1em, -2em) rotate(45deg) }
+            30% { transform: translate(1em, -2em) rotate(40deg) }
+            45% { transform: translate(2em, -3em) rotate(137deg) }
+            50% { transform: translate(2em, -3em) rotate(135deg) }
+            55% { transform: translate(2em, -3em) rotate(130deg) }
+            70% { transform: translate(3em, -4em) rotate(217deg) }
+            75% { transform: translate(3em, -4em) rotate(220deg) }
+            100% { transform: translate(0, -1em) rotate(-225deg) }
         }
-        
         .loader-text {
             margin-top: 15px;
             font-size: 0.9rem;
             color: #666;
         }
-        
         .page-content {
             opacity: 0;
             transition: opacity 0.5s ease-in;
+            margin-left: 30%;
+            max-width: calc(100% - 30%);
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: #fff;
+            color: var(--text-color);
+            background: var(--bg-color);
+            padding: 0;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #fafafa;
+            padding: 0 20px;
         }
-        
         header {
             text-align: center;
             margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #222;
-        }
-        
-        header h1 {
-            font-size: 2.2rem;
-            font-weight: 300;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-            color: #222;
+            padding: 20px;
+            border-bottom: 2px solid var(--header-border);
+            border-radius: 10px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--card-shadow);
         }
         
         .subtitle {
             font-size: 0.9rem;
             color: #666;
         }
-        
         .notification {
-            background: #f0f0f0;
-            padding: 15px;
+            padding: 18px;
             margin-bottom: 25px;
             border-left: 4px solid #444;
-            border-radius: 3px;
+            border-radius: 10px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--card-shadow);
         }
-        
         .notification strong {
             font-weight: 600;
-            color: #000;
+            color: var(--text-color);
         }
-        
         .search-container {
             margin-bottom: 25px;
             position: relative;
+            border-radius: 10px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 15px;
+            box-shadow: var(--card-shadow);
         }
-        
         .search-container input {
             width: 100%;
-            padding: 12px 20px;
-            border: 2px solid #222;
-            background: #fff;
+            padding: 14px 20px;
+            border: 2px solid var(--accent-color);
             font-size: 1rem;
-            border-radius: 3px;
+            border-radius: 8px;
             outline: none;
             transition: all 0.3s;
+            background: var(--card-bg);
+            color: var(--text-color);
         }
-        
         .search-container input:focus {
-            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+            background: var(--card-bg);
         }
-        
         .personal-card {
             display: flex;
             align-items: center;
             margin-bottom: 30px;
-            padding: 20px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 25px;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
-        
         .avatar {
-            width: 80px;
-            height: 80px;
-            margin-right: 20px;
-            border: 2px solid #222;
-            border-radius: 3px;
+            width: 90px;
+            height: 90px;
+            margin-right: 25px;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
-        
         .avatar img {
             width: 100%;
             height: 100%;
             display: block;
             object-fit: cover;
         }
-        
         .username {
-            font-size: 1.6rem;
+            font-size: 1.7rem;
             font-weight: 400;
-            margin-bottom: 10px;
-            color: #222;
+            margin-bottom: 12px;
+            color: var(--text-color);
         }
-        
         .social-links {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
-        
         .social-button {
             display: inline-block;
-            padding: 6px 12px;
-            border: 1px solid #222;
+            padding: 8px 16px;
+            border: 1px solid var(--accent-color);
             text-decoration: none;
-            color: #222;
-            font-size: 0.85rem;
-            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            border-radius: 8px;
             transition: all 0.2s;
         }
-        
         .social-button:hover {
-            background: #222;
-            color: #fff;
+            background: var(--accent-color);
+            color: var(--button-text);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* 重新布局分类标签 */
+        .category {
+            margin-bottom: 35px;
+        }
+        .category h2 {
+            font-size: 1.6rem;
+            font-weight: 400;
+            margin-bottom: 22px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-color);
         }
         
         .category-tabs {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #222;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 10px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--card-shadow);
         }
-        
         .category-tab {
-            padding: 8px 16px;
-            background: #fff;
-            border: 1px solid #222;
-            border-radius: 3px;
+            padding: 10px 20px;
+            border: 1px solid var(--accent-color);
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-color);
         }
-        
         .category-tab.active, .category-tab:hover {
-            background: #222;
-            color: #fff;
-        }
-        
-        .category {
-            margin-bottom: 30px;
-        }
-        
-        .category h2 {
-            font-size: 1.5rem;
-            font-weight: 400;
-            margin-bottom: 20px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #ddd;
-            color: #222;
+            background: var(--accent-color);
+            color: var(--button-text);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .links {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 12px;
+            gap: 15px;
         }
-        
         .project-item {
             display: block;
-            padding: 15px;
+            padding: 20px;
             text-decoration: none;
-            color: #222;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            background: #fff;
-            transition: all 0.2s;
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s;
             position: relative;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
-        
         .project-item:hover {
-            border-color: #222;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-color: var(--accent-color);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
         }
-        
         .project-title {
             font-weight: 500;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        
         .project-date {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #666;
-            background: #f0f0f0;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: 10px;
+            background: rgba(240, 240, 240, 0.9);
+            padding: 3px 10px;
+            border-radius: 15px;
         }
-        
+        .project-top {
+            font-size: 0.75rem;
+            color: #fff;
+            background: #555;
+            padding: 3px 8px;
+            border-radius: 15px;
+        }
         .project-desc {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: #666;
+            line-height: 1.7;
         }
-        
-        .disabled-link {
-            color: #999 !important;
-            cursor: not-allowed;
-            background: #f5f5f5;
-        }
-        
-        .disabled-link:hover {
-            border-color: #ddd !important;
-            box-shadow: none !important;
-        }
-        
         footer {
             text-align: center;
-            padding: 25px 0;
+            padding: 30px 20px;
             color: #666;
-            font-size: 0.85rem;
-            border-top: 1px solid #ddd;
-            margin-top: 30px;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--card-border);
+            margin-top: 40px;
+            border-radius: 10px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--card-shadow);
         }
-        
         footer a {
-            color: #222;
+            color: var(--text-color);
             text-decoration: none;
+            transition: color 0.2s;
         }
-        
         footer a:hover {
             text-decoration: underline;
+            color: var(--text-color);
         }
         
+        .floating-buttons {
+	    position: fixed;
+	    bottom: 30px;
+	    right: 30px;
+	    z-index: 999;
+	    display: flex;
+	    flex-direction: column-reverse;
+	    gap: 15px;
+	    align-items: flex-end;
+	        }
+        
+        .theme-toggle, .back-to-top {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-color);
+            font-size: 1.2rem;
+        }
+        
+        .theme-toggle:hover, .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        
+        .back-to-top {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        @media (max-width: 1024px) {
+            .page-content {
+                margin-left: 0;
+                max-width: 100%;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                width: 70%;
+                max-width: 300px;
+            }
+            .sidebar-toggle {
+                display: flex;
+            }
+            .floating-buttons {
+                left: 20px;
+                bottom: 20px;
+            }
+        }
         @media (max-width: 600px) {
+            .banner-title {
+                font-size: 2.2rem;
+            }
+            .banner-desc {
+                font-size: 1rem;
+            }
             .personal-card {
                 flex-direction: column;
                 text-align: center;
+                padding: 20px;
             }
-            
             .avatar {
                 margin-right: 0;
-                margin-bottom: 15px;
+                margin-bottom: 20px;
+                width: 80px;
+                height: 80px;
             }
-            
             .social-links {
                 justify-content: center;
+                flex-wrap: wrap;
             }
-            
             .category-tabs {
                 overflow-x: auto;
-                padding-bottom: 5px;
+                padding-bottom: 10px;
+                justify-content: flex-start;
             }
-            
             .loader-logo {
                 font-size: 2rem;
             }
-            
             .loader {
                 font-size: 14px;
+            }
+            .category h2 {
+                font-size: 1.4rem;
+            }
+            .floating-buttons {
+                left: 15px;
+                bottom: 15px;
+            }
+            .theme-toggle, .back-to-top {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
 <body>
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3 class="sidebar-logo">FastNow Studio</h3>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="https://github.com/fastnow" target="_blank">GitHub</a></li>
+            <li><a href="https://blog.csdn.net/2301_78143841" target="_blank">CSDN博客</a></li>
+            <li><a href="https://www.cnblogs.com/fastnow" target="_blank">博客园</a></li>
+        </ul>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-footer">
+            <p>逸一时，误一世。</p>
+        </div>
+    </aside>
+    
+    <div class="floating-buttons">
+        <button class="theme-toggle" id="themeToggle" title="切换主题">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="back-to-top" id="backToTop" title="返回顶部">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </div>
+
     <div id="global-loader">
         <div class="loader-content">
             <div class="loader-logo">FastNow Studio</div>
@@ -403,269 +712,558 @@
             <div class="loader-text">LOADING · 页面加载中</div>
         </div>
     </div>
-    
-    <div class="page-content">
-        <header>
-            <h1>FastNow Studio</h1>
-            <p class="subtitle">创新网页工具与应用集合 - 提供伪诗词加密、屏保仪表盘、星体模拟器等高质量项目</p>
-        </header>
-        
-        <div class="notification">
-            <div>FastNow Studio致力于开发创新的网页应用和工具。当前项目处于测试阶段，托管于免费主机，可能存在访问不稳定的情况。
-                <strong>建议您收藏本页面，以便及时获取最新访问地址。</strong>
-            </div>
+
+    <section class="banner" id="top">
+        <div class="banner-content">
+            <h1 class="banner-title">FastNow 项目发布页</h1>
+            <p class="banner-desc">WELCOME MY FRIEND</p>
         </div>
-        
-        <div class="personal-card">
-            <div class="avatar">
-                <img src="https://avatars.githubusercontent.com/u/177708607" alt="头像">
+        <div class="scroll-down" id="scrollDown">
+            <i class="fas fa-chevron-down fa-2x"></i>
+        </div>
+    </section>
+
+    <div class="page-content">
+        <div class="container">
+            <div class="personal-card">
+                <div class="avatar">
+                    <img src="https://avatars.githubusercontent.com/u/177708607" alt="头像">
+                </div>
+                <div class="profile-info">
+                    <div class="username">FastNow</div>
+                    <div class="social-links">
+                        <a href="https://github.com/fastnow" class="social-button" target="_blank">
+                            <i class="fab fa-github mr-1"></i> GitHub
+                        </a>
+                        <a href="https://blog.csdn.net/2301_78143841" class="social-button" target="_blank">
+                            <i class="fas fa-blog mr-1"></i> CSDN
+                        </a>
+                        <a href="https://www.cnblogs.com/fastnow" class="social-button" target="_blank">
+                            <i class="fas fa-book-open mr-1"></i> 博客园
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="profile-info">
-                <div class="username">FastNow</div>
-                <div class="social-links">
-                    <a href="https://github.com/fastnow" class="social-button" target="_blank">
-                        GitHub
+            
+            <div class="notification">
+                <div>FastNow Studio致力于开发创新的网页应用和工具。由于资金限制，部分涉及到后端的项目托管于免费主机，可能存在访问不稳定的情况。
+                    <strong>建议您收藏本页面，以便及时获取最新访问地址。</strong>
+                </div>
+            </div>
+            
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="搜索项目（支持标题/描述关键词）..." />
+            </div>
+            
+            <div class="category" id="projects">
+                <h2>已发布的项目</h2>
+                
+                <div class="category-tabs">
+                    <div class="category-tab active" data-category="all" id="tabAll">全部项目</div>
+                    <div class="category-tab" data-category="tools" id="tabTools">实用工具</div>
+                    <div class="category-tab" data-category="games" id="tabGames">游戏/模拟</div>
+                    <div class="category-tab" data-category="media" id="tabMedia">媒体娱乐</div>
+                    <div class="category-tab" data-category="web" id="tabWeb">网页应用</div>
+                </div>
+
+                <div class="links">
+                    <a href="/all_music.html" class="project-item" data-category="media" data-date="2025-11-05" data-top="true">
+                        <div class="project-title">音乐聚合解析</div>
+                        <div class="project-desc">支持在线免费播放来自网易云、抖音、5sign音乐等平台的优质音乐</div>
                     </a>
-                    <a href="https://blog.csdn.net/2301_78143841" class="social-button" target="_blank">
-                        CSDN
+                    
+                    <a href="/xtcf2f.html" class="project-item" data-category="tools" data-date="2025-10-03">
+                        <div class="project-title">小天才实时校验码</div>
+                        <div class="project-desc">小天才v2~3校验码计算器</div>
                     </a>
-                    <a href="https://www.cnblogs.com/fastnow" class="social-button" target="_blank">
-                        博客园
+                    
+                    <a href="/shk.html" class="project-item" data-category="tools" data-date="2025-9-12">
+                        <div class="project-title">SHK 作弊脚本</div>
+                        <div class="project-desc">基于Tampermonkey的Yp3D-Ships3D作弊脚本</div>
+                    </a>
+                    
+                    <a href="/micige_cipher.html" class="project-item" data-category="tools" data-date="2025-8-30">
+                        <div class="project-title">秘加块·伪诗词信息加密系统</div>
+                        <div class="project-desc">基于伪诗词的信息加密系统，将文本转化为意境诗词，保护您的隐私数据</div>
+                    </a>
+                    
+                    <a href="/dashsaver.html" class="project-item" data-category="web" data-date="2025-8-22" data-top="true">
+                        <div class="project-title">DashSaver屏保仪表盘</div>
+                        <div class="project-desc">使您用上更优质，更灵动的纯前端屏保</div>
+                    </a>
+                    
+                    <a href="https://wangmou-yaa.github.io/F+Launcher.html" class="project-item" data-category="tools" data-date="2023-02-13">
+                        <div class="project-title">F(AST)＋Launcher</div>
+                        <div class="project-desc">Minecraft JAVA 启动器，助您快速部署游戏环境</div>
+                    </a>
+                    
+                    <a href="/astral_simulation.html" class="project-item" data-category="games" data-date="2025-7-11">
+                        <div class="project-title">2D星体运行模拟</div>
+                        <div class="project-desc">探索宇宙中星体运行规律的2D模拟器</div>
+                    </a>
+                    
+                    <a href="https://adba.ct.ws" class="project-item" data-category="web" data-date="2024-10-04">
+                        <div class="project-title">ADBAPI·随机二次元图片API</div>
+                        <div class="project-desc">为开发者提供的随机二次元图片API服务</div>
+                    </a>
+                    
+                    <a href="/gobangbot.html" class="project-item" data-category="games" data-date="2025-7-20">
+                        <div class="project-title">五子棋AI</div>
+                        <div class="project-desc">挑战人工智能五子棋对手</div>
+                    </a>
+                    
+                    <a href="/fm.html" class="project-item" data-category="media" data-date="2024-12-10" data-top="true">
+                        <div class="project-title">在线FM播放器</div>
+                        <div class="project-desc">在线收听各种FM电台节目</div>
+                    </a>
+                    
+                    <a href="/getcode.html" class="project-item" data-category="tools" data-date="2025-9-21">
+                        <div class="project-title">网站源代码获取</div>
+                        <div class="project-desc">在线页面源代码查看器，获取任何网页的HTML源代码</div>
+                    </a>
+                    
+                    <a href="/online.html" class="project-item" data-category="tools" data-date="2024-08-27" data-top="true">
+                        <div class="project-title">HTML/CSS/JS编辑器</div>
+                        <div class="project-desc">在线编写和预览HTML、CSS和JavaScript代码，支持实时渲染与代码导出</div>
+                    </a>
+                    
+                    <a href="https://wangmou-yaa.github.io" class="project-item" data-category="web" data-date="2023-01-01">
+                        <div class="project-title">软件项目发布站</div>
+                        <div class="project-desc">FastNow Studio软件项目发布平台，汇总所有桌面端与移动端应用</div>
+                    </a>
+                    
+                    <a href="/kaomoji.html" class="project-item" data-category="tools" data-date="2025-08-02">
+                        <div class="project-title">颜文字字典</div>
+                        <div class="project-desc">丰富的颜文字表情集合，分类检索，一键复制使用</div>
+                    </a>
+                    
+                    <a href="/game_of_life.html" class="project-item" data-category="games" data-date="2024-11-18">
+                        <div class="project-title">康威的生命游戏</div>
+                        <div class="project-desc">经典的细胞自动机模拟游戏，支持自定义初始状态与速度调节</div>
+                    </a>
+                    
+                    <a href="https://wenku.rf.gd" class="project-item" data-category="web" data-date="2024-11-05" data-top="true">
+                        <div class="project-title">毛泽东选集在线阅读</div>
+                        <div class="project-desc">提供毛泽东选集的在线阅读体验，支持章节导航与文本搜索功能</div>
                     </a>
                 </div>
             </div>
+            
+            <footer>
+                <a href="https://icp.gov.moe/?keyword=20255560">萌ICP备20255560号</a>
+                <p>© <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</p>
+                <p>索引页版本：v2.0.1-20251116</p>
+            </footer>
         </div>
-        
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="搜索项目..." />
-        </div>
-        
-        
-        <div class="category-tabs">
-            <div class="category-tab active" data-category="all">全部项目</div>
-            <div class="category-tab" data-category="tools">实用工具</div>
-            <div class="category-tab" data-category="games">游戏/模拟</div>
-            <div class="category-tab" data-category="media">媒体娱乐</div>
-            <div class="category-tab" data-category="web">网页应用</div>
-        </div>
-        
-        <div class="category">
-            <h2>已发布的项目</h2>
-            <div class="links">
-                <a href="/shk.html" class="project-item" data-category="tools" data-date="2025-9-12">
-                    <div class="project-title">SHK 作弊脚本<span class="project-date">2025-9-12</span></div>
-                    <div class="project-desc">基于Tampermonkey的Yp3D-Ships3D作弊脚本</div>
-                </a>
-                
-                <a href="/micige_cipher.html" class="project-item" data-category="tools" data-date="2025-8-30">
-                    <div class="project-title">秘加块·伪诗词信息加密系统<span class="project-date">2025-8-30</span></div>
-                    <div class="project-desc">基于伪诗词的信息加密系统，保护您的隐私数据</div>
-                </a>
-                
-                <a href="/dashsaver.html" class="project-item" data-category="tools" data-date="2025-8-22">
-                    <div class="project-title">DashSaver屏保仪表盘<span class="project-date">2025-8-22</span></div>
-                    <div class="project-desc">使您用上更优质，更灵动的纯前端屏保</div>
-                </a>
-                
-                <a href="https://wangmou-yaa.github.io/F+Launcher.html" class="project-item" data-category="tools" data-date="2023-02-13">
-                    <div class="project-title">F(AST)＋Launcher<span class="project-date">2023-02-13</span></div>
-                    <div class="project-desc">Minecraft JAVA 启动器，助您快速部署游戏环境</div>
-                </a>
-                
-                <a href="/astral_simulation.html" class="project-item" data-category="games" data-date="2025-7-11">
-                    <div class="project-title">2D星体运行模拟<span class="project-date">2025-7-11</span></div>
-                    <div class="project-desc">探索宇宙中星体运行规律的2D模拟器</div>
-                </a>
-                
-                <a href="https://adba.ct.ws" class="project-item" data-category="web" data-date="2024-10-4">
-                    <div class="project-title">ADBAPI·随机二次元图片API<span class="project-date">2024-10-4</span></div>
-                    <div class="project-desc">为开发者提供的随机二次元图片API服务</div>
-                </a>
-                
-                <a href="/gobangbot.html" class="project-item" data-category="games" data-date="2025-7-20">
-                    <div class="project-title">五子棋AI<span class="project-date">2025-7-20</span></div>
-                    <div class="project-desc">挑战人工智能五子棋对手</div>
-                </a>
-                
-                <a href="/fm.html" class="project-item" data-category="media" data-date="2024-12-10">
-                    <div class="project-title">在线FM播放器（持续更新）<span class="project-date">2024-12-10</span></div>
-                    <div class="project-desc">在线收听各种FM电台节目</div>
-                </a>
-                
-                <a href="/getcode.html" class="project-item" data-category="tools" data-date="2025-9-21">
-                    <div class="project-title">网站源代码获取<span class="project-date">2025-9-21</span></div>
-                    <div class="project-desc">在线页面源代码查看器，获取任何网页的HTML源代码</div>
-                </a>
-                
-                <a href="/online.html" class="project-item" data-category="tools" data-date="2024-08-27">
-                    <div class="project-title">HTML/CSS/JS编辑器<span class="project-date">2024-08-27</span></div>
-                    <div class="project-desc">在线编写和预览HTML、CSS和JavaScript代码</div>
-                </a>
-                
-                <a href="https://wangmou-yaa.github.io" class="project-item" data-category="web" data-date="2023-01-01">
-                    <div class="project-title">软件项目发布站<span class="project-date">2023-01-01</span></div>
-                    <div class="project-desc">FastNow Studio软件项目发布平台</div>
-                </a>
-                
-                <a href="/kaomoji.html" class="project-item" data-category="tools" data-date="2025-08-02">
-                    <div class="project-title">颜文字字典<span class="project-date">2025-08-02</span></div>
-                    <div class="project-desc">丰富的颜文字表情集合，一键复制使用</div>
-                </a>
-                
-                <a href="https://fastnow.pages.dev" class="project-item" data-category="tools" data-date="2023-01-01">
-                    <div class="project-title">个人工具站（VPN）<span class="project-date">2023-01-01</span></div>
-                    <div class="project-desc">各种实用在线工具集合</div>
-                </a>
-                
-                <a href="/wyymusic.html" class="project-item" data-category="media" data-date="2025-02-07">
-                    <div class="project-title">网易云音乐解析<span class="project-date">2025-02-07</span></div>
-                    <div class="project-desc">网易云音乐资源解析与下载工具</div>
-                </a>
-                
-                <a href="/game_of_life.html" class="project-item" data-category="games" data-date="2024-11-18">
-                    <div class="project-title">康威的生命游戏<span class="project-date">2024-11-18</span></div>
-                    <div class="project-desc">经典的细胞自动机模拟游戏</div>
-                </a>
-                
-                <a href="https://wenku.rf.gd" class="project-item" data-category="web" data-date="2024-11-05">
-                    <div class="project-title">毛泽东选集在线阅读<span class="project-date">2024-11-05</span></div>
-                    <div class="project-desc">提供毛泽东选集的在线阅读体验</div>
-                </a>
-                
-                <a class="project-item disabled-link" data-category="none" data-date="1145-14-19">
-                    <div class="project-title">持续更新<span class="project-date">2022-06-28</span></div>
-                    <div class="project-desc">更多项目正在开发中，敬请期待</div>
-                </a>
-            </div>
-        </div>
-        
-        <footer>
-            <a href="https://icp.gov.moe/?keyword=20255560" target="_blank">萌ICP备20255560号</a>
-            <p>© <script>document.write(new Date().getFullYear())</script> FastNow Team | BSD 3-Clause</p>
-        </footer>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            sortProjectsByDate();
-            waitForResources();
+(function() {
+    'use strict';
+    
+    const config = {
+        lazyLoadDelay: 1000,
+        scrollThreshold: 300
+    };
+    
+    const state = {
+        currentTheme: localStorage.getItem('theme') || 'light',
+        isSidebarOpen: false,
+        scrollPosition: 0
+    };
+    
+    const elements = {
+        sidebar: document.getElementById('sidebar'),
+        sidebarToggle: document.getElementById('sidebarToggle'),
+        sidebarClose: document.getElementById('sidebarClose'),
+        globalLoader: document.getElementById('global-loader'),
+        pageContent: document.querySelector('.page-content'),
+        scrollDown: document.getElementById('scrollDown'),
+        searchInput: document.getElementById('searchInput'),
+        themeToggle: document.getElementById('themeToggle'),
+        backToTop: document.getElementById('backToTop'),
+        categoryTabs: document.querySelectorAll('.category-tab'),
+        projects: document.querySelectorAll('.project-item'),
+        linksContainer: document.querySelector('.links')
+    };
+    
+    function init() {
+        fixMusicPlayerZIndex();
+        setupEventListeners();
+        applySavedTheme();
+        addDateAndTopLabels();
+        sortProjectsByDate();
+        setupIntersectionObserver();
+        handleInitialLoad();
+    }
+    
+    function fixMusicPlayerZIndex() {
+        const musicPlayer = document.querySelector('.aplayer');
+        if (musicPlayer) {
+            musicPlayer.style.zIndex = '1002';
+            musicPlayer.style.pointerEvents = 'auto';
+            
+            const bodyFixed = document.querySelector('.aplayer-body');
+            if (bodyFixed) {
+                bodyFixed.style.zIndex = '1002';
+                bodyFixed.style.pointerEvents = 'auto';
+            }
+            
+            const fixedControls = document.querySelectorAll('.aplayer-fixed .aplayer-miniswitcher, .aplayer-fixed .aplayer-icon');
+            fixedControls.forEach(control => {
+                control.style.zIndex = '1003';
+                control.style.pointerEvents = 'auto';
+            });
+        }
+        
+        document.addEventListener('click', function(e) {
+            const isMusicPlayer = e.target.closest('.aplayer');
+            if (isMusicPlayer) {
+                e.stopPropagation();
+            }
+        });
+    }
+    
+    function setupEventListeners() {
+        window.addEventListener('load', handleWindowLoad);
+        window.addEventListener('scroll', throttle(handleScroll, 100));
+        window.addEventListener('resize', throttle(handleResize, 250));
+        
+        if (elements.sidebarToggle) {
+            elements.sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+        
+        if (elements.sidebarClose) {
+            elements.sidebarClose.addEventListener('click', closeSidebar);
+        }
+        
+        if (elements.scrollDown) {
+            elements.scrollDown.addEventListener('click', scrollToContent);
+        }
+        
+        if (elements.searchInput) {
+            elements.searchInput.addEventListener('input', debounce(handleSearch, 300));
+        }
+        
+        if (elements.themeToggle) {
+            elements.themeToggle.addEventListener('click', toggleTheme);
+        }
+        
+        if (elements.backToTop) {
+            elements.backToTop.addEventListener('click', scrollToTop);
+        }
+        
+        elements.categoryTabs.forEach(tab => {
+            tab.addEventListener('click', () => filterProjects(tab.dataset.category));
         });
         
-        function waitForResources() {
-            // 确保已加载完成
-            const images = document.querySelectorAll('img');
-            let loadedImages = 0;
-            const totalImages = images.length;
-            
-            if (totalImages === 0) {
-                checkPageStatus();
-                return;
-            }
-            
-            // 监听加载
-            images.forEach(img => {
-                if (img.complete) {
-                    loadedImages++;
-                } else {
-                    img.addEventListener('load', imageLoaded);
-                    img.addEventListener('error', imageLoaded); // 失败继续加载，下面有保障
-                }
-            });
-            
-            function imageLoaded() {
-                loadedImages++;
-                if (loadedImages >= totalImages) {
-                    checkPageStatus();
-                }
-            }
-            
-            // 设置超时，防止资源永不加载
-            setTimeout(checkPageStatus, 5000);
-        }
+        document.addEventListener('click', handleDocumentClick);
         
-        function checkPageStatus() {
-            // 确保DOM已完全解析
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', hideGlobalLoader);
-            } else {
-                setTimeout(hideGlobalLoader, 300);
-            }
-        }
+        const menuLinks = document.querySelectorAll('.sidebar-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', handleMenuLinkClick);
+        });
         
-        // 加载完成后动画
-        function hideGlobalLoader() {
-            const globalLoader = document.getElementById('global-loader');
-            const pageContent = document.querySelector('.page-content');
-            
-            globalLoader.style.opacity = '0';
-            
-            setTimeout(function() {
-                pageContent.style.opacity = '1';
-                
-                setTimeout(function() {
-                    globalLoader.style.display = 'none';
+        document.addEventListener('DOMContentLoaded', fixMusicPlayerZIndex);
+    }
+    
+    function handleWindowLoad() {
+        setTimeout(() => {
+            if (elements.globalLoader) {
+                elements.globalLoader.style.opacity = '0';
+                setTimeout(() => {
+                    elements.globalLoader.style.display = 'none';
+                    if (elements.pageContent) {
+                        elements.pageContent.style.opacity = '1';
+                    }
+                    loadLazyResources();
+                    fixMusicPlayerZIndex();
                 }, 500);
-            }, 300);
+            }
+        }, 800);
+    }
+    
+    function handleInitialLoad() {
+        if (document.readyState === 'complete') {
+            handleWindowLoad();
         }
-        
-        // 搜索
-        const searchInput = document.getElementById('searchInput');
-        const projectItems = document.querySelectorAll('.project-item');
-        
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            
-            projectItems.forEach(item => {
-                const title = item.querySelector('.project-title').textContent.toLowerCase();
-                const desc = item.querySelector('.project-desc').textContent.toLowerCase();
-                
-                if (title.includes(searchTerm) || desc.includes(searchTerm)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
+    }
+    
+    function loadLazyResources() {
+        setTimeout(() => {
+            const images = document.querySelectorAll('img[data-src]');
+            images.forEach(img => {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
             });
-        });
-        
-        const categoryTabs = document.querySelectorAll('.category-tab');
-        
-        categoryTabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                categoryTabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
-                const category = this.getAttribute('data-category');
-                
-                projectItems.forEach(item => {
-                    if (category === 'all') {
-                        item.style.display = 'block';
-                    } else {
-                        const itemCategory = item.getAttribute('data-category');
-                        if (itemCategory === category) {
-                            item.style.display = 'block';
-                        } else {
-                            item.style.display = 'none';
-                        }
+        }, config.lazyLoadDelay);
+    }
+    
+    function setupIntersectionObserver() {
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
                     }
                 });
-            });
-        });
-        
-        // 排序
-        function sortProjectsByDate() {
-            const linksContainer = document.querySelector('.links');
-            const items = Array.from(projectItems);
+            }, { threshold: 0.1 });
             
-            items.sort((a, b) => {
-                const dateA = new Date(a.getAttribute('data-date'));
-                const dateB = new Date(b.getAttribute('data-date'));
-                return dateB - dateA;
-            });
-            
-            items.forEach(item => {
-                linksContainer.appendChild(item);
+            document.querySelectorAll('.project-item').forEach(item => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(item);
             });
         }
+    }
+    
+    function handleScroll() {
+        state.scrollPosition = window.pageYOffset;
+        
+        if (elements.backToTop) {
+            if (state.scrollPosition > config.scrollThreshold) {
+                elements.backToTop.classList.add('visible');
+            } else {
+                elements.backToTop.classList.remove('visible');
+            }
+        }
+        
+        updateActiveMenuLink();
+    }
+    
+    function handleResize() {
+        if (window.innerWidth > 1024) {
+            openSidebar();
+            if (elements.sidebarToggle) {
+                elements.sidebarToggle.classList.add('hidden');
+            }
+        } else {
+            closeSidebar();
+            if (elements.sidebarToggle) {
+                elements.sidebarToggle.classList.remove('hidden');
+            }
+        }
+        
+        fixMusicPlayerZIndex();
+    }
+    
+    function toggleSidebar() {
+        if (state.isSidebarOpen) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    }
+    
+    function openSidebar() {
+        if (elements.sidebar) {
+            elements.sidebar.classList.add('show');
+            state.isSidebarOpen = true;
+        }
+        if (elements.sidebarToggle) {
+            elements.sidebarToggle.classList.add('hidden');
+        }
+    }
+    
+    function closeSidebar() {
+        if (elements.sidebar) {
+            elements.sidebar.classList.remove('show');
+            state.isSidebarOpen = false;
+        }
+        if (window.innerWidth <= 1024 && elements.sidebarToggle) {
+            elements.sidebarToggle.classList.remove('hidden');
+        }
+    }
+    
+    function handleDocumentClick(event) {
+        if (state.isSidebarOpen && 
+            elements.sidebar && 
+            !elements.sidebar.contains(event.target) && 
+            elements.sidebarToggle && 
+            !elements.sidebarToggle.contains(event.target)) {
+            closeSidebar();
+        }
+    }
+    
+    function scrollToContent() {
+        window.scrollTo({
+            top: window.innerHeight,
+            behavior: 'smooth'
+        });
+    }
+    
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+    
+    function handleSearch(event) {
+        const searchTerm = event.target.value.toLowerCase();
+        
+        elements.projects.forEach(project => {
+            const title = project.querySelector('.project-title').textContent.toLowerCase();
+            const desc = project.querySelector('.project-desc').textContent.toLowerCase();
+            const matches = title.includes(searchTerm) || desc.includes(searchTerm);
+            project.style.display = matches ? 'block' : 'none';
+        });
+    }
+    
+    function handleMenuLinkClick(event) {
+        const href = this.getAttribute('href');
+        
+        if (href.startsWith('#')) {
+            event.preventDefault();
+            const targetId = href.substring(1);
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        closeSidebar();
+    }
+    
+    function updateActiveMenuLink() {
+        const sections = document.querySelectorAll('section, .category');
+        const navLinks = document.querySelectorAll('.sidebar-menu a');
+        
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (state.scrollPosition >= sectionTop - 200) {
+                current = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
+    }
+    
+    function addDateAndTopLabels() {
+        elements.projects.forEach(project => {
+            const date = project.getAttribute('data-date');
+            const isTop = project.hasAttribute('data-top');
+            const titleElement = project.querySelector('.project-title');
+            
+            const existingLabels = titleElement.querySelectorAll('.project-date, .project-top');
+            existingLabels.forEach(label => label.remove());
+            
+            if (isTop) {
+                const topSpan = document.createElement('span');
+                topSpan.className = 'project-top';
+                topSpan.textContent = '置顶';
+                titleElement.appendChild(topSpan);
+            }
+            
+            if (date) {
+                const dateSpan = document.createElement('span');
+                dateSpan.className = 'project-date';
+                dateSpan.textContent = date;
+                titleElement.appendChild(dateSpan);
+            }
+        });
+    }
+    
+    function sortProjectsByDate() {
+        if (!elements.linksContainer) return;
+        
+        const projects = Array.from(elements.linksContainer.querySelectorAll('.project-item'));
+        const topProjects = projects.filter(project => project.getAttribute('data-top') === 'true');
+        const normalProjects = projects.filter(project => project.getAttribute('data-top') !== 'true');
+        
+        topProjects.sort((a, b) => new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date')));
+        normalProjects.sort((a, b) => new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date')));
+        
+        elements.linksContainer.innerHTML = '';
+        [...topProjects, ...normalProjects].forEach(project => {
+            elements.linksContainer.appendChild(project);
+        });
+        
+        elements.projects = elements.linksContainer.querySelectorAll('.project-item');
+    }
+    
+    function filterProjects(category) {
+        elements.categoryTabs.forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        elements.projects.forEach(project => {
+            if (category === 'all' || project.getAttribute('data-category') === category) {
+                project.style.display = 'block';
+            } else {
+                project.style.display = 'none';
+            }
+        });
+    }
+    
+    function applySavedTheme() {
+        document.documentElement.setAttribute('data-theme', state.currentTheme);
+        updateThemeIcon();
+    }
+    
+    function toggleTheme() {
+        state.currentTheme = state.currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', state.currentTheme);
+        localStorage.setItem('theme', state.currentTheme);
+        updateThemeIcon();
+    }
+    
+    function updateThemeIcon() {
+        if (elements.themeToggle) {
+            const icon = elements.themeToggle.querySelector('i');
+            icon.className = state.currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+    }
+    
+    function throttle(func, limit) {
+        let inThrottle;
+        return function() {
+            const args = arguments;
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        }
+    }
+    
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func.apply(this, args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+    }
+})();
     </script>
 </body>
 </html>

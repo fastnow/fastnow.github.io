@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XTC校验码计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        input, button {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        .mode-selector {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .mode-button {
+            flex: 1;
+            padding: 8px;
+            margin: 0 2px;
+            cursor: pointer;
+        }
+        .active {
+            background-color: #007bff;
+            color: white;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            text-align: center;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .hidden {
+            display: none;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h2>XTC校验码计算器</h2>
+    
+    <div class="input-group">
+        <input type="text" id="codeInput" placeholder="请输入校验码..." maxlength="20">
+    </div>
+    
+    <div class="mode-selector">
+        <button class="mode-button active" data-mode="adb">ADB</button>
+        <button class="mode-button" data-mode="zj">自检</button>
+    </div>
+    
+    <button id="calculateBtn">计算</button>
+    
+    <div id="resultContainer" class="result hidden">
+        <div id="resultTitle"></div>
+        <div id="resultValue"></div>
+    </div>
+    
+    <div class="footer">
+       <p>如输入校验码后提示“验证中”，代表手表已经升级为V3版本校验码。操作参考：<a class="github-info" href="https://b23.tv/Wx3GakL">【小天才高版本V3 root破解教程-哔哩哔哩】</a></p>
+       <p>&copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</p>
+    </div>
+
+    <script>
+        function calculateCode(input, mode) {
+            try {
+                if (mode === "adb") {
+                    if (input.length !== 10) return "";
+                    
+                    const e = parseInt(input.substring(0, 2));
+                    const o = parseInt(input.substring(2, 4));
+                    const n = parseInt(input.substring(4, 6));
+                    const s = parseInt(input.substring(6, 8));
+                    const a = parseInt(input.substring(8)) ^ (n + s);
+                    
+                    const values1 = [n ^ a, o ^ a, e ^ a, s ^ a, a];
+                    let str1 = "";
+                    for (const val of values1) {
+                        str1 += val.toString().padStart(2, '0');
+                    }
+                    
+                    const m = parseInt(str1.substring(0, 2));
+                    const y = parseInt(str1.substring(2, 4));
+                    const g = parseInt(str1.substring(4, 6));
+                    const d = parseInt(str1.substring(6, 8));
+                    const S = parseInt(str1.substring(8));
+                    
+                    const E = d ^ g;
+                    const I = S ^ g;
+                    const _ = g ^ (E + I);
+                    const v = m ^ I;
+                    const L = y ^ I;
+                    
+                    const values2 = [v, L, E, I, _];
+                    let result = "";
+                    for (const val of values2) {
+                        result += val.toString().padStart(2, '0');
+                    }
+                    
+                    return result;
+                } 
+                else if (mode === "zj") {
+                    if (input.length !== 6) return "";
+                    
+                    const e = parseInt(input.substring(0, 2));
+                    const o = parseInt(input.substring(2, 4));
+                    const s = parseInt(input.substring(4)) ^ (e + o);
+                    
+                    const values1 = [e ^ s, o ^ s, s];
+                    let str1 = "";
+                    for (const val of values1) {
+                        str1 += val.toString().padStart(2, '0');
+                    }
+                    
+                    const i = parseInt(str1.substring(0, 2));
+                    const h = parseInt(str1.substring(2, 4));
+                    const f = parseInt(str1.substring(4));
+                    
+                    const u = h ^ i;
+                    const m = f ^ i;
+                    const y = i ^ (u + m);
+                    
+                    const values2 = [u, m, y];
+                    let result = "";
+                    for (const val of values2) {
+                        result += val.toString().padStart(2, '0');
+                    }
+                    
+                    return result;
+                }
+            } catch {
+                return "";
+            }
+            return "";
+        }
+
+        function calculateV3Code(input, mode) {
+            try {
+                const e = mode === "adb" ? 2 : 1;
+                
+                if (!/^\d+$/.test(input)) return "";
+                
+                const o = parseInt(input[7]) ^ e;
+                const n = (parseInt(input[o]) - o + 10) % 10;
+                
+                let s = "";
+                for (let i = 0; i < 7; i++) {
+                    if (i === o) {
+                        s += n.toString();
+                    } else {
+                        const f = parseInt(input[i]);
+                        s += ((f + 10 - n) % 10).toString();
+                    }
+                }
+                
+                const c = Math.floor(Math.random() * 7);
+                const a = parseInt(s[c]);
+                
+                let l = "";
+                for (let i = 0; i < 7; i++) {
+                    const h = i === c ? c : a;
+                    const f = parseInt(s[i]);
+                    l += ((f + h) % 10).toString();
+                }
+                
+                return l + (e ^ c).toString();
+            } catch {
+                return "";
+            }
+        }
+
+        function calculate(input, mode) {
+            if (input.length === 8) {
+                let result;
+                do {
+                    result = calculateV3Code(input, mode);
+                } while (!result || result === input);
+                return result;
+            } else {
+                return calculateCode(input, mode);
+            }
+        }
+
+        class Calculator {
+            constructor() {
+                this.codeInput = document.getElementById("codeInput");
+                this.calculateBtn = document.getElementById("calculateBtn");
+                this.modeButtons = document.querySelectorAll(".mode-button");
+                this.resultContainer = document.getElementById("resultContainer");
+                this.resultTitle = document.getElementById("resultTitle");
+                this.resultValue = document.getElementById("resultValue");
+                this.currentMode = "adb";
+                
+                this.attachEventListeners();
+            }
+            
+            attachEventListeners() {
+                this.calculateBtn.addEventListener("click", () => this.calculate());
+                
+                this.codeInput.addEventListener("keypress", (e) => {
+                    if (e.key === "Enter") this.calculate();
+                });
+                
+                this.modeButtons.forEach(button => {
+                    button.addEventListener("click", () => this.setMode(button.dataset.mode));
+                });
+            }
+            
+            setMode(mode) {
+                this.currentMode = mode;
+                this.modeButtons.forEach(button => {
+                    if (button.dataset.mode === mode) {
+                        button.classList.add("active");
+                    } else {
+                        button.classList.remove("active");
+                    }
+                });
+            }
+            
+            calculate() {
+                const input = this.codeInput.value.trim();
+                
+                if (!input) {
+                    this.showError("请输入校验码");
+                    return;
+                }
+                
+                if (!/^\d+$/.test(input)) {
+                    this.showError("校验码必须为数字");
+                    return;
+                }
+                
+                const result = calculate(input, this.currentMode);
+                
+                if (!result) {
+                    this.showError("计算失败，请检查输入格式");
+                } else {
+                    this.showSuccess(result);
+                }
+            }
+            
+            showError(message) {
+                this.resultContainer.className = "result error";
+                this.resultTitle.textContent = "错误";
+                this.resultValue.textContent = message;
+                this.resultContainer.classList.remove("hidden");
+            }
+            
+            showSuccess(result) {
+                this.resultContainer.className = "result success";
+                this.resultTitle.textContent = "计算结果";
+                this.resultValue.textContent = result;
+                this.resultContainer.classList.remove("hidden");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            new Calculator();
+        });
+    </script>
+</body>
+</html>
