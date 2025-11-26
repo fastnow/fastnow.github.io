@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>pixivST展示器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary-color: #4296FF;
+            --background-color: #f8f9fa;
+            --text-color: #212529;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #6c757d;
+            --background-color: #212529;
+            --text-color: #f8f9fa;
+        }
+
+        body {
+            margin: 0;
+            padding: 1rem;
+            background: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--background-color);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--primary-color);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .preview-box {
+            background: #f4f4f4;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            cursor: zoom-in;
+        }
+
+        .preview-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .preview-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .meta-item {
+            padding: 1.5rem;
+            background: rgba(0,0,0,0.03);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 1rem;
+            margin: 0.3rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            transition: transform 0.2s;
+        }
+
+        .tag:hover {
+            transform: scale(1.05);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .disclaimer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .disclaimer-content {
+            background: var(--background-color);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 1rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="disclaimer" class="disclaimer-modal">
+        <div class="disclaimer-content">
+            <h2>注意</h2>
+            <p>1. 本网站所有内容均为自动收集第三方公开内容，不代表本站立场</p>
+            <p>2. 使用者应对内容自行判断，本站不承担任何法律责任</p>
+            <p><strong>3. [R18] 未成年人不得使用</strong></p>
+            <p> 4. 如有无法显示的图片，重新刷新即可</p>
+            <p>5. 继续使用即表示您已阅读并同意本声明</p>
+            <button class="button" onclick="acceptDisclaimer()" style="margin-top: 1rem;">同意并继续</button>
+            
+        </div>
+    </div>
+    <div class="container">
+        <div class="loading-overlay" id="loading">
+            <div class="spinner"></div>
+        </div>
+        <div id="display-area"></div>
+    </div>
+    <button class="button theme-toggle" id="themeToggle">🌓</button>
+    <footer style="margin-top: 15px; font-size: 0.8rem; color: #666; text-align: center;"> &copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</footer>
+<script>
+const endpoints = {
+            list: 'https://gcore.jsdelivr.net/gh/Mabbs/pixiv-index/index.json',
+            detail: 'https://gcore.jsdelivr.net/gh/Mabbs/pixiv-index/data/',
+            image: 'i.pximg.net/'
+};
+let currentData = null;
+
+async function loadContent() {
+    showLoading(true);
+    try {
+        const listRes = await fetch(endpoints.list);
+        if (!listRes.ok) throw new Error(`列表请求失败 ${listRes.status}`);
+        const files = await listRes.json();
+        
+        const target = files[Math.floor(Math.random() * files.length)];
+        const detailRes = await fetch(`${endpoints.detail}${target.includes('.json') ? target : target + '.json'}`);
+        if (!detailRes.ok) throw new Error(`详情请求失败 ${detailRes.status}`);
+        const data = await detailRes.json();
+        
+        if (data.error) throw new Error(data.error);
+        if (!data.urls?.regular && !data.url) throw new Error('资源错误');
+        
+        currentData = data;
+        renderDisplay(data);
+        showLoading(false);
+    } catch (err) {
+        showError(err.message);
+        showLoading(false);
+    }
+}
+
+function checkDisclaimer() {
+    if (!localStorage.getItem('disclaimerAccepted')) {
+        document.getElementById('disclaimer').style.display = 'flex';
+    } else {
+        document.getElementById('disclaimer').style.display = 'none';
+    }
+}
+
+function acceptDisclaimer() {
+    localStorage.setItem('disclaimerAccepted', 'true');
+    document.getElementById('disclaimer').style.display = 'none';
+    loadContent();
+}
+
+function renderDisplay(item) {
+    const container = document.getElementById('display-area');
+    const imgPath = item.urls?.regular || item.url;
+    const fullImgUrl = imgPath.startsWith('http') ? imgPath : `${endpoints.image}${imgPath}`;
+    
+    const uploadTime = new Date(item.uploadDate);
+    const timeString = uploadTime.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    container.innerHTML = `
+        <div class="grid">
+            <div class="preview-box" onclick="zoomImage()">
+                <img class="preview-img" src="${fullImgUrl}" alt="${item.title}" loading="lazy">
+            </div>
+            
+            <div class="info-panel">
+                <div class="meta-item">
+                    <h2 style="margin:0">${item.title}</h2>
+                    <p>作者：${item.author}</p>
+                    <p>PID：${item.pid}</p>
+                    <p>UID：${item.uid}</p>
+                    <p>时间：${timeString}</p>
+                    <p>尺寸：${item.width} × ${item.height}</p>
+                    <p>AI：${item.aiType ? '✓' : '×'}</p>
+                </div>
+                
+                <div class="meta-item">
+                    <p>标签：</p>
+                    <div>${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="button" onclick="downloadImage()">⬇️ 下载</button>
+                    <button class="button" onclick="loadContent()">🔄 随机</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function downloadImage() {
+    const link = document.createElement('a');
+    link.href = currentData.urls?.original || currentData.url;
+    link.download = `${currentData.title}.${currentData.ext}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function zoomImage() {
+    const overlay = document.createElement('div');
+    overlay.style = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: zoom-out;
+        z-index: 1000;
+    `;
+    overlay.onclick = () => overlay.remove();
+    
+    const img = document.createElement('img');
+    img.src = currentData.urls?.original || currentData.url;
+    img.style = 'max-width: 90%; max-height: 90%; object-fit: contain;';
+    
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
+}
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+    document.body.setAttribute('data-theme',
+        document.body.getAttribute('data-theme') === 'dark' ? '' : 'dark'
+    );
+});
+
+function showLoading(show) {
+    document.getElementById('loading').style.display = show ? 'flex' : 'none';
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') loadContent();
+});
+
+window.addEventListener('DOMContentLoaded', loadContent);
+window.addEventListener('DOMContentLoaded', () => {
+    checkDisclaimer();
+});
+</script>
+</body>
+</html>
