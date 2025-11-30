@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="msvalidate.01" content="B6C642AC3D70694AB2808E3D282C6D76" />
+    <meta name="msvalidate.01" content="B6C642AC3D70694AB2808E3D282C6D76">
     
     <meta name="description" content="FastNow Studio - 提供创新的网页工具、游戏模拟和媒体娱乐应用。">
     <meta name="keywords" content="FastNow, 网页工具, 在线应用, 游戏模拟, 伪诗词加密, 屏保仪表盘, 星体模拟, 五子棋AI">
@@ -14,24 +14,16 @@
     <meta property="og:url" content="https://fastnow.github.io">
     <meta name="robots" content="index, follow">
     
-    <link rel="stylesheet" href="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
-    <script src="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
- 
-    <meting-js 
-        server="netease" 
-        type="playlist" 
-        id="13089847854"
-        fixed="true" 
-        mini="true"
-        order="random"
-        loop="all"
-        preload="auto"
-        list-folded="false">
-    </meting-js>
+    <link rel="preload" href="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style">
+    <link rel="preload" href="https://t.alcy.cc/ycy" as="image">
+    <link rel="stylesheet" href="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <meting-js server="netease"type="playlist"id="13089847854"fixed="true"mini="true"order="random"loop="all"preload="auto"list-folded="false"></meting-js>
+    
     <title>FastNow Studio - 创新网页工具与应用集合</title>
-    <style>      
+    
+    <style>
         :root {
             --bg-color: #f5f5f5;
             --text-color: #333;
@@ -60,174 +52,26 @@
             --sidebar-text: #e0e0e0;
         }
 
-        .banner {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.loading {
+            overflow: hidden;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: #fff;
-            padding: 0 20px;
-            position: relative;
-            background: url(https://t.alcy.cc/ycy) center/cover no-repeat fixed;
-            margin-bottom: 40px;
-        }
-        .banner::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0);
-            z-index: 1;
-        }
-        .banner-content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-        .banner-title {
-            font-size: 3rem;
-            font-weight: 300;
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-            mix-blend-mode: difference;
-            animation: fadeInUp 1s ease-out;
-        }
-        .banner-desc {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            opacity: 0.9;
-            min-height: 1.5em;
-            mix-blend-mode: difference;
-            animation: fadeInUp 1s ease-out 0.3s both;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .scroll-down {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            animation: bounce 2s infinite;
-            cursor: pointer;
-        }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
-            40% { transform: translateY(-15px) translateX(-50%); }
-            60% { transform: translateY(-7px) translateX(-50%); }
-        }
-
-        .sidebar-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            cursor: pointer;
-            border: none;
-            color: #222;
-            font-size: 1.2rem;
-            display: none;
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar-toggle.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 30%;
-            max-width: 320px;
-            min-width: 240px;
-            height: 100vh;
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 2px 0 15px rgba(0,0,0,0.08);
-            z-index: 1000;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            padding: 30px 20px;
-            overflow-y: auto;
-        }
-        .sidebar.show {
-            transform: translateX(0);
-        }
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(221, 221, 221, 0.5);
-        }
-        .sidebar-logo {
-            font-size: 1.5rem;
-            font-weight: 400;
-            color: var(--sidebar-text);
-        }
-        .sidebar-close {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: #666;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .sidebar-close:hover {
-            color: var(--sidebar-text);
-        }
-        .sidebar-menu {
-            list-style: none;
-        }
-        .sidebar-menu li {
-            margin-bottom: 12px;
-        }
-        .sidebar-menu a {
-            display: block;
-            padding: 10px 15px;
-            border-radius: 6px;
-            color: var(--sidebar-text);
-            text-decoration: none;
-            transition: all 0.2s;
-            font-size: 0.95rem;
-        }
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--sidebar-text);
-        }
-        .sidebar-divider {
-            height: 1px;
-            background: rgba(221, 221, 221, 0.5);
-            margin: 25px 0;
-        }
-        .sidebar-footer {
-            font-size: 0.8rem;
-            color: #666;
-            text-align: center;
-            padding-top: 15px;
-        }
-
+        /* 加载 */
         #global-loader {
             position: fixed;
             top: 0;
@@ -240,10 +84,14 @@
             align-items: center;
             z-index: 9999;
             transition: opacity 0.5s ease-out;
+            overflow: hidden;
+            touch-action: none;
         }
+
         .loader-content {
             text-align: center;
         }
+
         .loader-logo {
             font-size: 2.5rem;
             font-weight: 300;
@@ -251,6 +99,7 @@
             color: #222;
             letter-spacing: 2px;
         }
+
         .loader {
             position: relative;
             font-size: 16px;
@@ -258,6 +107,7 @@
             height: 5.5em;
             margin: 0 auto 30px auto;
         }
+
         .loader:before {
             content: '';
             position: absolute;
@@ -268,6 +118,7 @@
             left: 50%;
             top: 50%;
         }
+
         .loader:after {
             content: '';
             position: absolute;
@@ -279,6 +130,7 @@
             border-radius: 15%;
             animation: rollingRock 2.5s cubic-bezier(.79, 0, .47, .97) infinite;
         }
+
         @keyframes rollingRock {
             0% { transform: translate(0, -1em) rotate(-45deg) }
             5% { transform: translate(0, -1em) rotate(-50deg) }
@@ -292,81 +144,257 @@
             75% { transform: translate(3em, -4em) rotate(220deg) }
             100% { transform: translate(0, -1em) rotate(-225deg) }
         }
+
         .loader-text {
             margin-top: 15px;
             font-size: 0.9rem;
             color: #666;
         }
-        .page-content {
-            opacity: 0;
-            transition: opacity 0.5s ease-in;
-            margin-left: 30%;
-            max-width: calc(100% - 30%);
+
+        .loading-steps {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9998;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            overflow-y: auto;
+            pointer-events: none;
+            background: transparent;
+            text-align: left;
+            width: auto;
+            max-width: 80vw;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .step-line {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            opacity: 0;
+            animation: fadeInStep 0.5s ease-out forwards;
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: clip;
+            min-height: 18px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background: var(--bg-color);
-            padding: 0;
-            margin: 0;
-            transition: background-color 0.3s, color 0.3s;
+
+        .step-prompt {
+            color: #666;
+            font-weight: 500;
+            margin-right: 6px;
+            flex-shrink: 0;
         }
+
+        .step-content {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .step-success {
+            color: #4CAF50;
+            margin-left: 8px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .step-error {
+            color: #f44336;
+            margin-left: 8px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .loading-stats {
+            margin-top: 12px;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
+            position: sticky;
+            bottom: 0;
+            background: transparent;
+            padding: 4px 0;
+            opacity: 0;
+            animation: fadeInStep 0.5s ease-out forwards;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes fadeInStep {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .banner {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            padding: 0 20px;
+            position: relative;
+            background: url(https://t.alcy.cc/ycy) center/cover no-repeat fixed;
+            margin-bottom: 40px;
+        }
+
+        .banner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 1;
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .banner-title {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            mix-blend-mode: difference;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .banner-desc {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            min-height: 1.5em;
+            mix-blend-mode: difference;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+            40% { transform: translateY(-15px) translateX(-50%); }
+            60% { transform: translateY(-7px) translateX(-50%); }
+        }
+
         .container {
             max-width: 900px;
             margin: 0 auto;
             padding: 0 20px;
         }
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-            padding: 20px;
-            border-bottom: 2px solid var(--header-border);
+
+        .personal-card, .notification, .search-container, .category-tabs, .project-item, footer {
+            border: 1px solid var(--card-border);
             border-radius: 10px;
+            box-shadow: var(--card-shadow);
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            box-shadow: var(--card-shadow);
         }
-        
-        .subtitle {
+
+        .personal-card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            animation: slideIn 0.5s ease-out 0.1s both;
+        }
+
+        .avatar {
+            width: 90px;
+            height: 90px;
+            margin-right: 25px;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        .username {
+            font-size: 1.7rem;
+            font-weight: 400;
+            margin-bottom: 12px;
+            color: var(--text-color);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-button {
+            display: inline-block;
+            padding: 8px 16px;
+            border: 1px solid var(--accent-color);
+            text-decoration: none;
+            color: var(--text-color);
             font-size: 0.9rem;
-            color: #666;
+            border-radius: 8px;
+            transition: all 0.2s;
         }
+
+        .social-button:hover {
+            background: var(--accent-color);
+            color: var(--button-text);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
         .notification {
             padding: 18px;
             margin-bottom: 25px;
             border-left: 4px solid #444;
-            border-radius: 10px;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: var(--card-shadow);
             animation: slideIn 0.5s ease-out;
         }
-        
+
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(-20px); }
             to { opacity: 1; transform: translateX(0); }
         }
-        
+
         .search-container {
             margin-bottom: 25px;
             position: relative;
-            border-radius: 10px;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             padding: 15px;
-            box-shadow: var(--card-shadow);
             animation: slideIn 0.5s ease-out 0.2s both;
         }
+
         .search-container input {
             width: 100%;
             padding: 14px 20px;
@@ -378,68 +406,16 @@
             background: var(--card-bg);
             color: var(--text-color);
         }
+
         .search-container input:focus {
             box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
             background: var(--card-bg);
         }
-        .personal-card {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 25px;
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            box-shadow: var(--card-shadow);
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            animation: slideIn 0.5s ease-out 0.1s both;
-        }
-        .avatar {
-            width: 90px;
-            height: 90px;
-            margin-right: 25px;
-            border: 2px solid var(--accent-color);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-        }
-        .username {
-            font-size: 1.7rem;
-            font-weight: 400;
-            margin-bottom: 12px;
-            color: var(--text-color);
-        }
-        .social-links {
-            display: flex;
-            gap: 12px;
-        }
-        .social-button {
-            display: inline-block;
-            padding: 8px 16px;
-            border: 1px solid var(--accent-color);
-            text-decoration: none;
-            color: var(--text-color);
-            font-size: 0.9rem;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        .social-button:hover {
-            background: var(--accent-color);
-            color: var(--button-text);
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
+
         .category {
             margin-bottom: 35px;
         }
+
         .category h2 {
             font-size: 1.6rem;
             font-weight: 400;
@@ -448,19 +424,15 @@
             border-bottom: 1px solid var(--card-border);
             color: var(--text-color);
         }
-        
+
         .category-tabs {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 25px;
             padding: 15px;
-            border-radius: 10px;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: var(--card-shadow);
         }
+
         .category-tab {
             padding: 10px 20px;
             border: 1px solid var(--accent-color);
@@ -471,36 +443,32 @@
             background: var(--card-bg);
             color: var(--text-color);
         }
+
         .category-tab.active, .category-tab:hover {
             background: var(--accent-color);
             color: var(--button-text);
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        
+
         .links {
             display: grid;
             grid-template-columns: 1fr;
             gap: 15px;
         }
+
         .project-item {
             display: block;
             padding: 20px;
             text-decoration: none;
             color: var(--text-color);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            box-shadow: var(--card-shadow);
             transition: all 0.3s;
             position: relative;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 0.5s ease-out forwards;
         }
-        
+
         .project-item:nth-child(1) { animation-delay: 0.1s; }
         .project-item:nth-child(2) { animation-delay: 0.15s; }
         .project-item:nth-child(3) { animation-delay: 0.2s; }
@@ -518,12 +486,13 @@
         .project-item:nth-child(15) { animation-delay: 0.8s; }
         .project-item:nth-child(16) { animation-delay: 0.85s; }
         .project-item:nth-child(17) { animation-delay: 0.9s; }
-        
+
         .project-item:hover {
             border-color: var(--accent-color);
             box-shadow: 0 6px 16px rgba(0,0,0,0.12);
             transform: translateY(-3px);
         }
+
         .project-title {
             font-weight: 500;
             margin-bottom: 10px;
@@ -532,6 +501,7 @@
             flex-wrap: wrap;
             gap: 8px;
         }
+
         .project-date {
             font-size: 0.85rem;
             color: #666;
@@ -539,6 +509,7 @@
             padding: 3px 10px;
             border-radius: 15px;
         }
+
         .project-top {
             font-size: 0.75rem;
             color: #fff;
@@ -546,11 +517,13 @@
             padding: 3px 8px;
             border-radius: 15px;
         }
+
         .project-desc {
             font-size: 0.95rem;
             color: #666;
             line-height: 1.7;
         }
+
         footer {
             text-align: center;
             padding: 30px 20px;
@@ -558,22 +531,23 @@
             font-size: 0.9rem;
             border-top: 1px solid var(--card-border);
             margin-top: 40px;
-            border-radius: 10px;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: var(--card-shadow);
+            position: relative;
+            z-index: 10;
         }
+
         footer a {
             color: var(--text-color);
             text-decoration: none;
             transition: color 0.2s;
+            position: relative;
+            z-index: 11;
         }
+
         footer a:hover {
             text-decoration: underline;
             color: var(--text-color);
         }
-        
+
         .floating-buttons {
             position: fixed;
             bottom: 30px;
@@ -584,7 +558,7 @@
             gap: 15px;
             align-items: flex-end;
         }
-        
+
         .theme-toggle, .back-to-top {
             width: 50px;
             height: 50px;
@@ -600,41 +574,59 @@
             color: var(--text-color);
             font-size: 1.2rem;
         }
-        
+
         .theme-toggle:hover, .back-to-top:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 16px rgba(0,0,0,0.15);
         }
-        
+
         .back-to-top {
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s;
         }
-        
+
         .back-to-top.visible {
             opacity: 1;
             visibility: visible;
         }
-        
+
+        /* 音乐播放器样式修复 */
+        .aplayer {
+            z-index: 1002 !important;
+        }
+
+        .aplayer.aplayer-fixed {
+            z-index: 1002 !important;
+        }
+
+        .aplayer-body {
+            z-index: 1002 !important;
+        }
+
+        .aplayer-miniswitcher {
+            z-index: 1003 !important;
+        }
+
+        .aplayer-icon {
+            z-index: 1003 !important;
+        }
+
         @media (max-width: 1024px) {
             .page-content {
                 margin-left: 0;
                 max-width: 100%;
             }
-            .sidebar {
-                transform: translateX(-100%);
-                width: 70%;
-                max-width: 300px;
-            }
-            .sidebar-toggle {
-                display: flex;
-            }
             .floating-buttons {
                 left: 20px;
                 bottom: 20px;
             }
+            .loading-steps {
+                left: 15px;
+                bottom: 15px;
+            }
         }
+
         @media (max-width: 600px) {
             .banner-title {
                 font-size: 2.2rem;
@@ -680,32 +672,15 @@
                 height: 45px;
                 font-size: 1.1rem;
             }
+            .loading-steps {
+                left: 15px;
+                bottom: 15px;
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
 <body>
-    <button class="sidebar-toggle" id="sidebarToggle">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h3 class="sidebar-logo">FastNow Studio</h3>
-            <button class="sidebar-close" id="sidebarClose">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <ul class="sidebar-menu">
-            <li><a href="https://github.com/fastnow" target="_blank">GitHub</a></li>
-            <li><a href="https://blog.csdn.net/2301_78143841" target="_blank">CSDN博客</a></li>
-            <li><a href="https://www.cnblogs.com/fastnow" target="_blank">博客园</a></li>
-        </ul>
-        <div class="sidebar-divider"></div>
-        <div class="sidebar-footer">
-            <p>逸一时，误一世。</p>
-        </div>
-    </aside>
-    
     <div class="floating-buttons">
         <button class="theme-toggle" id="themeToggle" title="切换主题">
             <i class="fas fa-moon"></i>
@@ -720,6 +695,8 @@
             <div class="loader-logo">FastNow Studio</div>
             <div class="loader"></div>
             <div class="loader-text">LOADING · 页面加载中</div>
+            <div class="loading-steps" id="loadingSteps">
+            </div>
         </div>
     </div>
 
@@ -737,7 +714,7 @@
         <div class="container">
             <div class="personal-card">
                 <div class="avatar">
-                    <img src="https://avatars.githubusercontent.com/u/177708607" alt="头像">
+                    <img src="https://avatars.githubusercontent.com/u/177708607" alt="头像" loading="lazy">
                 </div>
                 <div class="profile-info">
                     <div class="username">FastNow</div>
@@ -760,7 +737,6 @@
                     <strong>建议您收藏本页面，以便及时获取最新访问地址。</strong>
                 </div>
             </div>
-            
             
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="搜索项目（支持标题/描述关键词）..." />
@@ -866,32 +842,35 @@
             </div>
             
             <footer>
-                <a href="https://icp.gov.moe/?keyword=20255560">萌ICP备20255560号</a>
+                <a href="https://icp.gov.moe/?keyword=20255560" target="_blank">萌ICP备20255560号</a>
                 <p>© <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</p>
-                <p>索引页版本：v2.0.2-20251116</p>
+                <p>索引页版本：v2.1.3-20251130</p>
             </footer>
         </div>
     </div>
 
-    <script>
+<script>
 (function() {
     'use strict';
-    
+    // 更好的加载检测
     const config = {
-        lazyLoadDelay: 1000,
-        scrollThreshold: 300
+        scrollThreshold: 300,
+        maxWaitTime: 5000
     };
     
     const state = {
         currentTheme: localStorage.getItem('theme') || 'light',
-        isSidebarOpen: false,
-        scrollPosition: 0
+        scrollPosition: 0,
+        startTime: Date.now(),
+        loadedResources: 0,
+        totalResources: 0,
+        hasFailedResources: false,
+        timeoutId: null,
+        forceEnter: false,
+        isPageReady: false
     };
     
     const elements = {
-        sidebar: document.getElementById('sidebar'),
-        sidebarToggle: document.getElementById('sidebarToggle'),
-        sidebarClose: document.getElementById('sidebarClose'),
         globalLoader: document.getElementById('global-loader'),
         pageContent: document.querySelector('.page-content'),
         scrollDown: document.getElementById('scrollDown'),
@@ -900,57 +879,282 @@
         backToTop: document.getElementById('backToTop'),
         categoryTabs: document.querySelectorAll('.category-tab'),
         projects: document.querySelectorAll('.project-item'),
-        linksContainer: document.querySelector('.links')
+        linksContainer: document.querySelector('.links'),
+        loadingSteps: document.getElementById('loadingSteps')
+    };
+    
+    const resourceMonitor = {
+        resources: [
+            { url: 'https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css', type: 'stylesheet' },
+            { url: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', type: 'stylesheet' },
+            { url: 'https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.js', type: 'script' },
+            { url: 'https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js', type: 'script' },
+            { url: 'https://t.alcy.cc/ycy', type: 'image' },
+            { url: 'https://avatars.githubusercontent.com/u/177708607', type: 'image' }
+        ],
+        
+        init: function() {
+            state.totalResources = this.resources.length;
+            
+            this.updateStats();
+            
+            this.addStep('开始加载资源', '初始化');
+            
+            this.preloadPageContent();
+            this.startTimeoutCheck();
+            this.monitorResources();
+        },
+        
+        preloadPageContent: function() {
+            // 提前设置页面内容为可见，但透明度为0
+            if (elements.pageContent) {
+                elements.pageContent.style.display = 'block';
+                elements.pageContent.style.opacity = '0';
+                elements.pageContent.style.transition = 'opacity 0.3s ease-in';
+            }
+        },
+        
+        startTimeoutCheck: function() {
+            state.timeoutId = setTimeout(() => {
+                if (state.loadedResources < state.totalResources) {
+                    state.forceEnter = true;
+                    this.addStep('加载超时', '10秒后强制进入页面', false);
+                    this.startCountdown();
+                }
+            }, config.maxWaitTime);
+        },
+        
+        startCountdown: function() {
+            let countdown = 10;
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                
+                // 更新统计信息显示倒计时
+                this.updateStats(countdown);
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    this.forceEnterPage();
+                }
+                
+                // 如果在倒计时期间所有资源都加载完成了，清除倒计时
+                if (state.loadedResources >= state.totalResources) {
+                    clearInterval(countdownInterval);
+                    this.updateStats();
+                }
+            }, 1000);
+        },
+        
+        forceEnterPage: function() {
+            this.addStep('强制进入页面', '跳过未完成资源', false);
+            setTimeout(() => {
+                this.completeLoading();
+            }, 1000);
+        },
+        
+        monitorResources: function() {
+            this.resources.forEach(resource => {
+                this.checkResource(resource);
+            });
+        },
+        
+        checkResource: function(resource) {
+            if (resource.type === 'stylesheet') {
+                this.checkStylesheet(resource);
+            } else if (resource.type === 'script') {
+                this.checkScript(resource);
+            } else {
+                // 图片资源使用原来的检测方式
+                this.checkImage(resource);
+            }
+        },
+        
+        checkStylesheet: function(resource) {
+            const startTime = Date.now();
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = resource.url;
+            
+            // 使用更可靠的加载检测
+            link.onload = () => this.resourceLoaded(resource, Date.now() - startTime);
+            link.onerror = () => {
+                console.warn(`Stylesheet加载失败: ${resource.url}`);
+                state.hasFailedResources = true;
+                this.resourceLoaded(resource, Date.now() - startTime, true);
+            };
+            
+            document.head.appendChild(link);
+        },
+        
+        checkScript: function(resource) {
+            const startTime = Date.now();
+            const script = document.createElement('script');
+            script.src = resource.url;
+            
+            script.onload = () => this.resourceLoaded(resource, Date.now() - startTime);
+            script.onerror = () => {
+                console.warn(`Script加载失败: ${resource.url}`);
+                state.hasFailedResources = true;
+                this.resourceLoaded(resource, Date.now() - startTime, true);
+            };
+            
+            document.head.appendChild(script);
+        },
+        
+        checkImage: function(resource) {
+            const img = new Image();
+            const startTime = Date.now();
+            
+            img.onload = () => this.resourceLoaded(resource, Date.now() - startTime);
+            img.onerror = () => {
+                console.warn(`Image加载失败: ${resource.url}`);
+                state.hasFailedResources = true;
+                this.resourceLoaded(resource, Date.now() - startTime, true);
+            };
+            img.src = resource.url;
+        },
+        
+        resourceLoaded: function(resource, loadTime, hasError = false) {
+            state.loadedResources++;
+            
+            const status = hasError ? '失败' : '完成';
+            const timeStr = loadTime > 1000 ? `${(loadTime/1000).toFixed(1)}s` : `${loadTime}ms`;
+            
+            this.addStep(`加载 ${this.getResourceType(resource.type)}`, `${status} (${timeStr})`, !hasError);
+            
+            this.updateStats();
+            
+            // 如果所有资源都加载完成（无论成功失败），清除超时定时器
+            if (state.loadedResources >= state.totalResources) {
+                if (state.timeoutId) {
+                    clearTimeout(state.timeoutId);
+                    state.timeoutId = null;
+                }
+                setTimeout(() => this.allResourcesLoaded(), 500);
+            }
+        },
+        
+        getResourceType: function(type) {
+            const types = {
+                'stylesheet': 'CSS样式',
+                'script': 'JavaScript',
+                'image': '图片资源'
+            };
+            return types[type] || type;
+        },
+        
+        addStep: function(action, status, isSuccess = true) {
+            const stepLine = document.createElement('div');
+            stepLine.className = 'step-line';
+            
+            const prompt = document.createElement('span');
+            prompt.className = 'step-prompt';
+            prompt.textContent = '>';
+            
+            const content = document.createElement('span');
+            content.className = 'step-content';
+            content.textContent = ` ${action}`;
+            
+            const statusSpan = document.createElement('span');
+            statusSpan.className = isSuccess ? 'step-success' : 'step-error';
+            statusSpan.textContent = status;
+            
+            stepLine.appendChild(prompt);
+            stepLine.appendChild(content);
+            stepLine.appendChild(statusSpan);
+            
+            elements.loadingSteps.appendChild(stepLine);
+            elements.loadingSteps.scrollTop = elements.loadingSteps.scrollHeight;
+        },
+        
+        updateStats: function(countdown = null) {
+            const elapsedTime = ((Date.now() - state.startTime) / 1000).toFixed(1);
+            const remaining = state.totalResources - state.loadedResources;
+            
+            // 更新
+            let stats = elements.loadingSteps.querySelector('.loading-stats');
+            if (!stats) {
+                stats = document.createElement('div');
+                stats.className = 'loading-stats';
+                elements.loadingSteps.appendChild(stats);
+            }
+            
+            let statsText = `已加载: ${state.loadedResources}/${state.totalResources} | 剩余: ${remaining} | 用时: ${elapsedTime}s`;
+            
+            if (state.hasFailedResources) {
+                statsText += ' | 部分资源加载失败';
+            }
+            if (countdown !== null) {
+                statsText += ` | ${countdown}s后强制进入`;
+            }
+            stats.textContent = statsText;
+        },
+        
+        allResourcesLoaded: function() {
+            if (state.hasFailedResources) {
+                this.addStep('资源加载完成', '部分资源加载失败', false);
+            } else {
+                this.addStep('所有资源加载完成', '准备进入页面', true);
+            }
+            
+            setTimeout(() => {
+                this.completeLoading();
+            }, 1000);
+        },
+        
+        completeLoading: function() {
+            if (elements.globalLoader) {
+                this.showPageContent();
+                
+                setTimeout(() => {
+                    elements.globalLoader.style.opacity = '0';
+                    setTimeout(() => {
+                        elements.globalLoader.style.display = 'none';
+                        document.body.classList.remove('loading');
+                        this.initPageFeatures();
+                    }, 300);
+                }, 100);
+            }
+        },
+        
+        showPageContent: function() {
+            if (elements.pageContent) {
+                // 确保页面内容已经准备好显示
+                elements.pageContent.style.opacity = '1';
+                state.isPageReady = true;
+            }
+        },
+        
+        initPageFeatures: function() {
+            setTimeout(() => {
+                setupEventListeners();
+                applySavedTheme();
+                addDateAndTopLabels();
+                sortProjectsByDate();
+                
+                // 延迟加载音乐播放器（如果之前加载失败，这里会重新尝试）
+                this.ensureMusicPlayer();
+            }, 100);
+        },
+        
+        ensureMusicPlayer: function() {
+            if (window.APlayer && window.Meting) {
+                return;
+            }
+            
+            const metingScript = document.createElement('script');
+            metingScript.src = 'https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js';
+            document.head.appendChild(metingScript);
+        }
     };
     
     function init() {
-        fixMusicPlayerZIndex();
-        setupEventListeners();
-        applySavedTheme();
-        addDateAndTopLabels();
-        sortProjectsByDate();
-        handleInitialLoad();
-    }
-    
-    function fixMusicPlayerZIndex() {
-        const musicPlayer = document.querySelector('.aplayer');
-        if (musicPlayer) {
-            musicPlayer.style.zIndex = '1002';
-            musicPlayer.style.pointerEvents = 'auto';
-            
-            const bodyFixed = document.querySelector('.aplayer-body');
-            if (bodyFixed) {
-                bodyFixed.style.zIndex = '1002';
-                bodyFixed.style.pointerEvents = 'auto';
-            }
-            
-            const fixedControls = document.querySelectorAll('.aplayer-fixed .aplayer-miniswitcher, .aplayer-fixed .aplayer-icon');
-            fixedControls.forEach(control => {
-                control.style.zIndex = '1003';
-                control.style.pointerEvents = 'auto';
-            });
-        }
-        
-        document.addEventListener('click', function(e) {
-            const isMusicPlayer = e.target.closest('.aplayer');
-            if (isMusicPlayer) {
-                e.stopPropagation();
-            }
-        });
+        document.body.classList.add('loading');
+        resourceMonitor.init();
     }
     
     function setupEventListeners() {
-        window.addEventListener('load', handleWindowLoad);
         window.addEventListener('scroll', throttle(handleScroll, 100));
-        window.addEventListener('resize', throttle(handleResize, 250));
-        
-        if (elements.sidebarToggle) {
-            elements.sidebarToggle.addEventListener('click', toggleSidebar);
-        }
-        
-        if (elements.sidebarClose) {
-            elements.sidebarClose.addEventListener('click', closeSidebar);
-        }
         
         if (elements.scrollDown) {
             elements.scrollDown.addEventListener('click', scrollToContent);
@@ -971,47 +1175,6 @@
         elements.categoryTabs.forEach(tab => {
             tab.addEventListener('click', () => filterProjects(tab.dataset.category));
         });
-        
-        document.addEventListener('click', handleDocumentClick);
-        
-        const menuLinks = document.querySelectorAll('.sidebar-menu a');
-        menuLinks.forEach(link => {
-            link.addEventListener('click', handleMenuLinkClick);
-        });
-        
-        document.addEventListener('DOMContentLoaded', fixMusicPlayerZIndex);
-    }
-    
-    function handleWindowLoad() {
-        setTimeout(() => {
-            if (elements.globalLoader) {
-                elements.globalLoader.style.opacity = '0';
-                setTimeout(() => {
-                    elements.globalLoader.style.display = 'none';
-                    if (elements.pageContent) {
-                        elements.pageContent.style.opacity = '1';
-                    }
-                    loadLazyResources();
-                    fixMusicPlayerZIndex();
-                }, 500);
-            }
-        }, 800);
-    }
-    
-    function handleInitialLoad() {
-        if (document.readyState === 'complete') {
-            handleWindowLoad();
-        }
-    }
-    
-    function loadLazyResources() {
-        setTimeout(() => {
-            const images = document.querySelectorAll('img[data-src]');
-            images.forEach(img => {
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
-            });
-        }, config.lazyLoadDelay);
     }
     
     function handleScroll() {
@@ -1023,62 +1186,6 @@
             } else {
                 elements.backToTop.classList.remove('visible');
             }
-        }
-        
-        updateActiveMenuLink();
-    }
-    
-    function handleResize() {
-        if (window.innerWidth > 1024) {
-            openSidebar();
-            if (elements.sidebarToggle) {
-                elements.sidebarToggle.classList.add('hidden');
-            }
-        } else {
-            closeSidebar();
-            if (elements.sidebarToggle) {
-                elements.sidebarToggle.classList.remove('hidden');
-            }
-        }
-        
-        fixMusicPlayerZIndex();
-    }
-    
-    function toggleSidebar() {
-        if (state.isSidebarOpen) {
-            closeSidebar();
-        } else {
-            openSidebar();
-        }
-    }
-    
-    function openSidebar() {
-        if (elements.sidebar) {
-            elements.sidebar.classList.add('show');
-            state.isSidebarOpen = true;
-        }
-        if (elements.sidebarToggle) {
-            elements.sidebarToggle.classList.add('hidden');
-        }
-    }
-    
-    function closeSidebar() {
-        if (elements.sidebar) {
-            elements.sidebar.classList.remove('show');
-            state.isSidebarOpen = false;
-        }
-        if (window.innerWidth <= 1024 && elements.sidebarToggle) {
-            elements.sidebarToggle.classList.remove('hidden');
-        }
-    }
-    
-    function handleDocumentClick(event) {
-        if (state.isSidebarOpen && 
-            elements.sidebar && 
-            !elements.sidebar.contains(event.target) && 
-            elements.sidebarToggle && 
-            !elements.sidebarToggle.contains(event.target)) {
-            closeSidebar();
         }
     }
     
@@ -1107,43 +1214,36 @@
         });
     }
     
-    function handleMenuLinkClick(event) {
-        const href = this.getAttribute('href');
+    function filterProjects(category) {
+        elements.categoryTabs.forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
         
-        if (href.startsWith('#')) {
-            event.preventDefault();
-            const targetId = href.substring(1);
-            const targetElement = document.getElementById(targetId);
-            
-            if (targetElement) {
-                window.scrollTo({
-                    top: targetElement.offsetTop - 20,
-                    behavior: 'smooth'
-                });
+        elements.projects.forEach(project => {
+            if (category === 'all' || project.getAttribute('data-category') === category) {
+                project.style.display = 'block';
+            } else {
+                project.style.display = 'none';
             }
-        }
-        
-        closeSidebar();
+        });
     }
     
-    function updateActiveMenuLink() {
-        const sections = document.querySelectorAll('section, .category');
-        const navLinks = document.querySelectorAll('.sidebar-menu a');
-        
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            if (state.scrollPosition >= sectionTop - 200) {
-                current = section.getAttribute('id');
-            }
-        });
-        
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${current}`) {
-                link.classList.add('active');
-            }
-        });
+    function applySavedTheme() {
+        document.documentElement.setAttribute('data-theme', state.currentTheme);
+        updateThemeIcon();
+    }
+    
+    function toggleTheme() {
+        state.currentTheme = state.currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', state.currentTheme);
+        localStorage.setItem('theme', state.currentTheme);
+        updateThemeIcon();
+    }
+    
+    function updateThemeIcon() {
+        if (elements.themeToggle) {
+            const icon = elements.themeToggle.querySelector('i');
+            icon.className = state.currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
     }
     
     function addDateAndTopLabels() {
@@ -1189,38 +1289,7 @@
         elements.projects = elements.linksContainer.querySelectorAll('.project-item');
     }
     
-    function filterProjects(category) {
-        elements.categoryTabs.forEach(tab => tab.classList.remove('active'));
-        event.target.classList.add('active');
-        
-        elements.projects.forEach(project => {
-            if (category === 'all' || project.getAttribute('data-category') === category) {
-                project.style.display = 'block';
-            } else {
-                project.style.display = 'none';
-            }
-        });
-    }
-    
-    function applySavedTheme() {
-        document.documentElement.setAttribute('data-theme', state.currentTheme);
-        updateThemeIcon();
-    }
-    
-    function toggleTheme() {
-        state.currentTheme = state.currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', state.currentTheme);
-        localStorage.setItem('theme', state.currentTheme);
-        updateThemeIcon();
-    }
-    
-    function updateThemeIcon() {
-        if (elements.themeToggle) {
-            const icon = elements.themeToggle.querySelector('i');
-            icon.className = state.currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        }
-    }
-    
+    // 性能优化
     function throttle(func, limit) {
         let inThrottle;
         return function() {
@@ -1246,18 +1315,13 @@
         };
     }
     
+    // 启动
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
-    
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').catch(() => {});
-        });
-    }
 })();
-    </script>
+</script>
 </body>
 </html>
