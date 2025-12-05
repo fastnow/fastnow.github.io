@@ -16,10 +16,10 @@
     
     <link rel="preload" href="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" as="style">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style">
-    <link rel="preload" href="https://t.alcy.cc/ycy" as="image">
+    <link rel="preload" href="https://www.loliapi.com/acg/" as="image">
     <link rel="stylesheet" href="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
-    <meting-js server="netease"type="playlist"id="13089847854"fixed="true"mini="true"order="random"loop="all"preload="auto"list-folded="false"></meting-js>
+    <meting-js server="netease" type="playlist" id="13089847854" fixed="true"mini="true"order="random" loop="all" preload="auto" list-folded="false"></meting-js>
     
     <title>FastNow Studio - 创新网页工具与应用集合</title>
     
@@ -64,6 +64,7 @@
             color: var(--text-color);
             background: var(--bg-color);
             transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
         }
 
         body.loading {
@@ -83,9 +84,15 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.5s ease-out;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
             overflow: hidden;
             touch-action: none;
+        }
+
+        #global-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
         .loader-content {
@@ -213,23 +220,6 @@
             flex-shrink: 0;
         }
 
-        .loading-stats {
-            margin-top: 12px;
-            font-size: 0.75rem;
-            color: #666;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex-shrink: 0;
-            position: sticky;
-            bottom: 0;
-            background: transparent;
-            padding: 4px 0;
-            opacity: 0;
-            animation: fadeInStep 0.5s ease-out forwards;
-            animation-delay: 0.2s;
-        }
-
         @keyframes fadeInStep {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -245,8 +235,14 @@
             color: #fff;
             padding: 0 20px;
             position: relative;
-            background: url(https://t.alcy.cc/ycy) center/cover no-repeat fixed;
+            background: url(https://www.loliapi.com/acg/) center/cover no-repeat fixed;
             margin-bottom: 40px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .banner.loaded {
+            opacity: 1;
         }
 
         .banner::after {
@@ -310,6 +306,12 @@
             max-width: 900px;
             margin: 0 auto;
             padding: 0 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .container.loaded {
+            opacity: 1;
         }
 
         .personal-card, .notification, .search-container, .category-tabs, .project-item, footer {
@@ -695,8 +697,7 @@
             <div class="loader-logo">FastNow Studio</div>
             <div class="loader"></div>
             <div class="loader-text">LOADING · 页面加载中</div>
-            <div class="loading-steps" id="loadingSteps">
-            </div>
+            <div class="loading-steps" id="loadingSteps"></div>
         </div>
     </div>
 
@@ -844,7 +845,7 @@
             <footer>
                 <a href="https://icp.gov.moe/?keyword=20255560" target="_blank">萌ICP备20255560号</a>
                 <p>© <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</p>
-                <p>索引页版本：v2.1.3-20251130</p>
+                <p>索引页版本：v2.1.5-20251205</p>
             </footer>
         </div>
     </div>
@@ -852,185 +853,97 @@
 <script>
 (function() {
     'use strict';
-    // 更好的加载检测
+    
+    // 精简配置
     const config = {
-        scrollThreshold: 300,
-        maxWaitTime: 5000
+        maxWaitTime: 5000,
+        forceCountdown: 5
     };
     
     const state = {
         currentTheme: localStorage.getItem('theme') || 'light',
-        scrollPosition: 0,
         startTime: Date.now(),
         loadedResources: 0,
         totalResources: 0,
         hasFailedResources: false,
         timeoutId: null,
-        forceEnter: false,
-        isPageReady: false
+        countdownId: null
     };
     
     const elements = {
         globalLoader: document.getElementById('global-loader'),
-        pageContent: document.querySelector('.page-content'),
-        scrollDown: document.getElementById('scrollDown'),
-        searchInput: document.getElementById('searchInput'),
-        themeToggle: document.getElementById('themeToggle'),
-        backToTop: document.getElementById('backToTop'),
-        categoryTabs: document.querySelectorAll('.category-tab'),
-        projects: document.querySelectorAll('.project-item'),
-        linksContainer: document.querySelector('.links'),
-        loadingSteps: document.getElementById('loadingSteps')
+        loadingSteps: document.getElementById('loadingSteps'),
+        banner: document.querySelector('.banner'),
+        container: document.querySelector('.container')
     };
     
+    // 所有资源列表（包括音乐播放器）
+    const allResources = [
+        { url: 'https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css', type: 'stylesheet' },
+        { url: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', type: 'stylesheet' },
+        { url: 'https://www.loliapi.com/acg/', type: 'image' },
+        { url: 'https://avatars.githubusercontent.com/u/177708607', type: 'image' },
+        { url: 'https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.js', type: 'script' },
+        { url: 'https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js', type: 'script' }
+    ];
+    
+    // 简化资源监控
     const resourceMonitor = {
-        resources: [
-            { url: 'https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css', type: 'stylesheet' },
-            { url: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', type: 'stylesheet' },
-            { url: 'https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.js', type: 'script' },
-            { url: 'https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js', type: 'script' },
-            { url: 'https://t.alcy.cc/ycy', type: 'image' },
-            { url: 'https://avatars.githubusercontent.com/u/177708607', type: 'image' }
-        ],
-        
         init: function() {
-            state.totalResources = this.resources.length;
-            
-            this.updateStats();
-            
-            this.addStep('开始加载资源', '初始化');
-            
-            this.preloadPageContent();
+            state.totalResources = allResources.length;
+            this.addStep('加载资源', '初始化');
             this.startTimeoutCheck();
-            this.monitorResources();
+            this.loadResources();
         },
         
-        preloadPageContent: function() {
-            // 提前设置页面内容为可见，但透明度为0
-            if (elements.pageContent) {
-                elements.pageContent.style.display = 'block';
-                elements.pageContent.style.opacity = '0';
-                elements.pageContent.style.transition = 'opacity 0.3s ease-in';
-            }
-        },
-        
-        startTimeoutCheck: function() {
-            state.timeoutId = setTimeout(() => {
-                if (state.loadedResources < state.totalResources) {
-                    state.forceEnter = true;
-                    this.addStep('加载超时', '10秒后强制进入页面', false);
-                    this.startCountdown();
+        loadResources: function() {
+            allResources.forEach(resource => {
+                if (resource.type === 'stylesheet') {
+                    this.loadStylesheet(resource);
+                } else if (resource.type === 'script') {
+                    this.loadScript(resource);
+                } else {
+                    this.loadImage(resource);
                 }
-            }, config.maxWaitTime);
-        },
-        
-        startCountdown: function() {
-            let countdown = 10;
-            const countdownInterval = setInterval(() => {
-                countdown--;
-                
-                // 更新统计信息显示倒计时
-                this.updateStats(countdown);
-                
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    this.forceEnterPage();
-                }
-                
-                // 如果在倒计时期间所有资源都加载完成了，清除倒计时
-                if (state.loadedResources >= state.totalResources) {
-                    clearInterval(countdownInterval);
-                    this.updateStats();
-                }
-            }, 1000);
-        },
-        
-        forceEnterPage: function() {
-            this.addStep('强制进入页面', '跳过未完成资源', false);
-            setTimeout(() => {
-                this.completeLoading();
-            }, 1000);
-        },
-        
-        monitorResources: function() {
-            this.resources.forEach(resource => {
-                this.checkResource(resource);
             });
         },
         
-        checkResource: function(resource) {
-            if (resource.type === 'stylesheet') {
-                this.checkStylesheet(resource);
-            } else if (resource.type === 'script') {
-                this.checkScript(resource);
-            } else {
-                // 图片资源使用原来的检测方式
-                this.checkImage(resource);
-            }
-        },
-        
-        checkStylesheet: function(resource) {
-            const startTime = Date.now();
+        loadStylesheet: function(resource) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = resource.url;
-            
-            // 使用更可靠的加载检测
-            link.onload = () => this.resourceLoaded(resource, Date.now() - startTime);
-            link.onerror = () => {
-                console.warn(`Stylesheet加载失败: ${resource.url}`);
-                state.hasFailedResources = true;
-                this.resourceLoaded(resource, Date.now() - startTime, true);
-            };
-            
+            link.onload = () => this.resourceLoaded(resource);
+            link.onerror = () => this.resourceLoaded(resource, true);
             document.head.appendChild(link);
         },
         
-        checkScript: function(resource) {
-            const startTime = Date.now();
+        loadScript: function(resource) {
             const script = document.createElement('script');
             script.src = resource.url;
-            
-            script.onload = () => this.resourceLoaded(resource, Date.now() - startTime);
-            script.onerror = () => {
-                console.warn(`Script加载失败: ${resource.url}`);
-                state.hasFailedResources = true;
-                this.resourceLoaded(resource, Date.now() - startTime, true);
-            };
-            
+            script.onload = () => this.resourceLoaded(resource);
+            script.onerror = () => this.resourceLoaded(resource, true);
             document.head.appendChild(script);
         },
         
-        checkImage: function(resource) {
+        loadImage: function(resource) {
             const img = new Image();
-            const startTime = Date.now();
-            
-            img.onload = () => this.resourceLoaded(resource, Date.now() - startTime);
-            img.onerror = () => {
-                console.warn(`Image加载失败: ${resource.url}`);
-                state.hasFailedResources = true;
-                this.resourceLoaded(resource, Date.now() - startTime, true);
-            };
+            img.onload = () => this.resourceLoaded(resource);
+            img.onerror = () => this.resourceLoaded(resource, true);
             img.src = resource.url;
         },
         
-        resourceLoaded: function(resource, loadTime, hasError = false) {
+        resourceLoaded: function(resource, hasError = false) {
             state.loadedResources++;
             
             const status = hasError ? '失败' : '完成';
-            const timeStr = loadTime > 1000 ? `${(loadTime/1000).toFixed(1)}s` : `${loadTime}ms`;
+            if (hasError) state.hasFailedResources = true;
             
-            this.addStep(`加载 ${this.getResourceType(resource.type)}`, `${status} (${timeStr})`, !hasError);
+            this.addStep(`加载 ${this.getResourceType(resource.type)}`, status, !hasError);
             
-            this.updateStats();
-            
-            // 如果所有资源都加载完成（无论成功失败），清除超时定时器
             if (state.loadedResources >= state.totalResources) {
-                if (state.timeoutId) {
-                    clearTimeout(state.timeoutId);
-                    state.timeoutId = null;
-                }
-                setTimeout(() => this.allResourcesLoaded(), 500);
+                if (state.timeoutId) clearTimeout(state.timeoutId);
+                if (state.countdownId) clearInterval(state.countdownId);
+                setTimeout(() => this.completeLoading(), 300);
             }
         },
         
@@ -1040,287 +953,187 @@
                 'script': 'JavaScript',
                 'image': '图片资源'
             };
-            return types[type] || type;
+            return types[type] || '资源';
+        },
+        
+        startTimeoutCheck: function() {
+            state.timeoutId = setTimeout(() => {
+                if (state.loadedResources < state.totalResources) {
+                    this.startForceCountdown();
+                }
+            }, config.maxWaitTime);
+        },
+        
+        startForceCountdown: function() {
+            let countdown = config.forceCountdown;
+            
+            // 立即显示第一条倒计时
+            this.addStep('加载超时', `${countdown}s后强制进入`, false);
+            
+            state.countdownId = setInterval(() => {
+                countdown--;
+                
+                // 添加新的倒计时行
+                this.addStep('', `${countdown}s`, false);
+                
+                if (countdown <= 0) {
+                    clearInterval(state.countdownId);
+                    this.forceEnterPage();
+                }
+                
+                // 如果资源在倒计时期间加载完成，清除倒计时
+                if (state.loadedResources >= state.totalResources) {
+                    clearInterval(state.countdownId);
+                }
+            }, 1000);
+        },
+        
+        forceEnterPage: function() {
+            setTimeout(() => this.completeLoading(), 500);
+        },
+        
+        completeLoading: function() {
+            if (!elements.globalLoader) return;
+            this.addStep('页面启动中', '成功', true);
+            // 直接隐藏加载器，不添加额外延迟
+            elements.globalLoader.style.opacity = '0';
+            
+            setTimeout(() => {
+                elements.globalLoader.style.display = 'none';
+                document.body.classList.remove('loading');
+                
+                // 确保页面内容显示
+                if (elements.banner) elements.banner.classList.add('loaded');
+                if (elements.container) elements.container.classList.add('loaded');
+                
+                // 初始化页面功能
+                this.initPageFeatures();
+            }, 300);
+        },
+        
+        initPageFeatures: function() {
+            // 初始化页面交互
+            setTimeout(() => {
+                this.setupEventListeners();
+                this.applySavedTheme();
+            }, 100);
+        },
+        
+        setupEventListeners: function() {
+            // 简化的交互设置
+            const themeToggle = document.getElementById('themeToggle');
+            const backToTop = document.getElementById('backToTop');
+            const searchInput = document.getElementById('searchInput');
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            const scrollDown = document.getElementById('scrollDown');
+            
+            if (themeToggle) themeToggle.addEventListener('click', () => this.toggleTheme());
+            if (backToTop) backToTop.addEventListener('click', () => window.scrollTo({top: 0, behavior: 'smooth'}));
+            if (searchInput) searchInput.addEventListener('input', this.debounce((e) => this.handleSearch(e), 300));
+            if (scrollDown) scrollDown.addEventListener('click', () => {
+                document.querySelector('.container').scrollIntoView({behavior: 'smooth'});
+            });
+            
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', () => this.filterProjects(tab.dataset.category));
+            });
+            
+            window.addEventListener('scroll', this.throttle(() => this.handleScroll(), 100));
+        },
+        
+        handleScroll: function() {
+            const backToTop = document.getElementById('backToTop');
+            if (backToTop) {
+                backToTop.classList.toggle('visible', window.pageYOffset > 300);
+            }
+        },
+        
+        handleSearch: function(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const projects = document.querySelectorAll('.project-item');
+            
+            projects.forEach(project => {
+                const title = project.querySelector('.project-title').textContent.toLowerCase();
+                const desc = project.querySelector('.project-desc').textContent.toLowerCase();
+                project.style.display = (title.includes(searchTerm) || desc.includes(searchTerm)) ? 'block' : 'none';
+            });
+        },
+        
+        filterProjects: function(category) {
+            const tabs = document.querySelectorAll('.category-tab');
+            const projects = document.querySelectorAll('.project-item');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            projects.forEach(project => {
+                project.style.display = (category === 'all' || project.getAttribute('data-category') === category) ? 'block' : 'none';
+            });
+        },
+        
+        applySavedTheme: function() {
+            document.documentElement.setAttribute('data-theme', state.currentTheme);
+            this.updateThemeIcon();
+        },
+        
+        toggleTheme: function() {
+            state.currentTheme = state.currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', state.currentTheme);
+            localStorage.setItem('theme', state.currentTheme);
+            this.updateThemeIcon();
+        },
+        
+        updateThemeIcon: function() {
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                const icon = themeToggle.querySelector('i');
+                icon.className = state.currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
         },
         
         addStep: function(action, status, isSuccess = true) {
+            if (!elements.loadingSteps) return;
+            
             const stepLine = document.createElement('div');
             stepLine.className = 'step-line';
             
-            const prompt = document.createElement('span');
-            prompt.className = 'step-prompt';
-            prompt.textContent = '>';
-            
-            const content = document.createElement('span');
-            content.className = 'step-content';
-            content.textContent = ` ${action}`;
-            
-            const statusSpan = document.createElement('span');
-            statusSpan.className = isSuccess ? 'step-success' : 'step-error';
-            statusSpan.textContent = status;
-            
-            stepLine.appendChild(prompt);
-            stepLine.appendChild(content);
-            stepLine.appendChild(statusSpan);
+            stepLine.innerHTML = `
+                <span class="step-prompt">></span>
+                <span class="step-content">${action ? ' ' + action : ''}</span>
+                <span class="${isSuccess ? 'step-success' : 'step-error'}">${status}</span>
+            `;
             
             elements.loadingSteps.appendChild(stepLine);
             elements.loadingSteps.scrollTop = elements.loadingSteps.scrollHeight;
         },
         
-        updateStats: function(countdown = null) {
-            const elapsedTime = ((Date.now() - state.startTime) / 1000).toFixed(1);
-            const remaining = state.totalResources - state.loadedResources;
-            
-            // 更新
-            let stats = elements.loadingSteps.querySelector('.loading-stats');
-            if (!stats) {
-                stats = document.createElement('div');
-                stats.className = 'loading-stats';
-                elements.loadingSteps.appendChild(stats);
-            }
-            
-            let statsText = `已加载: ${state.loadedResources}/${state.totalResources} | 剩余: ${remaining} | 用时: ${elapsedTime}s`;
-            
-            if (state.hasFailedResources) {
-                statsText += ' | 部分资源加载失败';
-            }
-            if (countdown !== null) {
-                statsText += ` | ${countdown}s后强制进入`;
-            }
-            stats.textContent = statsText;
-        },
-        
-        allResourcesLoaded: function() {
-            if (state.hasFailedResources) {
-                this.addStep('资源加载完成', '部分资源加载失败', false);
-            } else {
-                this.addStep('所有资源加载完成', '准备进入页面', true);
-            }
-            
-            setTimeout(() => {
-                this.completeLoading();
-            }, 1000);
-        },
-        
-        completeLoading: function() {
-            if (elements.globalLoader) {
-                this.showPageContent();
-                
-                setTimeout(() => {
-                    elements.globalLoader.style.opacity = '0';
-                    setTimeout(() => {
-                        elements.globalLoader.style.display = 'none';
-                        document.body.classList.remove('loading');
-                        this.initPageFeatures();
-                    }, 300);
-                }, 100);
+        // 工具函数
+        throttle: function(func, limit) {
+            let inThrottle;
+            return function() {
+                if (!inThrottle) {
+                    func.apply(this, arguments);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
             }
         },
         
-        showPageContent: function() {
-            if (elements.pageContent) {
-                // 确保页面内容已经准备好显示
-                elements.pageContent.style.opacity = '1';
-                state.isPageReady = true;
-            }
-        },
-        
-        initPageFeatures: function() {
-            setTimeout(() => {
-                setupEventListeners();
-                applySavedTheme();
-                addDateAndTopLabels();
-                sortProjectsByDate();
-                
-                // 延迟加载音乐播放器（如果之前加载失败，这里会重新尝试）
-                this.ensureMusicPlayer();
-            }, 100);
-        },
-        
-        ensureMusicPlayer: function() {
-            if (window.APlayer && window.Meting) {
-                return;
-            }
-            
-            const metingScript = document.createElement('script');
-            metingScript.src = 'https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js';
-            document.head.appendChild(metingScript);
+        debounce: function(func, wait) {
+            let timeout;
+            return function() {
+                const context = this, args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
         }
     };
     
-    function init() {
+    // 启动
+    document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('loading');
         resourceMonitor.init();
-    }
-    
-    function setupEventListeners() {
-        window.addEventListener('scroll', throttle(handleScroll, 100));
-        
-        if (elements.scrollDown) {
-            elements.scrollDown.addEventListener('click', scrollToContent);
-        }
-        
-        if (elements.searchInput) {
-            elements.searchInput.addEventListener('input', debounce(handleSearch, 300));
-        }
-        
-        if (elements.themeToggle) {
-            elements.themeToggle.addEventListener('click', toggleTheme);
-        }
-        
-        if (elements.backToTop) {
-            elements.backToTop.addEventListener('click', scrollToTop);
-        }
-        
-        elements.categoryTabs.forEach(tab => {
-            tab.addEventListener('click', () => filterProjects(tab.dataset.category));
-        });
-    }
-    
-    function handleScroll() {
-        state.scrollPosition = window.pageYOffset;
-        
-        if (elements.backToTop) {
-            if (state.scrollPosition > config.scrollThreshold) {
-                elements.backToTop.classList.add('visible');
-            } else {
-                elements.backToTop.classList.remove('visible');
-            }
-        }
-    }
-    
-    function scrollToContent() {
-        window.scrollTo({
-            top: window.innerHeight,
-            behavior: 'smooth'
-        });
-    }
-    
-    function scrollToTop() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    }
-    
-    function handleSearch(event) {
-        const searchTerm = event.target.value.toLowerCase();
-        
-        elements.projects.forEach(project => {
-            const title = project.querySelector('.project-title').textContent.toLowerCase();
-            const desc = project.querySelector('.project-desc').textContent.toLowerCase();
-            const matches = title.includes(searchTerm) || desc.includes(searchTerm);
-            project.style.display = matches ? 'block' : 'none';
-        });
-    }
-    
-    function filterProjects(category) {
-        elements.categoryTabs.forEach(tab => tab.classList.remove('active'));
-        event.target.classList.add('active');
-        
-        elements.projects.forEach(project => {
-            if (category === 'all' || project.getAttribute('data-category') === category) {
-                project.style.display = 'block';
-            } else {
-                project.style.display = 'none';
-            }
-        });
-    }
-    
-    function applySavedTheme() {
-        document.documentElement.setAttribute('data-theme', state.currentTheme);
-        updateThemeIcon();
-    }
-    
-    function toggleTheme() {
-        state.currentTheme = state.currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', state.currentTheme);
-        localStorage.setItem('theme', state.currentTheme);
-        updateThemeIcon();
-    }
-    
-    function updateThemeIcon() {
-        if (elements.themeToggle) {
-            const icon = elements.themeToggle.querySelector('i');
-            icon.className = state.currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        }
-    }
-    
-    function addDateAndTopLabels() {
-        elements.projects.forEach(project => {
-            const date = project.getAttribute('data-date');
-            const isTop = project.hasAttribute('data-top');
-            const titleElement = project.querySelector('.project-title');
-            
-            const existingLabels = titleElement.querySelectorAll('.project-date, .project-top');
-            existingLabels.forEach(label => label.remove());
-            
-            if (isTop) {
-                const topSpan = document.createElement('span');
-                topSpan.className = 'project-top';
-                topSpan.textContent = '置顶';
-                titleElement.appendChild(topSpan);
-            }
-            
-            if (date) {
-                const dateSpan = document.createElement('span');
-                dateSpan.className = 'project-date';
-                dateSpan.textContent = date;
-                titleElement.appendChild(dateSpan);
-            }
-        });
-    }
-    
-    function sortProjectsByDate() {
-        if (!elements.linksContainer) return;
-        
-        const projects = Array.from(elements.linksContainer.querySelectorAll('.project-item'));
-        const topProjects = projects.filter(project => project.getAttribute('data-top') === 'true');
-        const normalProjects = projects.filter(project => project.getAttribute('data-top') !== 'true');
-        
-        topProjects.sort((a, b) => new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date')));
-        normalProjects.sort((a, b) => new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date')));
-        
-        elements.linksContainer.innerHTML = '';
-        [...topProjects, ...normalProjects].forEach(project => {
-            elements.linksContainer.appendChild(project);
-        });
-        
-        elements.projects = elements.linksContainer.querySelectorAll('.project-item');
-    }
-    
-    // 性能优化
-    function throttle(func, limit) {
-        let inThrottle;
-        return function() {
-            const args = arguments;
-            const context = this;
-            if (!inThrottle) {
-                func.apply(context, args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
-            }
-        }
-    }
-    
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func.apply(this, args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-    
-    // 启动
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    });
 })();
 </script>
 </body>
