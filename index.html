@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+<!--
+  _____         _   _   _                 ____  _             _ _       
+ |  ___|_ _ ___| |_| \ | | _____      __ / ___|| |_ _   _  __| (_) ___  
+ | |_ / _` / __| __|  \| |/ _ \ \ /\ / / \___ \| __| | | |/ _` | |/ _ \ 
+ |  _| (_| \__ \ |_| |\  | (_) \ V  V /   ___) | |_| |_| | (_| | | (_) |
+ |_|  \__,_|___/\__|_| \_|\___/ \_/\_/   |____/ \__|\__,_|\__,_|_|\___/ 
+    战     无     不     胜     的     毛     泽     东     思     想     万     岁
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="msvalidate.01" content="B6C642AC3D70694AB2808E3D282C6D76">
-    
     <meta name="description" content="FastNow Studio - 提供创新的网页工具、游戏模拟和媒体娱乐应用。">
     <meta name="keywords" content="FastNow, 网页工具, 在线应用, 游戏模拟, 伪诗词加密, 屏保仪表盘, 星体模拟, 五子棋AI">
     <meta name="author" content="FastNow Team">
@@ -13,685 +20,91 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://fastnow.github.io">
     <meta name="robots" content="index, follow">
-    
     <link rel="preload" href="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" as="style">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style">
     <link rel="preload" href="https://www.loliapi.com/acg/" as="image">
     <link rel="stylesheet" href="https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
     <meting-js server="netease" type="playlist" id="13089847854" fixed="true"mini="true"order="random" loop="all" preload="auto" list-folded="false"></meting-js>
-    
     <title>FastNow Studio - 创新网页工具与应用集合</title>
-    
     <style>
-        :root {
-            --bg-color: #f5f5f5;
-            --text-color: #333;
-            --card-bg: rgba(255, 255, 255, 0.85);
-            --card-border: rgba(221, 221, 221, 0.6);
-            --card-shadow: 0 2px 12px rgba(0,0,0,0.05);
-            --header-border: #222;
-            --button-bg: #222;
-            --button-text: #fff;
-            --accent-color: #222;
-            --sidebar-bg: rgba(255, 255, 255, 0.95);
-            --sidebar-text: #222;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --card-bg: rgba(30, 30, 30, 0.85);
-            --card-border: rgba(70, 70, 70, 0.6);
-            --card-shadow: 0 2px 12px rgba(0,0,0,0.2);
-            --header-border: #e0e0e0;
-            --button-bg: #e0e0e0;
-            --button-text: #121212;
-            --accent-color: #e0e0e0;
-            --sidebar-bg: rgba(30, 30, 30, 0.95);
-            --sidebar-text: #e0e0e0;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background: var(--bg-color);
-            transition: background-color 0.3s, color 0.3s;
-            overflow-x: hidden;
-        }
-
-        body.loading {
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        /* 加载 */
-        #global-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #fafafa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
-            overflow: hidden;
-            touch-action: none;
-        }
-
-        #global-loader.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .loader-content {
-            text-align: center;
-        }
-
-        .loader-logo {
-            font-size: 2.5rem;
-            font-weight: 300;
-            margin-bottom: 40px;
-            color: #222;
-            letter-spacing: 2px;
-        }
-
-        .loader {
-            position: relative;
-            font-size: 16px;
-            width: 5.5em;
-            height: 5.5em;
-            margin: 0 auto 30px auto;
-        }
-
-        .loader:before {
-            content: '';
-            position: absolute;
-            transform: translate(-50%, -50%) rotate(45deg);
-            height: 100%;
-            width: 4px;
-            background: #ddd;
-            left: 50%;
-            top: 50%;
-        }
-
-        .loader:after {
-            content: '';
-            position: absolute;
-            left: 0.2em;
-            bottom: 0.18em;
-            width: 1em;
-            height: 1em;
-            background-color: #000;
-            border-radius: 15%;
-            animation: rollingRock 2.5s cubic-bezier(.79, 0, .47, .97) infinite;
-        }
-
-        @keyframes rollingRock {
-            0% { transform: translate(0, -1em) rotate(-45deg) }
-            5% { transform: translate(0, -1em) rotate(-50deg) }
-            20% { transform: translate(1em, -2em) rotate(47deg) }
-            25% { transform: translate(1em, -2em) rotate(45deg) }
-            30% { transform: translate(1em, -2em) rotate(40deg) }
-            45% { transform: translate(2em, -3em) rotate(137deg) }
-            50% { transform: translate(2em, -3em) rotate(135deg) }
-            55% { transform: translate(2em, -3em) rotate(130deg) }
-            70% { transform: translate(3em, -4em) rotate(217deg) }
-            75% { transform: translate(3em, -4em) rotate(220deg) }
-            100% { transform: translate(0, -1em) rotate(-225deg) }
-        }
-
-        .loader-text {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .loading-steps {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 9998;
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            color: #666;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            overflow-y: auto;
-            pointer-events: none;
-            background: transparent;
-            text-align: left;
-            width: auto;
-            max-width: 80vw;
-        }
-
-        .step-line {
-            margin-bottom: 8px;
-            line-height: 1.4;
-            opacity: 0;
-            animation: fadeInStep 0.5s ease-out forwards;
-            white-space: nowrap;
-            overflow: visible;
-            text-overflow: clip;
-            min-height: 18px;
-            display: flex;
-            align-items: center;
-            flex-shrink: 0;
-        }
-
-        .step-prompt {
-            color: #666;
-            font-weight: 500;
-            margin-right: 6px;
-            flex-shrink: 0;
-        }
-
-        .step-content {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            min-width: 0;
-        }
-
-        .step-success {
-            color: #4CAF50;
-            margin-left: 8px;
-            font-weight: 500;
-            flex-shrink: 0;
-        }
-
-        .step-error {
-            color: #f44336;
-            margin-left: 8px;
-            font-weight: 500;
-            flex-shrink: 0;
-        }
-
-        @keyframes fadeInStep {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .banner {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: #fff;
-            padding: 0 20px;
-            position: relative;
-            background: url(https://www.loliapi.com/acg/) center/cover no-repeat fixed;
-            margin-bottom: 40px;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .banner.loaded {
-            opacity: 1;
-        }
-
-        .banner::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0);
-            z-index: 1;
-        }
-
-        .banner-content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-
-        .banner-title {
-            font-size: 3rem;
-            font-weight: 300;
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-            mix-blend-mode: difference;
-            animation: fadeInUp 1s ease-out;
-        }
-
-        .banner-desc {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            opacity: 0.9;
-            min-height: 1.5em;
-            mix-blend-mode: difference;
-            animation: fadeInUp 1s ease-out 0.3s both;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .scroll-down {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            animation: bounce 2s infinite;
-            cursor: pointer;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
-            40% { transform: translateY(-15px) translateX(-50%); }
-            60% { transform: translateY(-7px) translateX(-50%); }
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 20px;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .container.loaded {
-            opacity: 1;
-        }
-
-        .personal-card, .notification, .search-container, .category-tabs, .project-item, footer {
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            box-shadow: var(--card-shadow);
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-
-        .personal-card {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 25px;
-            animation: slideIn 0.5s ease-out 0.1s both;
-        }
-
-        .avatar {
-            width: 90px;
-            height: 90px;
-            margin-right: 25px;
-            border: 2px solid var(--accent-color);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-        }
-
-        .username {
-            font-size: 1.7rem;
-            font-weight: 400;
-            margin-bottom: 12px;
-            color: var(--text-color);
-        }
-
-        .social-links {
-            display: flex;
-            gap: 12px;
-        }
-
-        .social-button {
-            display: inline-block;
-            padding: 8px 16px;
-            border: 1px solid var(--accent-color);
-            text-decoration: none;
-            color: var(--text-color);
-            font-size: 0.9rem;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-
-        .social-button:hover {
-            background: var(--accent-color);
-            color: var(--button-text);
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .notification {
-            padding: 18px;
-            margin-bottom: 25px;
-            border-left: 4px solid #444;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .search-container {
-            margin-bottom: 25px;
-            position: relative;
-            padding: 15px;
-            animation: slideIn 0.5s ease-out 0.2s both;
-        }
-
-        .search-container input {
-            width: 100%;
-            padding: 14px 20px;
-            border: 2px solid var(--accent-color);
-            font-size: 1rem;
-            border-radius: 8px;
-            outline: none;
-            transition: all 0.3s;
-            background: var(--card-bg);
-            color: var(--text-color);
-        }
-
-        .search-container input:focus {
-            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
-            background: var(--card-bg);
-        }
-
-        .category {
-            margin-bottom: 35px;
-        }
-
-        .category h2 {
-            font-size: 1.6rem;
-            font-weight: 400;
-            margin-bottom: 22px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--card-border);
-            color: var(--text-color);
-        }
-
-        .category-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 25px;
-            padding: 15px;
-        }
-
-        .category-tab {
-            padding: 10px 20px;
-            border: 1px solid var(--accent-color);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.95rem;
-            border-radius: 8px;
-            background: var(--card-bg);
-            color: var(--text-color);
-        }
-
-        .category-tab.active, .category-tab:hover {
-            background: var(--accent-color);
-            color: var(--button-text);
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .links {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        .project-item {
-            display: block;
-            padding: 20px;
-            text-decoration: none;
-            color: var(--text-color);
-            transition: all 0.3s;
-            position: relative;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
-
-        .project-item:nth-child(1) { animation-delay: 0.1s; }
-        .project-item:nth-child(2) { animation-delay: 0.15s; }
-        .project-item:nth-child(3) { animation-delay: 0.2s; }
-        .project-item:nth-child(4) { animation-delay: 0.25s; }
-        .project-item:nth-child(5) { animation-delay: 0.3s; }
-        .project-item:nth-child(6) { animation-delay: 0.35s; }
-        .project-item:nth-child(7) { animation-delay: 0.4s; }
-        .project-item:nth-child(8) { animation-delay: 0.45s; }
-        .project-item:nth-child(9) { animation-delay: 0.5s; }
-        .project-item:nth-child(10) { animation-delay: 0.55s; }
-        .project-item:nth-child(11) { animation-delay: 0.6s; }
-        .project-item:nth-child(12) { animation-delay: 0.65s; }
-        .project-item:nth-child(13) { animation-delay: 0.7s; }
-        .project-item:nth-child(14) { animation-delay: 0.75s; }
-        .project-item:nth-child(15) { animation-delay: 0.8s; }
-        .project-item:nth-child(16) { animation-delay: 0.85s; }
-        .project-item:nth-child(17) { animation-delay: 0.9s; }
-
-        .project-item:hover {
-            border-color: var(--accent-color);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-            transform: translateY(-3px);
-        }
-
-        .project-title {
-            font-weight: 500;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .project-date {
-            font-size: 0.85rem;
-            color: #666;
-            background: rgba(240, 240, 240, 0.9);
-            padding: 3px 10px;
-            border-radius: 15px;
-        }
-
-        .project-top {
-            font-size: 0.75rem;
-            color: #fff;
-            background: #555;
-            padding: 3px 8px;
-            border-radius: 15px;
-        }
-
-        .project-desc {
-            font-size: 0.95rem;
-            color: #666;
-            line-height: 1.7;
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            color: #666;
-            font-size: 0.9rem;
-            border-top: 1px solid var(--card-border);
-            margin-top: 40px;
-            position: relative;
-            z-index: 10;
-        }
-
-        footer a {
-            color: var(--text-color);
-            text-decoration: none;
-            transition: color 0.2s;
-            position: relative;
-            z-index: 11;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-            color: var(--text-color);
-        }
-
-        .floating-buttons {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 999;
-            display: flex;
-            flex-direction: column-reverse;
-            gap: 15px;
-            align-items: flex-end;
-        }
-
-        .theme-toggle, .back-to-top {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: var(--text-color);
-            font-size: 1.2rem;
-        }
-
-        .theme-toggle:hover, .back-to-top:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-        }
-
-        .back-to-top {
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-
-        .back-to-top.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* 音乐播放器样式修复 */
-        .aplayer {
-            z-index: 1002 !important;
-        }
-
-        .aplayer.aplayer-fixed {
-            z-index: 1002 !important;
-        }
-
-        .aplayer-body {
-            z-index: 1002 !important;
-        }
-
-        .aplayer-miniswitcher {
-            z-index: 1003 !important;
-        }
-
-        .aplayer-icon {
-            z-index: 1003 !important;
-        }
-
-        @media (max-width: 1024px) {
-            .page-content {
-                margin-left: 0;
-                max-width: 100%;
-            }
-            .floating-buttons {
-                left: 20px;
-                bottom: 20px;
-            }
-            .loading-steps {
-                left: 15px;
-                bottom: 15px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .banner-title {
-                font-size: 2.2rem;
-            }
-            .banner-desc {
-                font-size: 1rem;
-            }
-            .personal-card {
-                flex-direction: column;
-                text-align: center;
-                padding: 20px;
-            }
-            .avatar {
-                margin-right: 0;
-                margin-bottom: 20px;
-                width: 80px;
-                height: 80px;
-            }
-            .social-links {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            .category-tabs {
-                overflow-x: auto;
-                padding-bottom: 10px;
-                justify-content: flex-start;
-            }
-            .loader-logo {
-                font-size: 2rem;
-            }
-            .loader {
-                font-size: 14px;
-            }
-            .category h2 {
-                font-size: 1.4rem;
-            }
-            .floating-buttons {
-                left: 15px;
-                bottom: 15px;
-            }
-            .theme-toggle, .back-to-top {
-                width: 45px;
-                height: 45px;
-                font-size: 1.1rem;
-            }
-            .loading-steps {
-                left: 15px;
-                bottom: 15px;
-                font-size: 0.7rem;
-            }
-        }
+        :root{--bg-color:#f5f5f5;--text-color:#333;--card-bg:rgba(255,255,255,0.85);--card-border:rgba(221,221,221,0.6);--card-shadow:0 2px 12px rgba(0,0,0,0.05);--accent-color:#222;--pinned-color:#ff6b35}
+        [data-theme="dark"]{--bg-color:#121212;--text-color:#e0e0e0;--card-bg:rgba(30,30,30,0.85);--card-border:rgba(70,70,70,0.6);--card-shadow:0 2px 12px rgba(0,0,0,0.2);--accent-color:#e0e0e0;--pinned-color:#ff8e53}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.6;color:var(--text-color);background:var(--bg-color);transition:background-color 0.3s,color 0.3s;overflow-x:hidden}
+        body.loading{overflow:hidden;height:100vh}
+        #global-loader{position:fixed;top:0;left:0;right:0;bottom:0;background-color:#fafafa;display:flex;justify-content:center;align-items:center;z-index:9999;transition:opacity 0.5s,visibility 0.5s}
+        .loader-content{text-align:center}
+        .loader-logo{font-size:2.5rem;font-weight:300;margin-bottom:40px;color:#222;letter-spacing:2px}
+        .loader{position:relative;font-size:16px;width:5.5em;height:5.5em;margin:0 auto 30px}
+        .loader:before{content:'';position:absolute;transform:translate(-50%,-50%) rotate(45deg);height:100%;width:4px;background:#ddd;left:50%;top:50%}
+        .loader:after{content:'';position:absolute;left:0.2em;bottom:0.18em;width:1em;height:1em;background-color:#000;border-radius:15%;animation:rollingRock 2.5s cubic-bezier(.79,0,.47,.97) infinite}
+        @keyframes rollingRock{0%{transform:translate(0,-1em) rotate(-45deg)}5%{transform:translate(0,-1em) rotate(-50deg)}20%{transform:translate(1em,-2em) rotate(47deg)}25%{transform:translate(1em,-2em) rotate(45deg)}30%{transform:translate(1em,-2em) rotate(40deg)}45%{transform:translate(2em,-3em) rotate(137deg)}50%{transform:translate(2em,-3em) rotate(135deg)}55%{transform:translate(2em,-3em) rotate(130deg)}70%{transform:translate(3em,-4em) rotate(217deg)}75%{transform:translate(3em,-4em) rotate(220deg)}100%{transform:translate(0,-1em) rotate(-225deg)}}
+        .loader-text{margin-top:15px;font-size:0.9rem;color:#666}
+        .loading-steps{position:fixed;bottom:20px;left:20px;z-index:9998;font-family:'Courier New',monospace;font-size:0.8rem;color:#666;display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none}
+        .step-line{margin-bottom:8px;line-height:1.4;opacity:0;animation:fadeInStep 0.5s forwards;display:flex;align-items:center}
+        @keyframes fadeInStep{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+        .step-prompt{color:#666;font-weight:500;margin-right:6px}
+        .step-success{color:#4CAF50;margin-left:8px;font-weight:500}
+        .step-error{color:#f44336;margin-left:8px;font-weight:500}
+        .banner{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;color:#fff;padding:0 20px;position:relative;background:url(https://www.loliapi.com/acg/) center/cover no-repeat fixed;margin-bottom:40px;opacity:0;transition:opacity 0.5s}
+        .banner.loaded{opacity:1}
+        .banner::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0);z-index:1}
+        .banner-content{position:relative;z-index:2;max-width:800px;text-shadow:0 1px 3px rgba(0,0,0,0.3)}
+        .banner-title{font-size:3rem;font-weight:300;margin-bottom:15px;letter-spacing:2px;mix-blend-mode:difference;animation:fadeInUp 1s}
+        .banner-desc{font-size:1.2rem;margin-bottom:30px;opacity:0.9;min-height:1.5em;mix-blend-mode:difference;animation:fadeInUp 1s 0.3s both}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .scroll-down{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:2;animation:bounce 2s infinite;cursor:pointer}
+        @keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0) translateX(-50%)}40%{transform:translateY(-15px) translateX(-50%)}60%{transform:translateY(-7px) translateX(-50%)}}
+        .container{max-width:900px;margin:0 auto;padding:0 20px;opacity:0;transition:opacity 0.5s}
+        .container.loaded{opacity:1}
+        .personal-card,.notification,.search-container,.category-tabs,.project-item,footer{border:1px solid var(--card-border);border-radius:10px;box-shadow:var(--card-shadow);background:var(--card-bg);backdrop-filter:blur(12px)}
+        .personal-card{display:flex;align-items:center;margin-bottom:30px;padding:25px;animation:slideIn 0.5s 0.1s both}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .avatar{width:90px;height:90px;margin-right:25px;border:2px solid var(--accent-color);border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+        .avatar img{width:100%;height:100%;display:block;object-fit:cover}
+        .username{font-size:1.7rem;font-weight:400;margin-bottom:12px}
+        .social-links{display:flex;gap:12px}
+        .social-button{display:inline-block;padding:8px 16px;border:1px solid var(--accent-color);text-decoration:none;color:var(--text-color);font-size:0.9rem;border-radius:8px;transition:all 0.2s}
+        .social-button:hover{background:var(--accent-color);color:#fff;transform:translateY(-2px);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+        .notification{padding:18px;margin-bottom:25px;border-left:4px solid #444;animation:slideIn 0.5s}
+        .search-container{margin-bottom:25px;padding:15px;animation:slideIn 0.5s 0.2s both}
+        .search-container input{width:100%;padding:14px 20px;border:2px solid var(--accent-color);font-size:1rem;border-radius:8px;outline:none;transition:all 0.3s;background:var(--card-bg);color:var(--text-color)}
+        .search-container input:focus{box-shadow:0 0 0 3px rgba(0,0,0,0.1)}
+        .category{margin-bottom:35px}
+        .category h2{font-size:1.6rem;font-weight:400;margin-bottom:22px;padding-bottom:10px;border-bottom:1px solid var(--card-border)}
+        .category-tabs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:25px;padding:15px}
+        .category-tab{padding:10px 20px;border:1px solid var(--accent-color);cursor:pointer;transition:all 0.2s;font-size:0.95rem;border-radius:8px;background:var(--card-bg);color:var(--text-color)}
+        .category-tab.active,.category-tab:hover{background:var(--accent-color);color:#fff;transform:translateY(-2px);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+        .links{display:grid;grid-template-columns:1fr;gap:15px}
+        .project-item{display:block;padding:20px;text-decoration:none;color:var(--text-color);transition:all 0.3s;opacity:0;transform:translateY(20px);animation:fadeInUp 0.5s forwards}
+        .project-item:nth-child(1){animation-delay:0.1s}.project-item:nth-child(2){animation-delay:0.15s}.project-item:nth-child(3){animation-delay:0.2s}.project-item:nth-child(4){animation-delay:0.25s}.project-item:nth-child(5){animation-delay:0.3s}.project-item:nth-child(6){animation-delay:0.35s}.project-item:nth-child(7){animation-delay:0.4s}.project-item:nth-child(8){animation-delay:0.45s}.project-item:nth-child(9){animation-delay:0.5s}.project-item:nth-child(10){animation-delay:0.55s}.project-item:nth-child(11){animation-delay:0.6s}.project-item:nth-child(12){animation-delay:0.65s}.project-item:nth-child(13){animation-delay:0.7s}.project-item:nth-child(14){animation-delay:0.75s}.project-item:nth-child(15){animation-delay:0.8s}.project-item:nth-child(16){animation-delay:0.85s}.project-item:nth-child(17){animation-delay:0.9s}
+        .project-item:hover{border-color:var(--accent-color);box-shadow:0 6px 16px rgba(0,0,0,0.12);transform:translateY(-3px)}
+        .project-title{font-weight:500;margin-bottom:10px;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+        .pinned-icon{color:var(--pinned-color);font-size:0.85rem;margin-right:5px;transition:transform 0.3s;animation:pulse 2s infinite}
+        .project-item:hover .pinned-icon{transform:scale(1.2)}
+        @keyframes pulse{0%,100%{opacity:0.8}50%{opacity:1}}
+        .project-date{font-size:0.85rem;color:#666;background:rgba(240,240,240,0.9);padding:3px 10px;border-radius:15px}
+        .project-desc{font-size:0.95rem;color:#666;line-height:1.7}
+        footer{text-align:center;padding:30px 20px;color:#666;font-size:0.9rem;border-top:1px solid var(--card-border);margin-top:40px;z-index:10}
+        footer a{color:var(--text-color);text-decoration:none;transition:color 0.2s;z-index:11}
+        footer a:hover{text-decoration:underline}
+        .floating-buttons{position:fixed;bottom:30px;right:30px;z-index:999;display:flex;flex-direction:column-reverse;gap:15px;align-items:flex-end}
+        .theme-toggle,.back-to-top{width:50px;height:50px;border-radius:50%;background:var(--card-bg);border:1px solid var(--card-border);box-shadow:0 4px 12px rgba(0,0,0,0.1);display:flex;justify-content:center;align-items:center;cursor:pointer;transition:all 0.3s;color:var(--text-color);font-size:1.2rem}
+        .theme-toggle:hover,.back-to-top:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,0.15)}
+        .back-to-top{opacity:0;visibility:hidden;transition:opacity 0.3s,visibility 0.3s}
+        .back-to-top.visible{opacity:1;visibility:visible}
+        .aplayer{z-index:1002 !important}
+        .aplayer.aplayer-fixed{z-index:1002 !important}
+        @media (max-width:1024px){.floating-buttons{left:20px;bottom:20px}.loading-steps{left:15px;bottom:15px}}
+        @media (max-width:600px){.banner-title{font-size:2.2rem}.banner-desc{font-size:1rem}.personal-card{flex-direction:column;text-align:center;padding:20px}.avatar{margin-right:0;margin-bottom:20px;width:80px;height:80px}.social-links{justify-content:center;flex-wrap:wrap}.category-tabs{overflow-x:auto;padding-bottom:10px}.loader-logo{font-size:2rem}.loader{font-size:14px}.category h2{font-size:1.4rem}.floating-buttons{left:15px;bottom:15px}.theme-toggle,.back-to-top{width:45px;height:45px;font-size:1.1rem}.loading-steps{left:15px;bottom:15px;font-size:0.7rem}.pinned-icon{font-size:0.75rem;margin-right:3px}}
     </style>
 </head>
 <body>
     <div class="floating-buttons">
-        <button class="theme-toggle" id="themeToggle" title="切换主题">
-            <i class="fas fa-moon"></i>
-        </button>
-        <button class="back-to-top" id="backToTop" title="返回顶部">
-            <i class="fas fa-arrow-up"></i>
-        </button>
+        <button class="theme-toggle" id="themeToggle" title="切换主题"><i class="fas fa-moon"></i></button>
+        <button class="back-to-top" id="backToTop" title="返回顶部"><i class="fas fa-arrow-up"></i></button>
     </div>
-
     <div id="global-loader">
         <div class="loader-content">
             <div class="loader-logo">FastNow Studio</div>
@@ -700,440 +113,155 @@
             <div class="loading-steps" id="loadingSteps"></div>
         </div>
     </div>
-
     <section class="banner" id="top">
         <div class="banner-content">
             <h1 class="banner-title">FastNow 项目发布页</h1>
             <p class="banner-desc">WELCOME MY FRIEND</p>
         </div>
-        <div class="scroll-down" id="scrollDown">
-            <i class="fas fa-chevron-down fa-2x"></i>
-        </div>
+        <div class="scroll-down" id="scrollDown"><i class="fas fa-chevron-down fa-2x"></i></div>
     </section>
-
     <div class="page-content">
         <div class="container">
             <div class="personal-card">
-                <div class="avatar">
-                    <img src="https://avatars.githubusercontent.com/u/177708607" alt="头像" loading="lazy">
-                </div>
+                <div class="avatar"><img src="https://avatars.githubusercontent.com/u/177708607" alt="头像" loading="lazy"></div>
                 <div class="profile-info">
                     <div class="username">FastNow</div>
                     <div class="social-links">
-                        <a href="https://github.com/fastnow" class="social-button" target="_blank">
-                            <i class="fab fa-github mr-1"></i> GitHub
-                        </a>
-                        <a href="https://blog.csdn.net/2301_78143841" class="social-button" target="_blank">
-                            <i class="fas fa-blog mr-1"></i> CSDN
-                        </a>
-                        <a href="https://www.cnblogs.com/fastnow" class="social-button" target="_blank">
-                            <i class="fas fa-book-open mr-1"></i> 博客园
-                        </a>
+                        <a href="https://github.com/fastnow" class="social-button" target="_blank"><i class="fab fa-github mr-1"></i> GitHub</a>
+                        <a href="https://blog.csdn.net/2301_78143841" class="social-button" target="_blank"><i class="fas fa-blog mr-1"></i> CSDN</a>
+                        <a href="https://www.cnblogs.com/fastnow" class="social-button" target="_blank"><i class="fas fa-book-open mr-1"></i> 博客园</a>
                     </div>
                 </div>
             </div>
-            
             <div class="notification">
-                <div>FastNow Studio致力于开发创新的网页应用和工具。由于资金限制，部分涉及到后端的项目托管于免费主机，可能存在访问不稳定的情况。
-                    <strong>建议您收藏本页面，以便及时获取最新访问地址。</strong>
-                </div>
+                <div>FastNow Studio致力于开发创新的网页应用和工具。由于资金限制，部分涉及到后端的项目托管于免费主机，可能存在访问不稳定的情况。<strong>建议您收藏本页面，以便及时获取最新访问地址。</strong></div>
             </div>
-            
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="搜索项目（支持标题/描述关键词）..." />
-            </div>
-            
+            <div class="search-container"><input type="text" id="searchInput" placeholder="搜索项目（支持标题/描述关键词）..."></div>
             <div class="category" id="projects">
                 <h2>已发布的项目</h2>
-                
                 <div class="category-tabs">
                     <div class="category-tab active" data-category="all" id="tabAll">全部项目</div>
                     <div class="category-tab" data-category="tools" id="tabTools">实用工具</div>
                     <div class="category-tab" data-category="games" id="tabGames">游戏/模拟</div>
                     <div class="category-tab" data-category="media" id="tabMedia">媒体娱乐</div>
                     <div class="category-tab" data-category="web" id="tabWeb">网页应用</div>
+                    <div class="category-tab" data-category="pinned" id="tabPinned">置顶项目</div>
                 </div>
-
-                <div class="links">
+                <div class="links" id="projectsContainer">
+                    <a href="/all_music.html" class="project-item" data-category="media" data-date="2025-11-05" data-pinned="true" target="_blank">
+                        <div class="project-title"><i class="fas fa-thumbtack pinned-icon" title="置顶项目"></i>音乐聚合解析</div>
+                        <div class="project-desc">支持在线免费播放来自网易云、抖音、5sign音乐等平台的优质音乐</div>
+                    </a>
+                    <a href="/dashsaver.html" class="project-item" data-category="web" data-date="2025-8-22" data-pinned="true" target="_blank">
+                        <div class="project-title"><i class="fas fa-thumbtack pinned-icon" title="置顶项目"></i>DashSaver屏保仪表盘</div>
+                        <div class="project-desc">使您用上更优质，更灵动的纯前端屏保</div>
+                    </a>
+                    <a href="/fm.html" class="project-item" data-category="media" data-date="2024-12-10" data-pinned="true" target="_blank">
+                        <div class="project-title"><i class="fas fa-thumbtack pinned-icon" title="置顶项目"></i>在线FM播放器</div>
+                        <div class="project-desc">在线收听各种FM电台节目</div>
+                    </a>
+                    <a href="/online.html" class="project-item" data-category="tools" data-date="2024-08-27" data-pinned="true" target="_blank">
+                        <div class="project-title"><i class="fas fa-thumbtack pinned-icon" title="置顶项目"></i>HTML/CSS/JS编辑器</div>
+                        <div class="project-desc">在线编写和预览HTML、CSS和JavaScript代码，支持实时渲染与代码导出</div>
+                    </a>
+                    <a href="https://wenku.rf.gd" class="project-item" data-category="web" data-date="2024-11-05" data-pinned="true" target="_blank">
+                        <div class="project-title"><i class="fas fa-thumbtack pinned-icon" title="置顶项目"></i>毛泽东选集在线阅读</div>
+                        <div class="project-desc">提供毛泽东选集的在线阅读体验，支持章节导航与文本搜索功能</div>
+                    </a>
                     <a href="/pvst.html" class="project-item" data-category="media" data-date="2025-11-20" target="_blank">
                         <div class="project-title">pixiv随机ST展示器</div>
                         <div class="project-desc">p站随机ST</div>
                     </a>
-                    
-                    <a href="/all_music.html" class="project-item" data-category="media" data-date="2025-11-05" data-top="true" target="_blank">
-                        <div class="project-title">音乐聚合解析</div>
-                        <div class="project-desc">支持在线免费播放来自网易云、抖音、5sign音乐等平台的优质音乐</div>
-                    </a>
-                    
                     <a href="/xtcf2f.html" class="project-item" data-category="tools" data-date="2025-10-03" target="_blank">
                         <div class="project-title">小天才实时校验码</div>
                         <div class="project-desc">小天才v2~3校验码计算器</div>
                     </a>
-                    
                     <a href="/shk.html" class="project-item" data-category="tools" data-date="2025-9-12" target="_blank">
                         <div class="project-title">SHK 作弊脚本</div>
                         <div class="project-desc">基于Tampermonkey的Yp3D-Ships3D作弊脚本</div>
                     </a>
-                    
                     <a href="/micige_cipher.html" class="project-item" data-category="tools" data-date="2025-8-30" target="_blank">
                         <div class="project-title">秘加块·伪诗词信息加密系统</div>
                         <div class="project-desc">基于伪诗词的信息加密系统，将文本转化为意境诗词，保护您的隐私数据</div>
                     </a>
-                    
-                    <a href="/dashsaver.html" class="project-item" data-category="web" data-date="2025-8-22" data-top="true" target="_blank">
-                        <div class="project-title">DashSaver屏保仪表盘</div>
-                        <div class="project-desc">使您用上更优质，更灵动的纯前端屏保</div>
-                    </a>
-                    
                     <a href="https://wangmou-yaa.github.io/F+Launcher.html" class="project-item" data-category="tools" data-date="2023-02-13" target="_blank">
                         <div class="project-title">F(AST)＋Launcher</div>
                         <div class="project-desc">Minecraft JAVA 启动器，助您快速部署游戏环境</div>
                     </a>
-                    
                     <a href="/astral_simulation.html" class="project-item" data-category="games" data-date="2025-7-11" target="_blank">
                         <div class="project-title">2D星体运行模拟</div>
                         <div class="project-desc">探索宇宙中星体运行规律的2D模拟器</div>
                     </a>
-                    
                     <a href="https://adba.ct.ws" class="project-item" data-category="web" data-date="2024-10-04" target="_blank">
                         <div class="project-title">ADBAPI·随机二次元图片API</div>
                         <div class="project-desc">为开发者提供的随机二次元图片API服务</div>
                     </a>
-                    
                     <a href="/gobangbot.html" class="project-item" data-category="games" data-date="2025-7-20" target="_blank">
                         <div class="project-title">五子棋AI</div>
                         <div class="project-desc">挑战人工智能五子棋对手</div>
                     </a>
-                    
-                    <a href="/fm.html" class="project-item" data-category="media" data-date="2024-12-10" data-top="true" target="_blank">
-                        <div class="project-title">在线FM播放器</div>
-                        <div class="project-desc">在线收听各种FM电台节目</div>
-                    </a>
-                    
                     <a href="/getcode.html" class="project-item" data-category="tools" data-date="2025-9-21" target="_blank">
                         <div class="project-title">网站源代码获取</div>
                         <div class="project-desc">在线页面源代码查看器，获取任何网页的HTML源代码</div>
                     </a>
-                    
-                    <a href="/online.html" class="project-item" data-category="tools" data-date="2024-08-27" data-top="true" target="_blank">
-                        <div class="project-title">HTML/CSS/JS编辑器</div>
-                        <div class="project-desc">在线编写和预览HTML、CSS和JavaScript代码，支持实时渲染与代码导出</div>
-                    </a>
-                    
                     <a href="https://wangmou-yaa.github.io" class="project-item" data-category="web" data-date="2023-01-01" target="_blank">
                         <div class="project-title">软件项目发布站</div>
                         <div class="project-desc">FastNow Studio软件项目发布平台，汇总所有桌面端与移动端应用</div>
                     </a>
-                    
                     <a href="/kaomoji.html" class="project-item" data-category="tools" data-date="2025-08-02" target="_blank">
                         <div class="project-title">颜文字字典</div>
                         <div class="project-desc">丰富的颜文字表情集合，分类检索，一键复制使用</div>
                     </a>
-                    
                     <a href="/game_of_life.html" class="project-item" data-category="games" data-date="2024-11-18" target="_blank">
                         <div class="project-title">康威的生命游戏</div>
                         <div class="project-desc">经典的细胞自动机模拟游戏，支持自定义初始状态与速度调节</div>
                     </a>
-                    
-                    <a href="https://wenku.rf.gd" class="project-item" data-category="web" data-date="2024-11-05" data-top="true" target="_blank">
-                        <div class="project-title">毛泽东选集在线阅读</div>
-                        <div class="project-desc">提供毛泽东选集的在线阅读体验，支持章节导航与文本搜索功能</div>
-                    </a>
                 </div>
             </div>
-            
             <footer>
                 <a href="https://icp.gov.moe/?keyword=20255560" target="_blank">萌ICP备20255560号</a>
                 <p>© <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</p>
-                <p>索引页版本：v2.1.5-20251205</p>
+                <p>索引页版本：v2.2.0-20251207</p>
             </footer>
         </div>
     </div>
-
 <script>
-(function() {
+(function(){
     'use strict';
-    
-    // 精简配置
-    const config = {
-        maxWaitTime: 5000,
-        forceCountdown: 5
-    };
-    
-    const state = {
-        currentTheme: localStorage.getItem('theme') || 'light',
-        startTime: Date.now(),
-        loadedResources: 0,
-        totalResources: 0,
-        hasFailedResources: false,
-        timeoutId: null,
-        countdownId: null
-    };
-    
-    const elements = {
-        globalLoader: document.getElementById('global-loader'),
-        loadingSteps: document.getElementById('loadingSteps'),
-        banner: document.querySelector('.banner'),
-        container: document.querySelector('.container')
-    };
-    
-    // 所有资源列表（包括音乐播放器）
-    const allResources = [
-        { url: 'https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css', type: 'stylesheet' },
-        { url: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', type: 'stylesheet' },
-        { url: 'https://www.loliapi.com/acg/', type: 'image' },
-        { url: 'https://avatars.githubusercontent.com/u/177708607', type: 'image' },
-        { url: 'https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.js', type: 'script' },
-        { url: 'https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js', type: 'script' }
-    ];
-    
-    // 简化资源监控
-    const resourceMonitor = {
-        init: function() {
-            state.totalResources = allResources.length;
-            this.addStep('加载资源', '初始化');
-            this.startTimeoutCheck();
-            this.loadResources();
-        },
-        
-        loadResources: function() {
-            allResources.forEach(resource => {
-                if (resource.type === 'stylesheet') {
-                    this.loadStylesheet(resource);
-                } else if (resource.type === 'script') {
-                    this.loadScript(resource);
-                } else {
-                    this.loadImage(resource);
-                }
-            });
-        },
-        
-        loadStylesheet: function(resource) {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = resource.url;
-            link.onload = () => this.resourceLoaded(resource);
-            link.onerror = () => this.resourceLoaded(resource, true);
-            document.head.appendChild(link);
-        },
-        
-        loadScript: function(resource) {
-            const script = document.createElement('script');
-            script.src = resource.url;
-            script.onload = () => this.resourceLoaded(resource);
-            script.onerror = () => this.resourceLoaded(resource, true);
-            document.head.appendChild(script);
-        },
-        
-        loadImage: function(resource) {
-            const img = new Image();
-            img.onload = () => this.resourceLoaded(resource);
-            img.onerror = () => this.resourceLoaded(resource, true);
-            img.src = resource.url;
-        },
-        
-        resourceLoaded: function(resource, hasError = false) {
-            state.loadedResources++;
-            
-            const status = hasError ? '失败' : '完成';
-            if (hasError) state.hasFailedResources = true;
-            
-            this.addStep(`加载 ${this.getResourceType(resource.type)}`, status, !hasError);
-            
-            if (state.loadedResources >= state.totalResources) {
-                if (state.timeoutId) clearTimeout(state.timeoutId);
-                if (state.countdownId) clearInterval(state.countdownId);
-                setTimeout(() => this.completeLoading(), 300);
-            }
-        },
-        
-        getResourceType: function(type) {
-            const types = {
-                'stylesheet': 'CSS样式',
-                'script': 'JavaScript',
-                'image': '图片资源'
-            };
-            return types[type] || '资源';
-        },
-        
-        startTimeoutCheck: function() {
-            state.timeoutId = setTimeout(() => {
-                if (state.loadedResources < state.totalResources) {
-                    this.startForceCountdown();
-                }
-            }, config.maxWaitTime);
-        },
-        
-        startForceCountdown: function() {
-            let countdown = config.forceCountdown;
-            
-            // 立即显示第一条倒计时
-            this.addStep('加载超时', `${countdown}s后强制进入`, false);
-            
-            state.countdownId = setInterval(() => {
-                countdown--;
-                
-                // 添加新的倒计时行
-                this.addStep('', `${countdown}s`, false);
-                
-                if (countdown <= 0) {
-                    clearInterval(state.countdownId);
-                    this.forceEnterPage();
-                }
-                
-                // 如果资源在倒计时期间加载完成，清除倒计时
-                if (state.loadedResources >= state.totalResources) {
-                    clearInterval(state.countdownId);
-                }
-            }, 1000);
-        },
-        
-        forceEnterPage: function() {
-            setTimeout(() => this.completeLoading(), 500);
-        },
-        
-        completeLoading: function() {
-            if (!elements.globalLoader) return;
-            this.addStep('页面启动中', '成功', true);
-            // 直接隐藏加载器，不添加额外延迟
-            elements.globalLoader.style.opacity = '0';
-            
-            setTimeout(() => {
-                elements.globalLoader.style.display = 'none';
-                document.body.classList.remove('loading');
-                
-                // 确保页面内容显示
-                if (elements.banner) elements.banner.classList.add('loaded');
-                if (elements.container) elements.container.classList.add('loaded');
-                
-                // 初始化页面功能
-                this.initPageFeatures();
-            }, 300);
-        },
-        
-        initPageFeatures: function() {
-            // 初始化页面交互
-            setTimeout(() => {
-                this.setupEventListeners();
-                this.applySavedTheme();
-            }, 100);
-        },
-        
-        setupEventListeners: function() {
-            // 简化的交互设置
-            const themeToggle = document.getElementById('themeToggle');
-            const backToTop = document.getElementById('backToTop');
-            const searchInput = document.getElementById('searchInput');
-            const categoryTabs = document.querySelectorAll('.category-tab');
-            const scrollDown = document.getElementById('scrollDown');
-            
-            if (themeToggle) themeToggle.addEventListener('click', () => this.toggleTheme());
-            if (backToTop) backToTop.addEventListener('click', () => window.scrollTo({top: 0, behavior: 'smooth'}));
-            if (searchInput) searchInput.addEventListener('input', this.debounce((e) => this.handleSearch(e), 300));
-            if (scrollDown) scrollDown.addEventListener('click', () => {
-                document.querySelector('.container').scrollIntoView({behavior: 'smooth'});
-            });
-            
-            categoryTabs.forEach(tab => {
-                tab.addEventListener('click', () => this.filterProjects(tab.dataset.category));
-            });
-            
-            window.addEventListener('scroll', this.throttle(() => this.handleScroll(), 100));
-        },
-        
-        handleScroll: function() {
-            const backToTop = document.getElementById('backToTop');
-            if (backToTop) {
-                backToTop.classList.toggle('visible', window.pageYOffset > 300);
-            }
-        },
-        
-        handleSearch: function(event) {
-            const searchTerm = event.target.value.toLowerCase();
-            const projects = document.querySelectorAll('.project-item');
-            
-            projects.forEach(project => {
-                const title = project.querySelector('.project-title').textContent.toLowerCase();
-                const desc = project.querySelector('.project-desc').textContent.toLowerCase();
-                project.style.display = (title.includes(searchTerm) || desc.includes(searchTerm)) ? 'block' : 'none';
-            });
-        },
-        
-        filterProjects: function(category) {
-            const tabs = document.querySelectorAll('.category-tab');
-            const projects = document.querySelectorAll('.project-item');
-            
-            tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            projects.forEach(project => {
-                project.style.display = (category === 'all' || project.getAttribute('data-category') === category) ? 'block' : 'none';
-            });
-        },
-        
-        applySavedTheme: function() {
-            document.documentElement.setAttribute('data-theme', state.currentTheme);
-            this.updateThemeIcon();
-        },
-        
-        toggleTheme: function() {
-            state.currentTheme = state.currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', state.currentTheme);
-            localStorage.setItem('theme', state.currentTheme);
-            this.updateThemeIcon();
-        },
-        
-        updateThemeIcon: function() {
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                const icon = themeToggle.querySelector('i');
-                icon.className = state.currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-            }
-        },
-        
-        addStep: function(action, status, isSuccess = true) {
-            if (!elements.loadingSteps) return;
-            
-            const stepLine = document.createElement('div');
-            stepLine.className = 'step-line';
-            
-            stepLine.innerHTML = `
-                <span class="step-prompt">></span>
-                <span class="step-content">${action ? ' ' + action : ''}</span>
-                <span class="${isSuccess ? 'step-success' : 'step-error'}">${status}</span>
-            `;
-            
-            elements.loadingSteps.appendChild(stepLine);
-            elements.loadingSteps.scrollTop = elements.loadingSteps.scrollHeight;
-        },
-        
-        // 工具函数
-        throttle: function(func, limit) {
-            let inThrottle;
-            return function() {
-                if (!inThrottle) {
-                    func.apply(this, arguments);
-                    inThrottle = true;
-                    setTimeout(() => inThrottle = false, limit);
-                }
-            }
-        },
-        
-        debounce: function(func, wait) {
-            let timeout;
-            return function() {
-                const context = this, args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(context, args), wait);
-            };
-        }
-    };
-    
-    // 启动
-    document.addEventListener('DOMContentLoaded', () => {
-        document.body.classList.add('loading');
-        resourceMonitor.init();
-    });
+    const config={maxWaitTime:5000,forceCountdown:5};
+    const state={currentTheme:localStorage.getItem('theme')||'light',startTime:Date.now(),loadedResources:0,totalResources:0,hasFailedResources:!1,timeoutId:null,countdownId:null,aplayerLoaded:!1};
+    const elements={globalLoader:document.getElementById('global-loader'),loadingSteps:document.getElementById('loadingSteps'),banner:document.querySelector('.banner'),container:document.querySelector('.container'),projectsContainer:document.getElementById('projectsContainer')};
+    const allResources=[{url:'https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.css',type:'stylesheet',id:'aplayer-css'},{url:'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',type:'stylesheet',id:'fontawesome-css'},{url:'https://www.loliapi.com/acg/',type:'image',id:'banner-image'},{url:'https://avatars.githubusercontent.com/u/177708607',type:'image',id:'avatar-image'}];
+    const resourceMonitor={
+        init:function(){state.totalResources=allResources.length;this.addStep('加载资源','初始化');this.startTimeoutCheck();this.loadResources();setTimeout(()=>this.loadMusicPlayer())},
+        loadResources:function(){allResources.forEach(r=>{if(r.type==='stylesheet')this.loadStylesheet(r);else if(r.type==='script')this.loadScript(r);else this.loadImage(r)})},
+        loadStylesheet:function(r){if(r.id&&document.getElementById(r.id)){this.resourceLoaded(r);return}
+            const l=document.createElement('link');l.rel='stylesheet';l.href=r.url;if(r.id)l.id=r.id;l.onload=()=>this.resourceLoaded(r);l.onerror=()=>this.resourceLoaded(r,!0);document.head.appendChild(l)},
+        loadScript:function(r){if(r.id&&document.getElementById(r.id)){this.resourceLoaded(r);return}
+            const s=document.createElement('script');s.src=r.url;if(r.id)s.id=r.id;s.onload=()=>this.resourceLoaded(r);s.onerror=()=>this.resourceLoaded(r,!0);document.head.appendChild(s)},
+        loadImage:function(r){const i=new Image();i.onload=()=>this.resourceLoaded(r);i.onerror=()=>this.resourceLoaded(r,!0);i.src=r.url},
+        loadMusicPlayer:function(){const a=document.createElement('script');a.src='https://gcore.jsdelivr.net/npm/aplayer/dist/APlayer.min.js';a.id='aplayer-js';a.onload=()=>{this.addStep('加载音乐播放器','APlayer.js 完成',!0);const m=document.createElement('script');m.src='https://gcore.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js';m.id='meting-js';m.onload=()=>{this.addStep('加载音乐播放器','Meting.js 完成',!0);state.aplayerLoaded=!0};m.onerror=()=>{this.addStep('加载音乐播放器','Meting.js 失败',!1);state.aplayerLoaded=!0};document.head.appendChild(m)};a.onerror=()=>{this.addStep('加载音乐播放器','APlayer.js 失败',!1);state.aplayerLoaded=!0};document.head.appendChild(a)},
+        resourceLoaded:function(r,e=!1){state.loadedResources++;const t=e?'失败':'完成';if(e)state.hasFailedResources=!0;this.addStep(`加载 ${this.getResourceType(r.type)}`,t,!e);this.checkLoadingCompletion()},
+        checkLoadingCompletion:function(){if(state.loadedResources>=state.totalResources&&state.aplayerLoaded){if(state.timeoutId)clearTimeout(state.timeoutId);if(state.countdownId)clearInterval(state.countdownId);setTimeout(()=>this.completeLoading(),300)}},
+        getResourceType:function(t){const r={'stylesheet':'CSS样式','script':'JavaScript','image':'图片资源'};return r[t]||'资源'},
+        startTimeoutCheck:function(){state.timeoutId=setTimeout(()=>{if(state.loadedResources<state.totalResources||!state.aplayerLoaded)this.startForceCountdown()},config.maxWaitTime)},
+        startForceCountdown:function(){let t=config.forceCountdown;this.addStep('加载超时',`${t}s后强制进入`,!1);state.countdownId=setInterval(()=>{t--;this.addStep('',`${t}s`,!1);if(t<=0){clearInterval(state.countdownId);this.forceEnterPage()}if(state.loadedResources>=state.totalResources&&state.aplayerLoaded)clearInterval(state.countdownId)},1e3)},
+        forceEnterPage:function(){state.aplayerLoaded=!0;setTimeout(()=>this.completeLoading(),500)},
+        completeLoading:function(){if(!elements.globalLoader)return;this.addStep('页面启动中','成功',!0);elements.globalLoader.style.opacity='0';setTimeout(()=>{elements.globalLoader.style.display='none';document.body.classList.remove('loading');if(elements.banner)elements.banner.classList.add('loaded');if(elements.container)elements.container.classList.add('loaded');this.initPageFeatures();setTimeout(()=>this.finalizeMusicPlayer(),500)},300)},
+        finalizeMusicPlayer:function(){if(!state.aplayerLoaded){this.loadMusicPlayer();return}if(typeof Meting!=='undefined'){const e=document.querySelectorAll('meting-js');if(e.length>0){const t=document.querySelector('.aplayer');if(!t&&window.Meting)window.Meting.parse()}}},
+        initPageFeatures:function(){setTimeout(()=>{this.setupEventListeners();this.applySavedTheme();this.sortProjects()},100)},
+        setupEventListeners:function(){const e=document.getElementById('themeToggle'),t=document.getElementById('backToTop'),r=document.getElementById('searchInput'),a=document.querySelectorAll('.category-tab'),i=document.getElementById('scrollDown');e&&e.addEventListener('click',()=>this.toggleTheme());t&&t.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));r&&r.addEventListener('input',this.debounce(e=>this.handleSearch(e),300));i&&i.addEventListener('click',()=>document.querySelector('.container').scrollIntoView({behavior:'smooth'}));a.forEach(t=>{t.addEventListener('click',()=>this.filterProjects(t.dataset.category))});window.addEventListener('scroll',this.throttle(()=>this.handleScroll(),100))},
+        handleScroll:function(){const e=document.getElementById('backToTop');e&&e.classList.toggle('visible',window.pageYOffset>300)},
+        handleSearch:function(e){const t=e.target.value.toLowerCase();document.querySelectorAll('.project-item').forEach(r=>{const a=r.querySelector('.project-title').textContent.toLowerCase(),i=r.querySelector('.project-desc').textContent.toLowerCase();r.style.display=a.includes(t)||i.includes(t)?'block':'none'})},
+        filterProjects:function(e){document.querySelectorAll('.category-tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');document.querySelectorAll('.project-item').forEach(t=>{t.style.display=e==='pinned'?t.hasAttribute('data-pinned')?'block':'none':e==='all'||t.getAttribute('data-category')===e?'block':'none'})},
+        sortProjects:function(){if(!elements.projectsContainer)return;const e=Array.from(elements.projectsContainer.querySelectorAll('.project-item'));e.sort((e,t)=>{const r=e.hasAttribute('data-pinned'),a=t.hasAttribute('data-pinned');if(r&&!a)return-1;if(!r&&a)return 1;return new Date(t.getAttribute('data-date'))-new Date(e.getAttribute('data-date'))});e.forEach(t=>elements.projectsContainer.appendChild(t))},
+        applySavedTheme:function(){document.documentElement.setAttribute('data-theme',state.currentTheme);this.updateThemeIcon()},
+        toggleTheme:function(){state.currentTheme=state.currentTheme==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',state.currentTheme);localStorage.setItem('theme',state.currentTheme);this.updateThemeIcon()},
+        updateThemeIcon:function(){const e=document.getElementById('themeToggle');if(e){const t=e.querySelector('i');t.className=state.currentTheme==='dark'?'fas fa-sun':'fas fa-moon'}},
+        addStep:function(e,t,r=!0){if(!elements.loadingSteps)return;const a=document.createElement('div');a.className='step-line';a.innerHTML=`<span class="step-prompt">></span><span class="step-content">${e?' '+e:''}</span><span class="${r?'step-success':'step-error'}">${t}</span>`;elements.loadingSteps.appendChild(a);elements.loadingSteps.scrollTop=elements.loadingSteps.scrollHeight},
+        throttle:function(e,t){let r;return function(){if(!r){e.apply(this,arguments);r=!0;setTimeout(()=>r=!1,t)}}},
+        debounce:function(e,t){let r;return function(){const a=this,i=arguments;clearTimeout(r);r=setTimeout(()=>e.apply(a,i),t)}}};
+    document.addEventListener('DOMContentLoaded',()=>{document.body.classList.add('loading');resourceMonitor.init()});
 })();
 </script>
 </body>
