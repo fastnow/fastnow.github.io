@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:description" content="一九六六年，在我国兴起的无产阶级文化大革命，是二十世纪六十年代的最伟大的事件。这个革命，使我国的社会主义革命发展到一个新阶段。这个革命，在国际共产主义运动的历史上开辟了一个新纪元……">
+    <title>十年·PCR历史文献资料库</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:Arial,sans-serif;background:#f5f5f5;color:#333;min-height:100vh}
+        .container{max-width:1200px;margin:0 auto;background:white;height:calc(100vh - 0px);display:flex;flex-direction:column;box-shadow:0 0 8px rgba(0,0,0,0.05)}
+        .header{background:#1a73e8;color:white;padding:8px 20px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-start;position:relative}
+        .header h1{font-size:20px;font-weight:600;margin-bottom:4px}
+        .copyright{font-size:12px;color:rgba(255,255,255,0.9);text-align:left}
+        .copyright a{color:rgba(255,255,255,0.9);text-decoration:none;margin:0 3px}
+        .copyright a:hover{text-decoration:underline}
+        .header-desc{position:absolute;top:50%;transform:translateY(-50%);right:20px;font-size:14px;color:rgba(255,255,255,0.9)}
+        .search-section{padding:10px 15px;border-bottom:1px solid #eee;flex-shrink:0;background:#fff}
+        .search-box{display:flex;margin-bottom:8px;gap:0}
+        .search-input{flex:1;padding:8px 12px;border:1px solid #ddd;border-right:0;font-size:14px;border-radius:4px 0 0 4px;transition:border-color 0.2s}
+        .search-input:focus{outline:none;border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,0.1)}
+        .search-btn{padding:8px 16px;background:#1a73e8;color:white;border:none;font-size:14px;cursor:pointer;border-radius:0 4px 4px 0;transition:background-color 0.2s}
+        .search-btn:hover{background:#0d66d0}
+        .filters{display:flex;flex-wrap:wrap;gap:8px}
+        .filter-group{flex:1;min-width:140px}
+        .filter-group label{display:block;font-size:12px;margin-bottom:3px;color:#666}
+        .filter-input{width:100%;padding:6px 8px;border:1px solid #ddd;border-radius:4px;font-size:13px;transition:border-color 0.2s}
+        .filter-input:focus{outline:none;border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,0.1)}
+        .stats-bar{padding:8px 15px;background:#f8f9fa;border-bottom:1px solid #eee;font-size:12px;display:flex;flex-wrap:wrap;gap:12px;flex-shrink:0;align-items:center}
+        .stat-item{display:flex;align-items:center}
+        .stat-label{color:#666;margin-right:5px;font-size:13px}
+        .stat-value{font-weight:600;color:#1a73e8;font-size:14px;min-width:20px;display:inline-block;text-align:center}
+        .progress-bar{height:6px;background:#eee;border-radius:3px;margin-top:4px;overflow:hidden}
+        .progress-fill{height:100%;background:#1a73e8;width:0%;transition:width 0.3s}
+        .clear-cache-btn{padding:8px 16px;background:#f0f2f5;color:#333;border:none;border-radius:4px;cursor:pointer;font-size:13px;margin-left:10px;transition:background-color 0.2s}
+        .clear-cache-btn:hover{background:#e5e7eb}
+        .load-more-btn{padding:8px 16px;background:#1a73e8;color:white;border:none;border-radius:4px;cursor:pointer;font-size:13px;margin-left:8px;transition:background-color 0.2s}
+        .load-more-btn:disabled{background:#ccc;cursor:not-allowed;opacity:0.7}
+        .load-more-btn:hover:not(:disabled){background:#0d66d0}
+        .cache-count{font-size:13px;margin-right:10px;color:#666}
+        .cache-count span{font-weight:600;color:#1a73e8}
+        .main-content{display:flex;flex:1;overflow:hidden}
+        .articles-panel{width:300px;border-right:1px solid #eee;display:flex;flex-direction:column;background:#fff}
+        .articles-header{padding:12px 15px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+        .articles-header h3{font-size:15px;font-weight:600;color:#333}
+        .articles-count{font-weight:600;color:#1a73e8;font-size:13px}
+        .articles-list{flex:1;overflow-y:auto}
+        .article-item{padding:12px 15px;border-bottom:1px solid #f5f5f5;cursor:pointer;transition:background-color 0.1s}
+        .article-item:hover{background:#f8f9fa}
+        .article-title{font-weight:600;margin-bottom:6px;font-size:14px;line-height:1.4;color:#333}
+        .article-meta{font-size:12px;color:#666;margin-bottom:6px}
+        .tag{display:inline-block;background:#e3f2fd;color:#1976d2;padding:1px 6px;font-size:11px;border-radius:3px;margin-right:4px;margin-bottom:3px}
+        .tag.author{background:#e8f5e9;color:#388e3c}
+        .detail-panel{flex:1;display:none;flex-direction:column;background:#fff}
+        .detail-panel.active{display:flex}
+        .detail-header{padding:12px 15px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+        .detail-header h3{font-size:15px;font-weight:600;color:#333}
+        .detail-close{background:none;border:none;font-size:20px;cursor:pointer;color:#666;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background-color 0.1s}
+        .detail-close:hover{background:#f5f5f5}
+        .detail-content{flex:1;overflow-y:auto;padding:20px;line-height:1.6}
+        .detail-title{font-size:22px;font-weight:600;margin-bottom:15px;color:#333}
+        .detail-meta{margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #eee}
+        .detail-meta-item{margin-bottom:6px;font-size:14px}
+        .detail-meta-label{font-weight:600;color:#666;display:inline-block;width:80px}
+        .detail-text{font-size:16px;line-height:1.7;margin-top:15px;color:#333}
+        .detail-text p{margin-bottom:12px}
+        .content-divider{border-top:1px solid #eee;margin:25px 0}
+        .image-viewer,.pdf-viewer-container{margin-top:20px;border:1px solid #eee;border-radius:4px;overflow:hidden;display:none}
+        .image-header,.pdf-header{background:#f8f9fa;padding:10px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+        .image-header h4,.pdf-header h4{font-size:14px;font-weight:600;color:#333}
+        .pdf-controls{display:flex;gap:10px;align-items:center}
+        .pdf-page-info{font-size:13px}
+        .image-container,.pdf-canvas-container{width:100%;text-align:center;padding:15px;background:#f9f9fa;min-height:200px;display:flex;justify-content:center;align-items:center}
+        .image-container img{max-width:100%;max-height:600px;border:1px solid #eee;background:white;border-radius:4px}
+        .pdf-canvas{max-width:100%;border:1px solid #eee;background:white;border-radius:4px}
+        .pdf-loading{padding:20px;text-align:center;color:#666}
+        .file-list{margin-top:20px}
+        .file-item{margin-bottom:12px;padding:12px;border:1px solid #eee;border-radius:4px;background:#f9f9fa}
+        .file-name{font-weight:600;margin-bottom:6px;font-size:13px}
+        .file-url{font-size:12px;color:#666;word-break:break-all;margin-bottom:8px}
+        .file-actions{display:flex;gap:10px}
+        .no-results{text-align:center;padding:30px;color:#666;font-size:14px}
+        .detail-panel.fullscreen{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;background:white}
+        .detail-panel.fullscreen .detail-close{position:absolute;top:10px;right:10px;z-index:1001}
+        @media (max-width:768px){
+            .header{padding:6px 15px}
+            .header h1{font-size:18px}
+            .header-desc{font-size:12px;right:15px}
+            .search-section{padding:8px 12px}
+            .filters{flex-direction:column}
+            .filter-group{min-width:100%}
+            .stats-bar{padding:6px 12px;gap:8px}
+            .cache-count{margin-right:8px;font-size:12px}
+            .clear-cache-btn,.load-more-btn{padding:6px 12px;font-size:12px;margin-left:5px}
+            .main-content{flex-direction:column}
+            .articles-panel{width:100%;height:65vh}
+            .detail-panel{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:white}
+            .image-container img{max-height:400px}
+            .copyright{text-align:left;width:100%}
+            .detail-panel.fullscreen{position:fixed}
+            .detail-meta-item{font-size:13px}
+            .detail-text{font-size:15px}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>十年·文革历史文献资料库</h1>
+            <div class="copyright">
+                &copy; <script>document.write(new Date().getFullYear())</script>
+                <a href="/" target="_blank">FastNow Studio</a>| BSD 3-Clause
+            </div>
+            <div class="header-desc">本页面的资料仅为学术研究所用<br><div style="font-size:5px;">1966～1976 —— “炮打司令部” 红卫兵大串联 夺权 文攻 九一三事件……</div></div>
+        </div>
+        
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="search-input" class="search-input" placeholder="搜索标题、作者、标签...">
+                <button class="search-btn" id="search-btn">搜索</button>
+            </div>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label>作者</label>
+                    <input type="text" id="author-filter" class="filter-input" placeholder="搜索作者...">
+                </div>
+                
+                <div class="filter-group">
+                    <label>标签</label>
+                    <input type="text" id="tag-filter" class="filter-input" placeholder="搜索标签...">
+                </div>
+                
+                <div class="filter-group">
+                    <label>来源</label>
+                    <input type="text" id="source-filter" class="filter-input" placeholder="搜索来源...">
+                </div>
+                
+                <div class="filter-group">
+                    <label>年份</label>
+                    <input type="text" id="year-filter" class="filter-input" placeholder="搜索年份...">
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">已加载索引:</span>
+                <span class="stat-value" id="loaded-files">0</span>/<span class="stat-value" id="total-files">?</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <span class="stat-label">总文章:</span>
+                <span class="stat-value" id="loaded-articles">0</span>
+            </div>
+            
+            <div class="stat-item">
+                <span class="stat-label">显示:</span>
+                <span class="stat-value" id="visible-articles">0</span>/<span class="stat-value" id="total-articles">0</span>
+            </div>
+            
+            <div class="stat-item" style="margin-left:auto;display:flex;align-items:center;flex-wrap:wrap">
+                <div class="cache-count">缓存文章数: <span id="cache-count">0</span></div>
+                <button class="clear-cache-btn" id="clear-cache-btn">清除缓存</button>
+                <button class="load-more-btn" id="load-more-btn">加载更多 (10个文件)</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="articles-panel">
+                <div class="articles-header">
+                    <h3>文章列表</h3>
+                    <div class="articles-count" id="articles-count">0篇</div>
+                </div>
+                
+                <div class="articles-list" id="articles-list">
+                    <div class="no-results">正在加载文章数据...</div>
+                </div>
+            </div>
+            
+            <div class="detail-panel" id="detail-panel">
+                <div class="detail-header">
+                    <h3>文章详情</h3>
+                    <button class="detail-close" id="detail-close"></button>
+                </div>
+                <div class="detail-content" id="detail-content">
+                    <div class="no-results">点击左侧文章查看详情</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
+    <script>
+        const DOM={
+            pdfjsLib:window.pdfjsLib,
+            searchInput:document.getElementById('search-input'),
+            searchBtn:document.getElementById('search-btn'),
+            authorFilter:document.getElementById('author-filter'),
+            tagFilter:document.getElementById('tag-filter'),
+            sourceFilter:document.getElementById('source-filter'),
+            yearFilter:document.getElementById('year-filter'),
+            loadedFilesEl:document.getElementById('loaded-files'),
+            totalFilesEl:document.getElementById('total-files'),
+            loadedArticlesEl:document.getElementById('loaded-articles'),
+            visibleArticlesEl:document.getElementById('visible-articles'),
+            totalArticlesEl:document.getElementById('total-articles'),
+            progressFill:document.getElementById('progress-fill'),
+            articlesList:document.getElementById('articles-list'),
+            articlesCount:document.getElementById('articles-count'),
+            loadMoreBtn:document.getElementById('load-more-btn'),
+            detailPanel:document.getElementById('detail-panel'),
+            detailContent:document.getElementById('detail-content'),
+            detailClose:document.getElementById('detail-close'),
+            clearCacheBtn:document.getElementById('clear-cache-btn'),
+            cacheCountEl:document.getElementById('cache-count')
+        };
+        
+        if(DOM.pdfjsLib){
+            DOM.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
+        }
+        
+        const state={
+            allArticles:[],
+            filteredArticles:[],
+            allAuthors:new Set(),
+            allTags:new Set(),
+            allSources:new Set(),
+            allYears:new Set(),
+            totalFiles:0,
+            loadedFiles:0,
+            isDataLoading:false,
+            BATCH_SIZE:10,
+            ARTICLES_PER_PAGE:100,
+            currentDisplayCount:0,
+            articleDetailCache:new Map(),
+            pdfCache:new Map(),
+            isFullscreen:false,
+            activeViewers:new Set()
+        };
+        
+        function updateCloseButtonText(){
+            const isMobile=window.innerWidth<=768;
+            if(isMobile){
+                DOM.detailClose.textContent='×';
+            }else{
+                DOM.detailClose.textContent=state.isFullscreen?'×':'↕';
+            }
+        }
+        
+        function updateCacheCount(){
+            DOM.cacheCountEl.textContent=state.articleDetailCache.size;
+        }
+        
+        function debounce(func,wait=200){
+            let timeout;
+            return function executedFunction(...args){
+                const later=()=>{
+                    clearTimeout(timeout);
+                    func.apply(this,args);
+                };
+                clearTimeout(timeout);
+                timeout=setTimeout(later,wait);
+            };
+        }
+        
+        function convertToJsDelivrUrl(rawUrl){
+            if(!rawUrl||typeof rawUrl!=='string')return'';
+            rawUrl=rawUrl.trim();
+            if(rawUrl.includes('fastly.jsdelivr.net')||rawUrl.includes('cdn.jsdelivr.net'))return rawUrl;
+            if(rawUrl.includes('raw.githubusercontent.com')){
+                const match=rawUrl.match(/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)/);
+                if(match){const[,user,repo,branch,path]=match;return`https://fastly.jsdelivr.net/gh/${user}/${repo}@${branch}/${path}`;}
+            }
+            if(rawUrl.includes('github.com')&&rawUrl.includes('/blob/')){
+                const match=rawUrl.match(/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)/);
+                if(match){const[,user,repo,branch,path]=match;return`https://fastly.jsdelivr.net/gh/${user}/${repo}@${branch}/${path}`;}
+            }
+            return rawUrl;
+        }
+        
+        function init(){
+            document.body.addEventListener('wheel',(e)=>{
+                if(!e.target.closest('.articles-list')&&!e.target.closest('.detail-content'))e.preventDefault();
+            },{passive:false});
+            
+            document.body.addEventListener('touchmove',(e)=>{
+                if(!e.target.closest('.articles-list')&&!e.target.closest('.detail-content'))e.preventDefault();
+            },{passive:false});
+            
+            DOM.searchBtn.addEventListener('click',performSearch);
+            DOM.searchInput.addEventListener('input',debounce(performSearch));
+            DOM.authorFilter.addEventListener('input',debounce(performSearch));
+            DOM.tagFilter.addEventListener('input',debounce(performSearch));
+            DOM.sourceFilter.addEventListener('input',debounce(performSearch));
+            DOM.yearFilter.addEventListener('input',debounce(performSearch));
+            
+            DOM.loadMoreBtn.addEventListener('click',loadMoreData);
+            DOM.detailClose.addEventListener('click',toggleFullscreen);
+            DOM.clearCacheBtn.addEventListener('click',clearArticleCache);
+            DOM.articlesList.addEventListener('scroll',handleScroll);
+            
+            updateCloseButtonText();
+            window.addEventListener('resize',debounce(updateCloseButtonText,100));
+            document.addEventListener('keydown',handleKeydown);
+            
+            loadInitialData();
+            updateCacheCount();
+        }
+        
+        function handleKeydown(e){
+            if(e.key==='Escape'&&state.isFullscreen)toggleFullscreen();
+        }
+        
+        function toggleFullscreen(){
+            if(window.innerWidth<=768){
+                DOM.detailPanel.classList.remove('active');
+                closeAllViewers();
+                state.isFullscreen=false;
+            }else{
+                if(state.isFullscreen){
+                    DOM.detailPanel.classList.remove('fullscreen');
+                    state.isFullscreen=false;
+                }else{
+                    DOM.detailPanel.classList.add('fullscreen');
+                    state.isFullscreen=true;
+                }
+            }
+            updateCloseButtonText();
+        }
+        
+        function handleScroll(){
+            const list=DOM.articlesList;
+            const scrollBottom=list.scrollHeight-list.scrollTop-list.clientHeight;
+            if(scrollBottom<50&&state.currentDisplayCount<state.filteredArticles.length)loadMoreArticles();
+        }
+        
+        function loadMoreArticles(){
+            if(state.currentDisplayCount>=state.filteredArticles.length)return;
+            const nextCount=Math.min(state.currentDisplayCount+state.ARTICLES_PER_PAGE,state.filteredArticles.length);
+            const fragment=document.createDocumentFragment();
+            for(let i=state.currentDisplayCount;i<nextCount&&i<state.filteredArticles.length;i++){
+                const article=state.filteredArticles[i];
+                const articleItem=createArticleItem(article);
+                fragment.appendChild(articleItem);
+            }
+            DOM.articlesList.appendChild(fragment);
+            state.currentDisplayCount=nextCount;
+            DOM.visibleArticlesEl.textContent=state.currentDisplayCount;
+            DOM.articlesCount.textContent=`${state.currentDisplayCount}篇`;
+        }
+        
+        function createArticleItem(article){
+            const articleItem=document.createElement('div');
+            articleItem.className='article-item';
+            articleItem.dataset.articleId=article.id;
+            let dateStr='日期未知';
+            if(article.dates&&article.dates.length>0){
+                const date=article.dates[0];
+                dateStr=`${date.year||''}年${date.month||''}月${date.day||''}日`;
+            }
+            let authorsHtml='';
+            if(article.authors&&article.authors.length>0){
+                authorsHtml=article.authors.slice(0,2).map(author=>author&&author.trim()?`<span class="tag author">${author}</span>`:'').join('');
+            }
+            let tagsHtml='';
+            if(article.tags&&article.tags.length>0){
+                tagsHtml=article.tags.slice(0,3).map(tag=>`<span class="tag">${tag}</span>`).join('');
+            }
+            articleItem.innerHTML=`<div class="article-title">${article.title||'无标题'}</div><div class="article-meta">${dateStr}</div><div>${authorsHtml}${tagsHtml}</div>`;
+            articleItem.addEventListener('click',()=>showArticleDetail(article.id));
+            return articleItem;
+        }
+        
+        function updateStats(){
+            DOM.loadedFilesEl.textContent=state.loadedFiles;
+            DOM.totalFilesEl.textContent=state.totalFiles||'?';
+            DOM.loadedArticlesEl.textContent=state.allArticles.length;
+            DOM.totalArticlesEl.textContent=state.filteredArticles.length;
+            if(state.totalFiles>0){
+                const progress=(state.loadedFiles/state.totalFiles)*100;
+                DOM.progressFill.style.width=`${progress}%`;
+            }
+        }
+        
+        async function loadInitialData(){
+            try{
+                const countResponse=await fetch('https://fastly.jsdelivr.net/gh/banned-historical-archives/banned-historical-archives.github.io@indexes/indexes/file_count.json');
+                if(!countResponse.ok)throw new Error(`HTTP ${countResponse.status}`);
+                const countData=await countResponse.json();
+                state.totalFiles=countData.article_list;
+                updateStats();
+                await loadBatch(0,state.BATCH_SIZE);
+            }catch(error){
+                DOM.articlesList.innerHTML='<div class="no-results">数据加载失败，请刷新重试</div>';
+                console.error('初始加载失败：',error);
+            }
+        }
+        
+        async function loadBatch(startIndex,count){
+            if(state.isDataLoading)return;
+            state.isDataLoading=true;
+            DOM.loadMoreBtn.disabled=true;
+            DOM.loadMoreBtn.textContent='加载中...';
+            const endIndex=Math.min(startIndex+count,state.totalFiles);
+            const errors=[];
+            const batchSize=3;
+            for(let i=startIndex;i<endIndex;i+=batchSize){
+                const batchEnd=Math.min(i+batchSize,endIndex);
+                const promises=[];
+                for(let j=i;j<batchEnd;j++)promises.push(loadFile(j));
+                await Promise.allSettled(promises.map(p=>p.catch(e=>errors.push(e))));
+                if(i%6===0||i+batchSize>=endIndex)performSearch();
+            }
+            state.loadedFiles=endIndex;
+            updateStats();
+            if(state.loadedFiles<state.totalFiles){
+                DOM.loadMoreBtn.disabled=false;
+                DOM.loadMoreBtn.textContent=`加载更多 (${Math.min(state.BATCH_SIZE,state.totalFiles-state.loadedFiles)}个文件)`;
+            }else{
+                DOM.loadMoreBtn.disabled=true;
+                DOM.loadMoreBtn.textContent='已加载全部';
+            }
+            state.isDataLoading=false;
+            return endIndex;
+        }
+        
+        async function loadFile(index){
+            try{
+                const response=await fetch(`https://fastly.jsdelivr.net/gh/banned-historical-archives/banned-historical-archives.github.io@indexes/indexes/article_list_${index}.json`);
+                if(!response.ok)throw new Error(`HTTP ${response.status}`);
+                const data=await response.json();
+                processArticleData(data);
+            }catch(error){
+                console.error(`加载文件${index}失败：`,error);
+                throw error;
+            }
+        }
+        
+        async function loadMoreData(){
+            if(state.isDataLoading||state.loadedFiles>=state.totalFiles)return;
+            await loadBatch(state.loadedFiles,state.BATCH_SIZE);
+        }
+        
+        function processArticleData(data){
+            if(!data.articles||!Array.isArray(data.articles))return;
+            const tags=data.tags||[];
+            const books=data.books||[];
+            const newArticles=[];
+            for(const article of data.articles){
+                const articleTags=[];
+                if(article.tag_ids&&Array.isArray(article.tag_ids)){
+                    for(const tagId of article.tag_ids){
+                        if(tags[tagId]?.name){
+                            const tagName=tags[tagId].name;
+                            articleTags.push(tagName);
+                            state.allTags.add(tagName);
+                        }
+                    }
+                }
+                const articleSources=[];
+                if(article.book_ids&&Array.isArray(article.book_ids)){
+                    for(const bookId of article.book_ids){
+                        if(books[bookId]){
+                            articleSources.push(books[bookId]);
+                            state.allSources.add(books[bookId]);
+                        }
+                    }
+                }
+                const articleAuthors=article.authors||[];
+                for(const author of articleAuthors){
+                    if(author&&author.trim()&&author!=='null'&&author!=='undefined')state.allAuthors.add(author);
+                }
+                if(article.dates&&article.dates.length>0&&article.dates[0].year)state.allYears.add(article.dates[0].year);
+                newArticles.push({
+                    id:article.id,
+                    title:article.title,
+                    authors:articleAuthors,
+                    dates:article.dates,
+                    is_range_date:article.is_range_date||false,
+                    tags:articleTags,
+                    sources:articleSources,
+                    year:article.dates&&article.dates.length>0?article.dates[0].year:null
+                });
+            }
+            state.allArticles.push(...newArticles);
+            if(state.allArticles.length%100===0||data.articles.length<100)updateFilterOptions();
+        }
+        
+        function updateFilterOptions(){return;}
+        
+        function performSearch(){
+            if(state.allArticles.length===0){
+                DOM.articlesList.innerHTML='<div class="no-results">正在加载文章数据...</div>';
+                DOM.articlesCount.textContent='0篇';
+                DOM.visibleArticlesEl.textContent='0';
+                DOM.totalArticlesEl.textContent='0';
+                state.currentDisplayCount=0;
+                return;
+            }
+            const searchTerm=DOM.searchInput.value.toLowerCase().trim();
+            const selectedAuthor=DOM.authorFilter.value.toLowerCase().trim();
+            const selectedTag=DOM.tagFilter.value.toLowerCase().trim();
+            const selectedSource=DOM.sourceFilter.value.toLowerCase().trim();
+            const selectedYear=DOM.yearFilter.value.trim();
+            requestAnimationFrame(()=>{
+                state.filteredArticles=state.allArticles.filter(article=>{
+                    if(selectedAuthor){
+                        const authorMatch=article.authors?.some(author=>author.toLowerCase().includes(selectedAuthor));
+                        if(!authorMatch)return false;
+                    }
+                    if(selectedTag){
+                        const tagMatch=article.tags?.some(tag=>tag.toLowerCase().includes(selectedTag));
+                        if(!tagMatch)return false;
+                    }
+                    if(selectedSource){
+                        const sourceMatch=article.sources?.some(source=>source.toLowerCase().includes(selectedSource));
+                        if(!sourceMatch)return false;
+                    }
+                    if(selectedYear){
+                        if(selectedYear.includes('-')){
+                            const[startYear,endYear]=selectedYear.split('-').map(Number);
+                            if(isNaN(startYear)||isNaN(endYear)||article.year<startYear||article.year>endYear)return false;
+                        }else{
+                            const year=Number(selectedYear);
+                            if(isNaN(year)||article.year!==year)return false;
+                        }
+                    }
+                    if(searchTerm){
+                        const titleMatch=article.title?.toLowerCase().includes(searchTerm);
+                        const authorMatch=article.authors?.some(author=>author.toLowerCase().includes(searchTerm));
+                        const tagMatch=article.tags?.some(tag=>tag.toLowerCase().includes(searchTerm));
+                        const sourceMatch=article.sources?.some(source=>source.toLowerCase().includes(searchTerm));
+                        if(!(titleMatch||authorMatch||tagMatch||sourceMatch))return false;
+                    }
+                    return true;
+                });
+                state.currentDisplayCount=0;
+                DOM.totalArticlesEl.textContent=state.filteredArticles.length;
+                if(state.filteredArticles.length===0){
+                    DOM.articlesList.innerHTML='<div class="no-results">没有找到匹配的文章</div>';
+                    DOM.articlesCount.textContent='0篇';
+                    DOM.visibleArticlesEl.textContent='0';
+                }else{
+                    DOM.articlesList.innerHTML='';
+                    loadMoreArticles();
+                }
+            });
+        }
+        
+        async function showArticleDetail(articleId){
+            DOM.detailPanel.classList.add('active');
+            DOM.detailContent.innerHTML='<div class="no-results">正在加载文章详情...</div>';
+            try{
+                if(state.articleDetailCache.has(articleId)){
+                    displayArticleDetail(state.articleDetailCache.get(articleId),articleId);
+                    return;
+                }
+                const articlePath=`${articleId.slice(0,3)}/${articleId}.json`;
+                const articleUrl=`https://fastly.jsdelivr.net/gh/banned-historical-archives/banned-historical-archives.github.io@json/json/${articlePath}`;
+                const response=await fetch(articleUrl);
+                if(!response.ok)throw new Error(`HTTP ${response.status}`);
+                const data=await response.json();
+                state.articleDetailCache.set(articleId,data);
+                updateCacheCount();
+                displayArticleDetail(data,articleId);
+            }catch(error){
+                DOM.detailContent.innerHTML='<div class="no-results">加载文章详情失败，请重试</div>';
+                console.error('加载文章详情失败：',error);
+            }
+        }
+        
+        function getFileType(fileUrl){
+            if(!fileUrl)return'unknown';
+            const ext=fileUrl.split('.').pop()?.toLowerCase()||'';
+            if(['jpg','jpeg','png','gif','bmp','webp','svg'].includes(ext))return'image';
+            else if(['pdf'].includes(ext))return'pdf';
+            else return'other';
+        }
+        
+        function displayArticleDetail(data,articleId){
+            const books=data.books||[];
+            if(books.length===0){
+                DOM.detailContent.innerHTML='<div class="no-results">未找到文章数据</div>';
+                return;
+            }
+            const book=books[0];
+            const article=book.article||{};
+            let dateStr='日期未知';
+            if(article.dates&&article.dates.length>0){
+                const date=article.dates[0];
+                dateStr=`${date.year||''}年${date.month||''}月${date.day||''}日`;
+            }
+            let authorsHtml='';
+            if(article.authors&&article.authors.length>0)authorsHtml=article.authors.map(author=>`<span class="tag author">${author}</span>`).join('');
+            let tagsHtml='';
+            if(book.tags&&book.tags.length>0)tagsHtml=book.tags.map(tag=>`<span class="tag">${tag.name||tag}</span>`).join('');
+            let contentHtml='';
+            if(article.parts&&article.parts.length>0)contentHtml=article.parts.map(part=>part.type==='authors'?`<p><strong>${part.text||''}</strong></p>`:`<p>${part.text||''}</p>`).join('');
+            let filesHtml='';
+            if(book.files&&Array.isArray(book.files)&&book.files.length>0){
+                const validFiles=book.files.filter(file=>file&&file.trim()!=='');
+                if(validFiles.length>0){
+                    filesHtml=`<div class="file-list"><h4>关联文件 (${validFiles.length})</h4>${validFiles.map((file,index)=>{
+                        const fileUrl=convertToJsDelivrUrl(file);
+                        const fileName=file.split('/').pop()||`文件${index+1}`;
+                        const fileType=getFileType(fileUrl);
+                        const viewerId=`viewer-${articleId}-${index}`;
+                        return`<div class="file-item" id="file-item-${viewerId}">
+                            <div class="file-name">${fileName}</div>
+                            <div class="file-url">${fileUrl}</div>
+                            <div class="file-actions">
+                                <button onclick="window.open('${fileUrl}','_blank')" style="padding:4px 8px;background:#1a73e8;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px">下载</button>
+                                ${fileType==='pdf'?`<button onclick="showPDF('${fileUrl}','${viewerId}')" style="padding:4px 8px;background:#4caf50;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;margin-left:5px">查看PDF</button>`:''}
+                                ${fileType==='image'?`<button onclick="showImage('${fileUrl}','${viewerId}')" style="padding:4px 8px;background:#ff9800;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;margin-left:5px">查看图片</button>`:''}
+                            </div>
+                            ${fileType==='image'?`<div id="${viewerId}" class="image-viewer"><div class="image-header"><h4>图片查看器:${fileName}</h4><button onclick="closeViewer('${viewerId}')" style="padding:4px 8px;background:#f44336;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px">关闭图片</button></div><div class="image-container"><img src="${fileUrl}" alt="图片预览"></div></div>`:''}
+                            ${fileType==='pdf'?`<div id="${viewerId}" class="pdf-viewer-container"><div class="pdf-header"><h4>PDF查看器:${fileName}</h4><div class="pdf-controls"><button onclick="prevPDFPage('${viewerId}')" style="padding:4px 8px;background:#1a73e8;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px">上一页</button><span class="pdf-page-info">第 <span id="pdf-current-page-${viewerId}">1</span> 页 / 共 <span id="pdf-total-pages-${viewerId}">?</span> 页</span><button onclick="nextPDFPage('${viewerId}')" style="padding:4px 8px;background:#1a73e8;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px">下一页</button><button onclick="closeViewer('${viewerId}')" style="padding:4px 8px;background:#f44336;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px">关闭PDF</button></div></div><div class="pdf-canvas-container"><div id="pdf-loading-${viewerId}" class="pdf-loading">正在加载PDF...</div><canvas id="pdf-canvas-${viewerId}" class="pdf-canvas"></canvas></div></div>`:''}
+                        </div>`;
+                    }).join('')}</div>`;
+                }
+            }
+            let originHtml='';
+            if(article.origin&&article.origin.trim()!=='')originHtml=`<div class="detail-meta-item"><span class="detail-meta-label">原始出处:</span><span>${article.origin}</span></div>`;
+            let descriptionHtml='';
+            if(article.description&&article.description.trim()!=='')descriptionHtml=`<p style="font-style:italic;color:#666;margin-bottom:15px">${article.description}</p>`;
+            let aliasHtml='';
+            if(article.alias&&article.alias.trim()!=='')aliasHtml=`<div class="detail-meta-item"><span class="detail-meta-label">别名:</span><span>${article.alias}</span></div>`;
+            let commentsHtml='';
+            if(article.comments&&Array.isArray(article.comments)&&article.comments.length>0){
+                const validComments=article.comments.filter(comment=>comment&&comment.trim()!=='');
+                if(validComments.length>0)commentsHtml=`<div style="margin-top:15px;border-top:1px solid #eee;padding-top:15px"><h4>注释 (${validComments.length})</h4>${validComments.map(comment=>`<p style="font-size:13px;color:#666;margin-bottom:8px">${comment}</p>`).join('')}</div>`;
+            }
+            DOM.detailContent.innerHTML=`<h2 class="detail-title">${article.title||'无标题'}</h2>
+                <div class="detail-meta">
+                    <div class="detail-meta-item"><span class="detail-meta-label">日期:</span><span>${dateStr}</span></div>
+                    <div class="detail-meta-item"><span class="detail-meta-label">作者:</span>${authorsHtml||'<span>未知</span>'}</div>
+                    <div class="detail-meta-item"><span class="detail-meta-label">标签:</span>${tagsHtml||'<span>无</span>'}</div>
+                    <div class="detail-meta-item"><span class="detail-meta-label">来源:</span><span>${book.name||'未知'}</span></div>
+                    <div class="detail-meta-item"><span class="detail-meta-label">类型:</span><span>${book.type||'未知'}</span></div>
+                    ${aliasHtml}${originHtml}
+                </div>
+                ${descriptionHtml}
+                <div class="detail-text">${contentHtml||'<p>暂无内容</p>'}</div>
+                <div class="content-divider"></div>
+                ${commentsHtml}
+                ${filesHtml}`;
+            closeAllViewers();
+        }
+        
+        function showImage(imageUrl,viewerId){
+            const viewer=document.getElementById(viewerId);
+            if(!viewer)return;
+            if(viewer.style.display==='block'){
+                viewer.style.display='none';
+                state.activeViewers.delete(viewerId);
+                return;
+            }
+            viewer.style.display='block';
+            state.activeViewers.add(viewerId);
+            setTimeout(()=>{
+                viewer.scrollIntoView({behavior:'smooth',block:'start'});
+            },100);
+        }
+        
+        async function showPDF(pdfUrl,viewerId){
+            const viewer=document.getElementById(viewerId);
+            if(!viewer)return;
+            if(viewer.style.display==='block'){
+                viewer.style.display='none';
+                state.activeViewers.delete(viewerId);
+                if(state.pdfCache.has(viewerId)){
+                    const pdfData=state.pdfCache.get(viewerId);
+                    if(pdfData.pdfDocument)pdfData.pdfDocument.destroy();
+                    state.pdfCache.delete(viewerId);
+                }
+                return;
+            }
+            viewer.style.display='block';
+            state.activeViewers.add(viewerId);
+            if(state.pdfCache.has(viewerId)){
+                const pdfData=state.pdfCache.get(viewerId);
+                await renderPDFPage(viewerId,pdfData.currentPage);
+                setTimeout(()=>{
+                    viewer.scrollIntoView({behavior:'smooth',block:'start'});
+                },100);
+                return;
+            }
+            if(!DOM.pdfjsLib){
+                alert('PDF.js库未加载');
+                return;
+            }
+            try{
+                const canvas=document.getElementById(`pdf-canvas-${viewerId}`);
+                const loadingDiv=document.getElementById(`pdf-loading-${viewerId}`);
+                if(!canvas||!loadingDiv)return;
+                canvas.style.display='none';
+                loadingDiv.style.display='block';
+                loadingDiv.textContent='正在加载PDF...';
+                const loadingTask=DOM.pdfjsLib.getDocument({url:pdfUrl,withCredentials:false,disableStream:false,disableRange:false,disableAutoFetch:false});
+                loadingTask.onProgress=progressData=>{
+                    if(progressData.loaded&&progressData.total){
+                        const percent=Math.round((progressData.loaded/progressData.total)*100);
+                        loadingDiv.textContent=`正在加载PDF... ${percent}%`;
+                    }
+                };
+                const pdfDocument=await loadingTask.promise;
+                const totalPages=pdfDocument.numPages;
+                document.getElementById(`pdf-total-pages-${viewerId}`).textContent=totalPages;
+                state.pdfCache.set(viewerId,{pdfDocument,currentPage:1,totalPages});
+                await renderPDFPage(viewerId,1);
+                loadingDiv.style.display='none';
+                canvas.style.display='block';
+                setTimeout(()=>{
+                    viewer.scrollIntoView({behavior:'smooth',block:'start'});
+                },100);
+            }catch(error){
+                const loadingDiv=document.getElementById(`pdf-loading-${viewerId}`);
+                if(loadingDiv){
+                    loadingDiv.innerHTML=`<div style="color:#f44336"><p>PDF加载失败:${error.message}</p><p>建议直接下载：<a href="${pdfUrl}" target="_blank" style="color:#1a73e8">${pdfUrl}</a></p><button style="padding:8px 16px;background:#1a73e8;color:white;border:none;border-radius:3px;cursor:pointer;margin-top:10px" onclick="closeViewer('${viewerId}')">关闭</button></div>`;
+                }
+                state.activeViewers.delete(viewerId);
+            }
+        }
+        
+        async function renderPDFPage(viewerId,pageNum){
+            if(!state.pdfCache.has(viewerId))return;
+            const pdfData=state.pdfCache.get(viewerId);
+            if(pageNum<1||pageNum>pdfData.totalPages)return;
+            try{
+                const page=await pdfData.pdfDocument.getPage(pageNum);
+                const canvas=document.getElementById(`pdf-canvas-${viewerId}`);
+                const context=canvas.getContext('2d');
+                if(!canvas||!context)return;
+                const viewport=page.getViewport({scale:1.0});
+                const containerWidth=canvas.parentElement.clientWidth-40;
+                const scale=Math.min(containerWidth/viewport.width,1.5);
+                const scaledViewport=page.getViewport({scale:scale});
+                canvas.height=scaledViewport.height;
+                canvas.width=scaledViewport.width;
+                const renderContext={canvasContext:context,viewport:scaledViewport};
+                await page.render(renderContext).promise;
+                document.getElementById(`pdf-current-page-${viewerId}`).textContent=pageNum;
+                pdfData.currentPage=pageNum;
+            }catch(error){
+                console.error('渲染PDF页面失败:',error);
+            }
+        }
+        
+        function prevPDFPage(viewerId){
+            if(!state.pdfCache.has(viewerId))return;
+            const pdfData=state.pdfCache.get(viewerId);
+            if(pdfData.currentPage>1)renderPDFPage(viewerId,pdfData.currentPage-1);
+        }
+        
+        function nextPDFPage(viewerId){
+            if(!state.pdfCache.has(viewerId))return;
+            const pdfData=state.pdfCache.get(viewerId);
+            if(pdfData.currentPage<pdfData.totalPages)renderPDFPage(viewerId,pdfData.currentPage+1);
+        }
+        
+        function closeViewer(viewerId){
+            const viewer=document.getElementById(viewerId);
+            if(!viewer)return;
+            viewer.style.display='none';
+            state.activeViewers.delete(viewerId);
+            if(viewer.classList.contains('pdf-viewer-container')&&state.pdfCache.has(viewerId)){
+                const pdfData=state.pdfCache.get(viewerId);
+                if(pdfData.pdfDocument)pdfData.pdfDocument.destroy();
+                state.pdfCache.delete(viewerId);
+            }
+        }
+        
+        function closeAllViewers(){
+            state.activeViewers.forEach(viewerId=>closeViewer(viewerId));
+            state.activeViewers.clear();
+            state.pdfCache.forEach((pdfData,viewerId)=>{if(pdfData.pdfDocument)pdfData.pdfDocument.destroy();});
+            state.pdfCache.clear();
+        }
+        
+        function clearArticleCache(){
+            const cacheSize=state.articleDetailCache.size;
+            if(cacheSize===0){
+                alert('当前无缓存可清除');
+                return;
+            }
+            state.articleDetailCache.clear();
+            updateCacheCount();
+            alert(`缓存清除成功！共清除 ${cacheSize} 条文章缓存`);
+            console.log('文章缓存已清除');
+        }
+        
+        document.addEventListener('DOMContentLoaded',init);
+        
+        window.showImage=showImage;
+        window.showPDF=showPDF;
+        window.prevPDFPage=prevPDFPage;
+        window.nextPDFPage=nextPDFPage;
+        window.closeViewer=closeViewer;
+        window.closeAllViewers=closeAllViewers;
+    </script>
+</body>
+</html>
