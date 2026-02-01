@@ -1,0 +1,30 @@
+name: IndexNow Submission
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  deploy-and-submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Create IndexNow Key File
+        run: |
+          echo "${{ secrets.INDEXNOW_KEY }}" > "${{ secrets.INDEXNOW_KEY }}.txt"
+      
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+      
+      - name: Submit to IndexNow
+        uses: bojieyang/indexnow-action@v2
+        with:
+          sitemap-location: "https://${{ secrets.MY_DOMAIN }}/sitemap.xml"
+          key: ${{ secrets.INDEXNOW_KEY }}
