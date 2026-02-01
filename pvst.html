@@ -3,63 +3,333 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta property="og:description" content="本页面提供p站限制分区在线随机图片浏览服务。pixiv是由pixiv株式会社运营的，主要面向日本用户的艺术家社交网站，曾被称作日本最成功的画作投稿社交网站，在中国大陆俗称P站、蓝P站。">
-<title>pixivST</title>
+    <title>Pixiv 随机ST | 请节制使用🤝🤝</title>
+    <meta name="description" content="精选P站高质量二次元动漫图片库，每日更新动漫、游戏角色图片，包括原神、崩坏、初音未来等热门作品角色。包含人气动漫角色插画等。">
+    <meta name="keywords" content="瑟, 随机图片, pixiv, p站, 二次元,动漫图片,动漫角色,插画,动漫艺术,高清动漫图,动漫下载">
+    <meta name="author" content="FastNow Studio">
+
 <style>
-body{margin:0;padding:10px;background:#fff;color:#000;font:14px monospace;}
-.container{max-width:1000px;margin:0 auto;}
-.loading{text-align:center;padding:20px;}
-.grid{display:block;}
-.preview-box{cursor:pointer;border:1px solid #ccc;margin-bottom:10px;}
-.preview-img{width:100%;height:auto;display:block;}
-.meta-item{margin:10px 0;padding:10px;border-left:3px solid #06c;}
-.tag{display:inline-block;background:#ddd;padding:2px 8px;margin:2px;border-radius:3px;}
-.button{background:#06c;color:#fff;border:none;padding:8px 12px;margin:5px;cursor:pointer;}
-.theme-toggle{position:fixed;bottom:10px;right:10px;}
-.disclaimer{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:#fff;z-index:100;padding:20px;box-sizing:border-box;}
+body {
+    margin: 0;
+    padding: 10px;
+    background: #fff;
+    color: #000;
+    font: 14px monospace;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode {
+    background: #000;
+    color: #fff;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+}
+
+.grid {
+    display: block;
+}
+
+.preview-box {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    transition: border-color 0.3s;
+}
+
+.dark-mode .preview-box {
+    border-color: #444;
+}
+
+.preview-img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.meta-item {
+    margin: 10px 0;
+    padding: 10px;
+    border-left: 3px solid #06c;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.dark-mode .meta-item {
+    border-left-color: #0af;
+    background-color: #111;
+}
+
+.tag {
+    display: inline-block;
+    background: #ddd;
+    padding: 2px 8px;
+    margin: 2px;
+    border-radius: 3px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.dark-mode .tag {
+    background: #333;
+    color: #eee;
+}
+
+.button {
+    background: #06c;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s, opacity 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.dark-mode .button {
+    background: #0af;
+}
+
+.button:hover {
+    opacity: 0.9;
+}
+
+.theme-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 98;
+}
+
+.disclaimer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    color: #fff;
+    z-index: 100;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.disclaimer-content {
+    max-width: 600px;
+    background: #111;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.zoom-img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
 </style>
 </head>
 <body>
 <div id="disclaimer" class="disclaimer">
-<h2>注意</h2>
-<p>1. 内容为自动收集，不代表本站立场</p>
-<p>2. 使用者自行判断，本站不承担法律责任</p>
-<p>3. 图片无法显示请刷新</p>
-<p>4. 继续使用表示同意本声明</p>
-<button class="button" onclick="acceptDisclaimer()">同意并继续</button>
+    <div class="disclaimer-content">
+        <h2>注意</h2>
+        <p>1. 内容为自动收集，不代表本站立场</p>
+        <p>2. 使用者自行判断，本站不承担法律责任</p>
+        <p>3. 图片无法显示请刷新</p>
+        <p>4. 继续使用表示同意本声明</p>
+        <p>&copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio</p>
+        <button class="button" onclick="acceptDisclaimer()">同意并继续</button>
+    </div>
 </div>
 <div class="container">
-<div id="loading" class="loading">加载中...</div>
-<div id="display-area"></div>
+    <div id="loading" class="loading">加载中...</div>
+    <div id="display-area"></div>
 </div>
 <button class="button theme-toggle" onclick="toggleTheme()">🌓</button>
 <script>
-const endpoints={list:'https://gcore.jsdelivr.net/gh/Mabbs/pixiv-index/index.json',detail:'https://gcore.jsdelivr.net/gh/Mabbs/pixiv-index/data/',image:'i.pximg.net/'};
-let currentData=null;
-function loadContent(){
-document.getElementById('loading').style.display='block';
-fetch(endpoints.list).then(r=>r.json()).then(files=>{
-const f=files[Math.floor(Math.random()*files.length)];
-fetch(endpoints.detail+(f.includes('.json')?f:f+'.json')).then(r=>r.json()).then(data=>{
-currentData=data;
-const c=document.getElementById('display-area');
-const img=data.urls?.regular||data.url;
-const t=new Date(data.uploadDate);
-c.innerHTML=`<div class="preview-box" onclick="zoomImage()"><img class="preview-img" src="${img}" alt=""></div>
-<div class="meta-item"><strong>${data.title}</strong><br>作者：${data.author}<br>PID：${data.pid}<br>时间：${t.toLocaleString('zh-CN')}<br>尺寸：${data.width}×${data.height}<br>AI：${data.aiType?'是':'否'}</div>
-<div class="meta-item">标签：${data.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-<div><button class="button" onclick="downloadImage()">下载</button><button class="button" onclick="loadContent()">随机</button></div>`;
-document.getElementById('loading').style.display='none';
-}).catch(e=>{alert('加载失败');document.getElementById('loading').style.display='none';});
-}).catch(e=>{alert('列表失败');document.getElementById('loading').style.display='none';});
+const endpoints = {
+    list: 'https://fastly.jsdelivr.net/gh/Mabbs/pixiv-index/index.json',
+    detail: 'https://fastly.jsdelivr.net/gh/Mabbs/pixiv-index/data/',
+    image: 'i.adba.dpdns.org/'
+};
+
+let currentData = null;
+let isDarkMode = false;
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        isDarkMode = true;
+        updateThemeButton();
+    }
 }
-function checkDisclaimer(){if(!localStorage.disclaimerAccepted)document.getElementById('disclaimer').style.display='block';}
-function acceptDisclaimer(){localStorage.disclaimerAccepted=1;document.getElementById('disclaimer').style.display='none';loadContent();}
-function downloadImage(){const a=document.createElement('a');a.href=currentData.urls?.original||currentData.url;a.download=`${currentData.title}.${currentData.ext}`;document.body.appendChild(a);a.click();a.remove();}
-function zoomImage(){const o=document.createElement('div');o.style='position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99;';o.onclick=()=>o.remove();const i=document.createElement('img');i.src=currentData.urls?.original||currentData.url;i.style='max-width:90%;max-height:90%;margin:5% auto;display:block;';o.appendChild(i);document.body.appendChild(o);}
-function toggleTheme(){document.body.style.backgroundColor=document.body.style.backgroundColor==='#000'?'#fff':'#000';document.body.style.color=document.body.style.color==='#fff'?'#000':'#fff';}
-document.onkeydown=e=>{if(e.key==='ArrowRight')loadContent();};
-window.onload=()=>{checkDisclaimer();};
+
+function updateThemeButton() {
+    const button = document.querySelector('.theme-toggle');
+    button.textContent = isDarkMode ? '☀️' : '🌙';
+}
+
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    updateThemeButton();
+}
+
+function loadContent() {
+    document.getElementById('loading').style.display = 'block';
+    
+    fetch(endpoints.list)
+        .then(r => r.json())
+        .then(files => {
+            if (!files || files.length === 0) {
+                throw new Error('没有可用的数据');
+            }
+            
+            const f = files[Math.floor(Math.random() * files.length)];
+            return fetch(endpoints.detail + (f.includes('.json') ? f : f + '.json'));
+        })
+        .then(r => r.json())
+        .then(data => {
+            currentData = data;
+            const c = document.getElementById('display-area');
+            const img = data.urls?.regular || data.url;
+            const t = new Date(data.uploadDate);
+            
+            const originalUrl = data.urls?.original || data.url;
+            
+            c.innerHTML = `
+                <div class="preview-box" onclick="zoomImage()">
+                    <img class="preview-img" src="${img}" alt="${data.title || '预览图'}" loading="lazy">
+                </div>
+                <div class="meta-item">
+                    <strong>${data.title || '无标题'}</strong><br>
+                    作者：${data.author || '未知'}<br>
+                    PID：${data.pid || '未知'}<br>
+                    时间：${t.toLocaleString('zh-CN')}<br>
+                    尺寸：${data.width || 0}×${data.height || 0}<br>
+                    AI：${data.aiType ? '是' : '否'}
+                </div>
+                <div class="meta-item">
+                    标签：${data.tags ? data.tags.map(t => `<span class="tag">${t}</span>`).join('') : '无标签'}
+                </div>
+                <div>
+                    <a class="button" href="${originalUrl}" target="_blank" onclick="handleDownloadClick(event)">下载</a>
+                    <button class="button" onclick="loadContent()">随机</button>
+                </div>
+            `;
+            
+            document.getElementById('loading').style.display = 'none';
+        })
+        .catch(e => {
+            console.error('加载失败:', e);
+            alert('加载失败，请重试');
+            document.getElementById('loading').style.display = 'none';
+        });
+}
+
+function handleDownloadClick(event) {
+    console.log('下载图片:', currentData?.pid);
+    event.preventDefault();
+}
+
+function checkDisclaimer() {
+    if (!localStorage.disclaimerAccepted) {
+        document.getElementById('disclaimer').style.display = 'flex';
+    }
+}
+
+function acceptDisclaimer() {
+    localStorage.disclaimerAccepted = 1;
+    document.getElementById('disclaimer').style.display = 'none';
+    loadContent();
+}
+
+function zoomImage() {
+    if (!currentData) return;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'zoom-overlay';
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            document.body.removeChild(overlay);
+        }
+    };
+    
+    const img = document.createElement('img');
+    img.className = 'zoom-img';
+    img.src = currentData.urls?.original || currentData.url;
+    img.alt = currentData.title || '放大图';
+    
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
+    
+    const keyHandler = (e) => {
+        if (e.key === 'Escape') {
+            document.body.removeChild(overlay);
+            document.removeEventListener('keydown', keyHandler);
+        }
+    };
+    document.addEventListener('keydown', keyHandler);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') {
+        loadContent();
+    }
+    if (e.key === 't' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        toggleTheme();
+    }
+    if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        const downloadBtn = document.querySelector('a[href*="i.pximg.net"]');
+        if (downloadBtn) {
+            downloadBtn.click();
+        }
+    }
+});
+
+window.onload = () => {
+    initTheme();
+    checkDisclaimer();
+    if (localStorage.disclaimerAccepted) {
+        loadContent();
+    }
+};
 </script>
 </body>
 </html>

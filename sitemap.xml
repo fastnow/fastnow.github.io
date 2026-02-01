@@ -7,107 +7,121 @@
 >
 
 <url>
+ <loc>https://fastnow.github.io/face.html</loc>
+ <priority>0.3</priority>
+ <lastmod>2026-02-01</lastmod>
+ <changefreq>weekly</changefreq>
+</url>
+
+<url>
+ <loc>https://fastnow.github.io/pyonline.html</loc>
+ <priority>0.3</priority>
+ <lastmod>2026-02-01</lastmod>
+ <changefreq>weekly</changefreq>
+</url>
+
+<url>
  <loc>https://fastnow.github.io/pcr.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/all_music.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/dashsaver.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
- <changefreq>weekly</changefreq>
-</url>
-
-<url>
- <loc>https://fastnow.github.io/fm.html</loc>
- <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/online.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/pvst.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
+ <changefreq>weekly</changefreq>
+</url>
+
+<url>
+ <loc>https://fastnow.github.io/fm.html</loc>
+ <priority>0.3</priority>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/xtcf2f.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/shk.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/micige_cipher.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/astral_simulation.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/gobangbot.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/getcode.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/kaomoji.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
  <loc>https://fastnow.github.io/game_of_life.html</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
 <url>
- <loc>https://fastnow.github.io/</loc>
+ <loc>https://fastnow.github.io</loc>
  <priority>0.3</priority>
- <lastmod>2026-01-14</lastmod>
+ <lastmod>2026-02-01</lastmod>
  <changefreq>weekly</changefreq>
 </url>
 
