@@ -1,0 +1,726 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>FN Python|在线Python编译器|WebAssembly Python浏览器运行环境</title><meta name="description" content="免费在线Python编译器，基于WebAssembly技术。纯前端环境无风险，无需安装即可在浏览器中运行Python代码。支持Python 3.11+、代码编辑、交互式终端、库安装、多文件管理和实时调试，是学习和测试Python的理想工具。"><meta name="keywords" content="Python在线编译器,Pyodide,WebAssembly Python,浏览器Python运行,在线编程工具,Python代码编辑器,交互式Python终端,Python学习工具,代码测试环境,在线Python运行"><meta name="author" content="FastNow Studio"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/solarized.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/search/matchesonscrollbar.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/python-hint.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/comment/comment.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/indent-fold.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/search/search.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/search/searchcursor.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/search/match-highlighter.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/selection/active-line.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary-color:#007acc;--primary-hover:#0098ff;--secondary-color:#3c3c3c;--secondary-hover:#505050;--bg-primary:#1e1e1e;--bg-secondary:#252526;--bg-tertiary:#2d2d30;--text-primary:#d4d4d4;--text-secondary:#858585;--border-color:#424242;--success-color:#4ec9b0;--error-color:#f48771;--info-color:#9cdcfe;--warning-color:#ce9178;--terminal-bg:#0c0c0c;--terminal-text:#cccccc;--terminal-green:#16c60c;--terminal-blue:#3a96dd;--shadow:0 4px 12px rgba(0,0,0,0.5);--transition:all 0.3s ease;--border-radius:6px}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','SF Pro Text',sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.6;height:100vh;overflow:auto}.app-header{background:var(--bg-secondary);border-bottom:1px solid var(--border-color);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;height:60px;flex-shrink:0}.header-left{display:flex;align-items:center;gap:12px}.find-match {background-color: rgba(255, 255, 0, 0.3);border: 1px solid rgba(255, 255, 0, 0.5);}.find-match-current {background-color: rgba(255, 165, 0, 0.5);border: 2px solid orange;}.CodeMirror-trailingspace {background: rgba(255, 0, 0, 0.3);}.logo{font-size:24px;color:var(--primary-color)}.app-title{font-size:18px;font-weight:600}footer{font-size:12px;color:var(--text-secondary);margin-top:2px}.header-right{display:flex;gap:10px;align-items:center}.main-layout{display:flex;height:calc(100vh - 60px);flex-direction:column}.settings-container{background:var(--bg-tertiary);border-bottom:1px solid var(--border-color);padding:15px;display:none;max-height:350px;overflow-y:auto;flex-shrink:0}.content-container{display:flex;flex:1;overflow:hidden}.left-panel{flex:1;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--border-color);background:var(--bg-primary);min-width:300px}.right-panel{flex:1;display:flex;flex-direction:column;min-width:0;min-width:300px}.settings-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.settings-title{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}.settings-tabs{display:flex;border-bottom:1px solid var(--border-color);margin-bottom:15px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--secondary-color) var(--bg-secondary)}.settings-tabs::-webkit-scrollbar{height:6px}.settings-tabs::-webkit-scrollbar-track{background:var(--bg-secondary)}.settings-tabs::-webkit-scrollbar-thumb{background:var(--secondary-color);border-radius:3px}.settings-tabs::-webkit-scrollbar-thumb:hover{background:var(--secondary-hover)}.settings-tab{padding:10px 15px;background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:14px;position:relative;transition:var(--transition);white-space:nowrap;flex-shrink:0}.settings-tab:hover{color:var(--text-primary)}.settings-tab.active{color:var(--primary-color)}.settings-tab.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--primary-color)}.tab-content{display:none}.tab-content.active{display:block}.settings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:15px}.settings-card{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--border-radius);padding:15px}.card-title{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}.editor-container{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden;min-height:300px}.editor-toolbar{background:var(--bg-secondary);border-bottom:1px solid var(--border-color);padding:8px 15px;display:flex;gap:10px;align-items:center;flex-shrink:0;flex-wrap:wrap;min-height:50px}.editor-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px}.editor-info{display:flex;gap:15px;margin-left:auto;font-size:12px;color:var(--text-secondary);flex-wrap:wrap;justify-content:flex-end;flex:1;min-width:200px}.editor-info-item{display:flex;align-items:center;gap:4px;white-space:nowrap}.editor-info-value{color:var(--text-primary);font-weight:600}.editor-actions{display:flex;gap:8px;margin-left:15px;flex-shrink:0}.code-editor-wrapper{flex:1;position:relative;overflow:auto;min-height:200px}.CodeMirror{height:100%!important;font-family:'Monaco','Menlo','Ubuntu Mono',monospace;font-size:14px!important;line-height:1.5!important;background:#1e1e1e!important;color:#d4d4d4!important}.CodeMirror-gutters{background:#1e1e1e!important;border-right:1px solid #424242!important;padding-right:5px!important}.CodeMirror-linenumber{color:#858585!important;padding:0 5px!important;min-width:30px!important;text-align:right!important}.CodeMirror-cursor{border-left:2px solid #007acc!important;border-right:none!important;width:0!important}.CodeMirror-selected{background:rgba(0,122,204,0.3)!important}.CodeMirror-focused .CodeMirror-selected{background:rgba(0,122,204,0.4)!important}.CodeMirror-matchingbracket{background:rgba(0,122,204,0.3)!important;color:white!important;text-decoration:underline!important}.CodeMirror-nonmatchingbracket{color:#f48771!important}.CodeMirror-foldgutter{width:15px!important}.CodeMirror-foldgutter-open,.CodeMirror-foldgutter-folded{color:#858585!important;cursor:pointer!important}.CodeMirror-hints{background:#252526!important;border:1px solid #424242!important;border-radius:var(--border-radius)!important;box-shadow:var(--shadow)!important;z-index:1000!important}.CodeMirror-hint{color:#d4d4d4!important;padding:5px 10px!important;border-bottom:1px solid #424242!important}.CodeMirror-hint:last-child{border-bottom:none!important}.CodeMirror-hint-active{background:#007acc!important;color:white!important}.CodeMirror-activeline-background{background:rgba(255,255,255,0.04)!important}.cm-s-monokai .cm-keyword{color:#f92672!important}.cm-s-monokai .cm-builtin{color:#66d9ef!important}.cm-s-monokai .cm-def{color:#fd971f!important}.cm-s-monokai .cm-variable{color:#f8f8f2!important}.cm-s-monokai .cm-variable-2{color:#9effff!important}.cm-s-monokai .cm-variable-3{color:#66d9ef!important}.cm-s-monokai .cm-number{color:#ae81ff!important}.cm-s-monokai .cm-string{color:#e6db74!important}.cm-s-monokai .cm-string-2{color:#f1fa8c!important}.cm-s-monokai .cm-comment{color:#75715e!important}.cm-s-monokai .cm-function{color:#a6e22e!important}.cm-s-monokai .cm-operator{color:#f92672!important}.cm-s-monokai .cm-meta{color:#f8f8f2!important}.cm-s-monokai .cm-tag{color:#f92672!important}.cm-s-monokai .cm-attribute{color:#a6e22e!important}.cm-s-monokai .cm-property{color:#66d9ef!important}.cm-s-monokai .cm-qualifier{color:#fd971f!important}.cm-s-monokai .cm-error{color:#f48771!important;background:none!important}.output-container{flex:1;display:flex;flex-direction:column;background:var(--bg-primary);border-bottom:1px solid var(--border-color);min-height:150px}.output-header{background:var(--bg-secondary);border-bottom:1px solid var(--border-color);padding:10px 15px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}.output-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}.output-actions{display:flex;gap:8px}.output-content{flex:1;padding:15px;overflow-y:auto;font-family:'Monaco','Menlo','Ubuntu Mono',monospace;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:#d4d4d4!important;min-height:100px}.output-line{margin-bottom:4px;padding:2px 0;color:#d4d4d4!important}.output-line.error{color:#f48771!important;background:rgba(244,135,113,0.1);padding-left:10px;border-left:3px solid #f48771}.output-line.success{color:#4ec9b0!important;background:rgba(78,201,176,0.1);padding-left:10px;border-left:3px solid #4ec9b0}.output-line.info{color:#9cdcfe!important;background:rgba(156,220,254,0.1);padding-left:10px;border-left:3px solid #9cdcfe}.output-line.warning{color:#ce9178!important;background:rgba(206,145,120,0.1);padding-left:10px;border-left:3px solid #ce9178}.terminal-container{flex:1;display:flex;flex-direction:column;background:var(--terminal-bg);min-height:150px}.terminal-header{background:#1f1f1f;border-bottom:1px solid #333;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}.terminal-title{font-size:14px;font-weight:600;color:var(--terminal-text);display:flex;align-items:center;gap:8px}.terminal-actions{display:flex;gap:8px}.terminal-content{flex:1;padding:15px;overflow-y:auto;font-family:'Cascadia Code','Consolas','Monaco',monospace;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:var(--terminal-text);min-height:100px}.terminal-line{margin-bottom:4px}.terminal-prompt{color:var(--terminal-green);font-weight:600}.terminal-input-line{display:flex;align-items:center;margin-top:8px;padding:0 15px 15px 15px;flex-shrink:0}.terminal-input{flex:1;background:transparent;border:none;color:var(--terminal-text);font-family:'Cascadia Code','Consolas',monospace;font-size:13px;outline:none;caret-color:var(--terminal-green);padding:5px 0}.btn{padding:8px 12px;background:var(--secondary-color);color:white;border:none;border-radius:var(--border-radius);cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:var(--transition);white-space:nowrap}.btn:hover{background:var(--secondary-hover);transform:translateY(-1px)}.btn:active{transform:translateY(0)}.btn-primary{background:var(--primary-color)}.btn-primary:hover{background:var(--primary-hover)}.btn-success{background:#2e7d32}.btn-warning{background:#ed6c02}.btn-error{background:#d32f2f}.btn-sm{padding:5px 10px;font-size:12px}.btn-icon{padding:8px;width:32px;height:32px;justify-content:center}.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}.form-group{margin-bottom:12px}.form-label{display:block;margin-bottom:6px;color:var(--text-primary);font-size:13px}.form-control{width:100%;padding:8px 12px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--border-radius);color:var(--text-primary);font-size:13px;transition:var(--transition)}.form-control:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 2px rgba(0,122,204,0.2)}textarea.form-control{resize:vertical;min-height:80px;font-family:'Monaco','Menlo',monospace;font-size:12px}.form-check{display:flex;align-items:center;gap:8px;margin-bottom:8px}.form-check-input{width:16px;height:16px}.file-upload-area{border:2px dashed var(--border-color);border-radius:var(--border-radius);padding:20px;text-align:center;cursor:pointer;transition:var(--transition)}.file-upload-area:hover{border-color:var(--primary-color);background:rgba(0,122,204,0.05)}.file-upload-icon{font-size:24px;color:var(--primary-color);margin-bottom:10px}.libraries-list{max-height:200px;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--border-radius)}.library-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border-color)}.library-item:last-child{border-bottom:none}.library-name{font-weight:500}.library-status{font-size:11px;padding:2px 6px;border-radius:10px;background:var(--bg-primary)}.library-status.installed{background:rgba(78,201,176,0.2);color:var(--success-color)}.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-primary);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;transition:opacity 0.5s ease}.loading-content{text-align:center;max-width:500px;padding:30px;background:var(--bg-secondary);border-radius:var(--border-radius);border:1px solid var(--border-color)}.loading-logo{font-size:48px;color:var(--primary-color);margin-bottom:20px}.loading-title{font-size:20px;margin-bottom:10px;color:var(--text-primary)}.loading-subtitle{color:var(--text-secondary);margin-bottom:30px}.shortcuts-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--border-radius);padding:20px;z-index:1000;box-shadow:var(--shadow);max-width:400px;display:none}.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.modal-title{font-size:16px;font-weight:600}.shortcut-list{display:flex;flex-direction:column;gap:8px}.shortcut-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-color)}.shortcut-item:last-child{border-bottom:none}.shortcut-key{background:var(--bg-primary);padding:4px 8px;border-radius:4px;font-family:monospace;font-size:12px}.slider-container{display:flex;align-items:center;gap:10px;margin-bottom:10px}.slider-value{min-width:30px;text-align:center;font-size:12px;color:var(--text-secondary)}.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10000;display:none;justify-content:center;align-items:center}.modal-dialog{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--border-radius);padding:25px;width:90%;max-width:500px;box-shadow:var(--shadow)}.modal-title{font-size:18px;margin-bottom:20px;color:var(--text-primary)}.files-tabs{display:flex;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);overflow-x:auto;flex-shrink:0}.file-tab{padding:8px 15px;background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:13px;white-space:nowrap;border-right:1px solid var(--border-color);display:flex;align-items:center;gap:5px;flex-shrink:0}.file-tab:hover{background:var(--bg-tertiary)}.file-tab.active{background:var(--bg-primary);color:var(--text-primary);border-bottom:2px solid var(--primary-color)}.file-tab-close{background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center}.file-tab-close:hover{color:var(--error-color)}.find-replace-bar{position:absolute;top:0;right:0;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--border-radius);padding:10px 15px;z-index:100;box-shadow:var(--shadow);display:none;min-width:400px;max-width:500px}.find-replace-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.find-replace-title{font-size:14px;font-weight:600}.find-replace-content{display:flex;flex-direction:column;gap:10px}.find-replace-row{display:flex;gap:10px;align-items:center}.find-replace-input{flex:1;padding:6px 10px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--border-radius);color:var(--text-primary);font-size:13px}.find-replace-buttons{display:flex;gap:5px}.find-replace-button{padding:4px 8px;background:var(--secondary-color);color:white;border:none;border-radius:var(--border-radius);cursor:pointer;font-size:12px}.find-replace-button:hover{background:var(--secondary-hover)}.find-replace-button.primary{background:var(--primary-color)}.find-replace-button.primary:hover{background:var(--primary-hover)}.find-replace-options{display:flex;gap:10px;font-size:12px}.find-replace-option{display:flex;align-items:center;gap:4px}@media(min-width:769px){.main-layout{flex-direction:column}.content-container{flex-direction:row}.left-panel{min-width:300px}.right-panel{min-width:300px}.terminal-container{display:flex}}@media(max-width:768px){body{height:auto;overflow-x:hidden}.main-layout{flex-direction:column;height:auto;min-height:100vh}.content-container{flex-direction:column;height:auto;min-height:calc(100vh - 60px)}.app-header{flex-direction:column;height:auto;gap:10px;padding:10px}.header-right{width:100%;justify-content:center}.editor-actions{margin-left:0;width:100%;justify-content:center;order:2}.editor-info{display:none}.left-panel,.right-panel{min-width:100%;height:400px;min-height:400px;max-height:500px}.left-panel{border-right:none;border-bottom:1px solid var(--border-color)}.editor-container{height:100%;display:flex;flex-direction:column}.code-editor-wrapper{flex:1;min-height:250px}.CodeMirror{height:100%!important;min-height:250px!important}.output-container{height:200px;min-height:200px;max-height:300px}.output-content{height:calc(100% - 40px);min-height:150px}.terminal-container{height:200px;min-height:200px;max-height:300px}.terminal-content{height:calc(100% - 80px);min-height:120px}.files-tabs{max-width:100%;overflow-x:auto;flex-wrap:nowrap}.file-tab{min-width:120px}.editor-toolbar{flex-wrap:wrap;padding:8px 10px}.editor-info{order:3;width:100%;margin-top:5px;justify-content:space-around;background:var(--bg-secondary);padding:5px;border-radius:4px;display:flex}.editor-actions{order:2;margin-left:auto}.find-replace-bar{position:fixed;top:60px;right:10px;left:10px;max-width:none}.editor-info-mobile{display:flex;flex-wrap:nowrap;gap:15px;margin-left:10px;font-size:12px;color:var(--text-secondary);align-items:center}.editor-title-mobile{display:flex;align-items:center;gap:8px;flex-shrink:0}.editor-actions-mobile{display:flex;gap:8px;margin-left:auto;flex-wrap:nowrap}}@media(max-width:480px){.left-panel,.right-panel{height:350px;min-height:350px;max-height:400px}.editor-actions{flex-wrap:wrap;justify-content:center}.editor-actions .btn{font-size:12px;padding:6px 8px}.editor-info-mobile{gap:10px;flex-wrap:wrap;justify-content:flex-start}.editor-actions-mobile{flex-wrap:wrap;justify-content:flex-end}}@media(max-width:900px){.editor-toolbar{gap:8px;flex-wrap:nowrap}.editor-info{gap:10px;margin-left:0;order:3;width:100%;justify-content:flex-start;margin-top:5px}.editor-actions{margin-left:auto;order:2}}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:var(--bg-secondary)}::-webkit-scrollbar-thumb{background:var(--secondary-color);border-radius:5px}::-webkit-scrollbar-thumb:hover{background:var(--secondary-hover)}</style></head><body><div class="seo-content" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;"><h1>Pyodide Python在线编译器</h1><h2>基于WebAssembly技术的浏览器内Python运行环境</h2><section><h3>功能特性</h3><ul><li><strong>无需安装</strong>：直接在浏览器中运行Python代码，无需配置任何环境</li><li><strong>完整Python支持</strong>：基于Pyodide和WebAssembly技术，支持Python 3.10+</li><li><strong>交互式终端</strong>：内置Python交互式终端，支持REPL模式</li><li><strong>库管理</strong>：支持安装numpy、pandas、matplotlib等常用Python库</li><li><strong>代码编辑器</strong>：集成功能丰富的代码编辑器，支持语法高亮、代码补全</li><li><strong>文件管理</strong>：支持多文件管理、导入导出功能</li><li><strong>实时运行</strong>：代码即时执行，实时查看输出结果</li><li><strong>完全免费</strong>：无需注册，完全免费使用</li>
+</ul></section><section><h3>支持的Python库</h3><p>Pyodide Python在线编译器支持安装和使用众多流行的Python库，包括：</p><ul><li><strong>数据分析</strong>：numpy, pandas, scipy</li><li><strong>数据可视化</strong>：matplotlib, plotly, seaborn</li><li><strong>机器学习</strong>：scikit-learn, statsmodels</li><li><strong>网络请求</strong>：requests, aiohttp</li><li><strong>Web开发</strong>：flask, django, fastapi</li><li><strong>科学计算</strong>：sympy, networkx</li><li><strong>图像处理</strong>：PIL, opencv-python</li></ul></section><section><h3>使用场景</h3><ul><li><strong>Python学习</strong>：初学者学习Python语法的理想环境</li><li><strong>代码测试</strong>：快速测试Python代码片段和算法</li><li><strong>教学演示</strong>：教师在线演示Python编程示例</li><li><strong>原型开发</strong>：快速验证想法和开发原型</li><li><strong>面试准备</strong>：编程面试前练习和准备</li><li><strong>代码分享</strong>：通过链接分享可运行的Python代码</li></ul></section><section><h3>技术特性</h3><ul><li><strong>WebAssembly技术</strong>：使用Pyodide将Python编译为WebAssembly在浏览器中运行</li><li><strong>本地存储</strong>：代码和设置自动保存到浏览器本地存储</li><li><strong>响应式设计</strong>：适配桌面和移动设备，支持横屏和竖屏模式</li><li><strong>离线支持</strong>：支持渐进式Web应用特性，可离线使用</li><li><strong>性能优化</strong>：优化的内存管理和执行性能</li><li><strong>安全沙箱</strong>：在浏览器安全沙箱中运行，确保系统安全</li></ul></section><section><h3>常见问题解答</h3><div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question"><h4 itemprop="name">Pyodide Python在线编译器是免费的吗？</h4><div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer"><p itemprop="text">是的，Pyodide Python在线编译器完全免费使用，无需注册或付费。</p></div></div><div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question"><h4 itemprop="name">支持哪些Python版本？</h4><div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer"><p itemprop="text">基于Pyodide 0.29.2，支持Python 3.10及兼容版本。</p></div></div><div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question"><h4 itemprop="name">可以安装第三方Python库吗？</h4><div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer"><p itemprop="text">是的，支持通过micropip安装数百个Python库，包括numpy、pandas、matplotlib等。</p></div></div><div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question"><h4 itemprop="name">代码会保存在服务器上吗？</h4><div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer"><p itemprop="text">不会，所有代码都保存在浏览器的本地存储中，完全在客户端运行，保护用户隐私。</p></div></div><div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question"><h4 itemprop="name">支持文件上传和下载吗？</h4><div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer"><p itemprop="text">支持，可以从本地文件导入代码，也可以将代码和输出结果导出为文件。</p></div></div></section><section><h3>相关关键词</h3><p>
+Python在线运行, Python代码编辑器, 浏览器Python环境, WebAssembly Python, 
+在线编程工具, Python学习平台, 代码测试工具, Python沙箱环境, 
+交互式Python终端, Python REPL在线, Python库安装, 数据科学在线工具,
+机器学习在线环境, Python教学工具, 代码分享平台</p></section></div>
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+<div class="loading-logo">
+    <i class="fab fa-python"></i>
+</div>
+<h2 class="loading-title">Pyodide Python编译器</h2>
+<p class="loading-subtitle">正在初始化WebAssembly环境，请稍候...</p>
+<div style="margin-top: 20px;">
+    <div class="progress-text">初始化中，这可能需要几秒钟...</div>
+</div>
+        </div>
+    </div>
+
+    <div id="newFileModal" class="modal-overlay">
+        <div class="modal-dialog">
+<h3 class="modal-title">新建文件</h3>
+<div class="form-group">
+    <label class="form-label">文件名</label>
+    <input type="text" id="newFileName" class="form-control" value="new_file.py" placeholder="输入文件名">
+</div>
+<div style="display: flex; gap: 10px; margin-top: 20px;">
+    <button id="confirmNewFileBtn" class="btn btn-primary" style="flex: 1;">确定</button>
+    <button id="cancelNewFileBtn" class="btn" style="flex: 1;">取消</button>
+</div>
+        </div>
+    </div>
+
+    <div id="app" style="display: none;">
+        <header class="app-header">
+<div class="header-left">
+    <div class="logo">
+        <i class="fab fa-python"></i>
+    </div>
+    <div>
+        <div class="app-title">FN Python在线编译器</div>
+        <footer>&copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio</footer>
+    </div>
+</div>
+<div class="header-right">
+    <button id="newFileBtn" class="btn btn-sm">
+        <i class="fas fa-file"></i> 新建
+    </button>
+    <button id="toggleSettingsBtn" class="btn btn-sm">
+        <i class="fas fa-sliders-h"></i> 设置
+    </button>
+    <button id="shortcutsBtn" class="btn btn-sm">
+        <i class="fas fa-keyboard"></i> 快捷键
+    </button>
+    <button id="toggleTerminalBtn" class="btn btn-sm btn-primary">
+        <i class="fas fa-terminal"></i> 终端
+    </button>
+</div>
+        </header>
+
+        <div class="main-layout">
+<div id="settingsContainer" class="settings-container">
+    <div class="settings-header">
+        <div class="settings-title">
+<i class="fas fa-cog"></i>
+设置
+        </div>
+        <button id="closeSettingsBtn" class="btn btn-sm">
+<i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="settings-tabs">
+        <button class="settings-tab active" data-tab="general">常规</button>
+        <button class="settings-tab" data-tab="editor">编辑器</button>
+        <button class="settings-tab" data-tab="libraries">库管理</button>
+        <button class="settings-tab" data-tab="import">导入/导出</button>
+        <button class="settings-tab" data-tab="advanced">高级</button>
+    </div>
+    
+    <div id="tab-general" class="tab-content active">
+        <div class="settings-grid">
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-play-circle"></i>
+        运行设置
+    </div>
+    <div class="form-group">
+        <label class="form-label">命令行参数</label>
+        <input type="text" id="cmdArgs" class="form-control" placeholder="输入命令行参数，用空格分隔">
+    </div>
+    <div class="form-group">
+        <label class="form-label">标准输入</label>
+        <textarea id="stdinInput" class="form-control" placeholder="输入标准输入内容，每行对应一次input()" rows="3"></textarea>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="autoClearOutput" class="form-check-input" checked>
+        <label class="form-label">运行前自动清空输出</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="showExecutionTime" class="form-check-input" checked>
+        <label class="form-label">显示执行时间</label>
+    </div>
+</div>
+
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-terminal"></i>
+        终端设置
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="autoFocusTerminal" class="form-check-input" checked>
+        <label class="form-label">打开终端时自动聚焦输入框</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="showTerminalWelcome" class="form-check-input" checked>
+        <label class="form-label">显示终端欢迎信息</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="terminalAutoScroll" class="form-check-input" checked>
+        <label class="form-label">终端自动滚动</label>
+    </div>
+</div>
+
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-desktop"></i>
+        界面设置
+    </div>
+    <div class="form-group">
+        <label class="form-label">主题</label>
+        <select id="theme" class="form-control">
+<option value="monokai">Monokai (默认)</option>
+<option value="solarized">Solarized</option>
+<option value="dracula">Dracula</option>
+<option value="material">Material</option>
+        </select>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="animations" class="form-check-input" checked>
+        <label class="form-label">启用动画效果</label>
+    </div>
+    <button id="previewThemeBtn" class="btn btn-sm" style="margin-top: 5px; width: 100%;">
+        <i class="fas fa-eye"></i> 预览主题
+    </button>
+</div>
+        </div>
+    </div>
+    
+    <div id="tab-editor" class="tab-content">
+        <div class="settings-grid">
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-edit"></i>
+        编辑器外观
+    </div>
+    <div class="form-group">
+        <label class="form-label">编辑器字体</label>
+        <select id="editorFont" class="form-control">
+<option value="'Monaco', 'Menlo', monospace">Monaco/Menlo</option>
+<option value="'Courier New', monospace">Courier New</option>
+<option value="'Consolas', monospace">Consolas</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="form-label">制表符宽度</label>
+        <div class="slider-container">
+<input type="range" id="tabSize" class="form-control" min="2" max="8" value="4" step="1">
+<span class="slider-value" id="tabSizeValue">4</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form-label">缩进类型</label>
+        <select id="indentType" class="form-control">
+<option value="spaces">空格 (推荐)</option>
+<option value="tabs">制表符</option>
+        </select>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="lineNumbers" class="form-check-input" checked>
+        <label class="form-label">显示行号</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="lineWrapping" class="form-check-input">
+        <label class="form-label">自动换行</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="showWhitespace" class="form-check-input">
+        <label class="form-label">显示空白字符</label>
+    </div>
+</div>
+
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-code"></i>
+        编辑器功能
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="autoIndent" class="form-check-input" checked>
+        <label class="form-label">自动缩进</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="showLineEndings" class="form-check-input">
+        <label class="form-label">显示行结束符</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="enableSnippets" class="form-check-input" checked>
+        <label class="form-label">启用代码片段</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="matchBrackets" class="form-check-input" checked>
+        <label class="form-label">括号匹配高亮</label>
+    </div>
+</div>
+        </div>
+    </div>
+    
+    <div id="tab-libraries" class="tab-content">
+        <div class="settings-grid">
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-download"></i>
+        安装库
+    </div>
+    <div class="form-group">
+        <label class="form-label">库名称</label>
+        <input type="text" id="libName" class="form-control" placeholder="输入要安装的库名 (如: numpy, pandas)">
+    </div>
+    <div class="form-group">
+        <label class="form-label">版本 (可选)</label>
+        <input type="text" id="libVersion" class="form-control" placeholder="特定版本号 (如: 1.21.0)">
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="installDependencies" class="form-check-input" checked>
+        <label class="form-label">自动安装依赖</label>
+    </div>
+    <button id="installBtn" class="btn btn-success" disabled style="width: 100%;">
+        <i class="fas fa-download"></i> 安装库
+    </button>
+    <div style="margin-top: 10px; font-size: 11px; color: var(--text-secondary);">
+        提示：常用库有 numpy, pandas, matplotlib, requests 等
+    </div>
+</div>
+
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-box"></i>
+        已安装的库
+    </div>
+    <div class="libraries-list" id="librariesList">
+        <div class="library-item">
+<span class="library-name">python标准库</span>
+<span class="library-status installed">内置</span>
+        </div>
+    </div>
+    <div style="margin-top: 10px;">
+        <button id="refreshLibrariesBtn" class="btn btn-sm" style="width: 100%;">
+<i class="fas fa-sync-alt"></i> 刷新列表
+        </button>
+    </div>
+</div>
+        </div>
+    </div>
+    
+    <div id="tab-import" class="tab-content">
+        <div class="settings-grid">
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-file-upload"></i>
+        导入代码
+    </div>
+    <div class="form-group">
+        <label class="form-label">从文件导入</label>
+        <div class="file-upload-area" id="fileUploadArea">
+<div class="file-upload-icon">
+    <i class="fas fa-cloud-upload-alt"></i>
+</div>
+<div>点击或拖放文件到此处</div>
+<div style="font-size: 11px; color: var(--text-secondary); margin-top: 5px;">
+    支持 .py, .txt 文件 (最大5MB)
+</div>
+<input type="file" id="fileUpload" accept=".py,.txt" style="display: none;">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form-label">从URL导入</label>
+        <input type="text" id="urlImport" class="form-control" placeholder="输入代码文件的URL">
+    </div>
+    <button id="importUrlBtn" class="btn btn-primary" style="width: 100%;">
+        <i class="fas fa-external-link-alt"></i> 从URL导入
+    </button>
+</div>
+
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-file-download"></i>
+        导出代码
+    </div>
+    <button id="saveCodeBtn" class="btn" style="width: 100%; margin-bottom: 10px;">
+        <i class="fas fa-download"></i> 保存代码到文件
+    </button>
+    <button id="saveOutputBtn" class="btn" style="width: 100%; margin-bottom: 10px;">
+        <i class="fas fa-download"></i> 保存输出到文件
+    </button>
+    <div class="form-group" style="margin-top: 15px;">
+        <label class="form-label">分享代码</label>
+        <input type="text" id="shareLink" class="form-control" readonly placeholder="生成分享链接...">
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button id="generateShareBtn" class="btn btn-primary" style="flex: 1;">
+<i class="fas fa-share-alt"></i> 生成链接
+        </button>
+        <button id="copyShareBtn" class="btn" style="flex: 1;">
+<i class="fas fa-copy"></i> 复制
+        </button>
+    </div>
+</div>
+        </div>
+    </div>
+    
+    <div id="tab-advanced" class="tab-content">
+        <div class="settings-grid">
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-cogs"></i>
+        设置管理
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="autoSaveSettings" class="form-check-input" checked>
+        <label class="form-label">自动保存设置到本地</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="loadSavedSettings" class="form-check-input" checked>
+        <label class="form-label">启动时加载保存的设置</label>
+    </div>
+    <button id="resetEditorBtn" class="btn btn-warning btn-sm" style="width: 100%; margin-top: 10px;">
+        <i class="fas fa-undo"></i> 重置编辑器设置
+    </button>
+    <button id="exportSettingsBtn" class="btn btn-sm" style="width: 100%; margin-top: 10px;">
+        <i class="fas fa-download"></i> 导出设置到文件
+    </button>
+    <button id="importSettingsBtn" class="btn btn-sm" style="width: 100%; margin-top: 10px;">
+        <i class="fas fa-upload"></i> 从文件导入设置
+    </button>
+    <button id="clearSettingsBtn" class="btn btn-error btn-sm" style="width: 100%; margin-top: 10px;">
+        <i class="fas fa-trash"></i> 清除所有本地设置
+    </button>
+</div>
+
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-microchip"></i>
+        性能设置
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="enableOptimizations" class="form-check-input" checked>
+        <label class="form-label">启用编译器优化</label>
+    </div>
+    <div class="form-group">
+        <label class="form-label">内存限制 (MB)</label>
+        <div class="slider-container">
+<input type="range" id="memoryLimit" class="form-control" min="128" max="1024" value="512" step="64">
+<span class="slider-value" id="memoryLimitValue">512</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form-label">自动保存间隔 (秒)</label>
+        <div class="slider-container">
+<input type="range" id="autoSaveInterval" class="form-control" min="300" max="3600" value="600" step="30">
+<span class="slider-value" id="autoSaveIntervalValue">600</span>
+        </div>
+    </div>
+</div>
+
+<div class="settings-card">
+    <div class="card-title">
+        <i class="fas fa-database"></i>
+        数据管理
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="enableLocalStorage" class="form-check-input" checked>
+        <label class="form-label">使用本地存储保存文件</label>
+    </div>
+    <button id="exportAllFilesBtn" class="btn btn-sm" style="width: 100%; margin-top: 10px;">
+        <i class="fas fa-file-archive"></i> 导出所有文件
+    </button>
+    <button id="importFilesBtn" class="btn btn-sm" style="width: 100%; margin-top: 10px;">
+        <i class="fas fa-file-import"></i> 导入文件集合
+    </button>
+    <button id="clearAllDataBtn" class="btn btn-error btn-sm" style="width: 100%; margin-top: 10px;">
+        <i class="fas fa-trash-alt"></i> 清除所有本地数据
+    </button>
+</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-container">
+    <div class="left-panel">
+        <div class="files-tabs" id="filesTabs"></div>
+        
+        <div class="editor-container">
+<div class="editor-toolbar">
+    <div class="editor-title">
+        <i class="fas fa-file-code"></i>
+        <span id="currentFileName">main.py</span>
+    </div>
+    <div class="editor-info">
+        <div class="editor-info-item">
+<span>行数:</span>
+<span class="editor-info-value" id="lineCount">0</span>
+        </div>
+        <div class="editor-info-item">
+<span>字符数:</span>
+<span class="editor-info-value" id="charCount">0</span>
+        </div>
+        <div class="editor-info-item">
+<span>光标:</span>
+<span class="editor-info-value" id="cursorPos">1:1</span>
+        </div>
+    </div>
+    <div class="editor-actions">
+        <button id="runBtn" class="btn btn-primary" disabled>
+<i class="fas fa-play"></i> 运行
+        </button>
+        <button id="stopBtn" class="btn btn-error" disabled>
+<i class="fas fa-stop"></i> 停止
+        </button>
+        <button id="clearEditorBtn" class="btn">
+<i class="fas fa-trash"></i> 清空
+        </button>
+        <button id="formatBtn" class="btn">
+<i class="fas fa-align-left"></i> 格式化
+        </button>
+        <button id="findBtn" class="btn">
+<i class="fas fa-search"></i> 查找
+        </button>
+    </div>
+    <div class="editor-info-mobile" style="display: none;">
+        <div class="editor-info-item">
+<span>行数:</span>
+<span class="editor-info-value" id="lineCountMobile">0</span>
+        </div>
+        <div class="editor-info-item">
+<span>字符数:</span>
+<span class="editor-info-value" id="charCountMobile">0</span>
+        </div>
+        <div class="editor-info-item">
+<span>光标:</span>
+<span class="editor-info-value" id="cursorPosMobile">1:1</span>
+        </div>
+    </div>
+    <div class="editor-actions-mobile" style="display: none;">
+        <button id="runBtnMobile" class="btn btn-primary btn-sm" disabled>
+<i class="fas fa-play"></i> 运行
+        </button>
+        <button id="stopBtnMobile" class="btn btn-error btn-sm" disabled>
+<i class="fas fa-stop"></i> 停止
+        </button>
+        <button id="findBtnMobile" class="btn btn-sm">
+<i class="fas fa-search"></i> 查找
+        </button>
+    </div>
+</div>
+
+<div class="find-replace-bar" id="findReplaceBar">
+    <div class="find-replace-header">
+        <div class="find-replace-title">查找和替换</div>
+        <button id="closeFindBtn" class="btn btn-sm">
+<i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="find-replace-content">
+        <div class="find-replace-row">
+<input type="text" id="findInput" class="find-replace-input" placeholder="查找...">
+<div class="find-replace-buttons">
+    <button id="findPrevBtn" class="find-replace-button">上一条</button>
+    <button id="findNextBtn" class="find-replace-button">下一条</button>
+    <button id="replaceBtn" class="find-replace-button">替换</button>
+    <button id="replaceAllBtn" class="find-replace-button primary">全部替换</button>
+</div>
+        </div>
+        <div class="find-replace-row">
+<input type="text" id="replaceInput" class="find-replace-input" placeholder="替换为...">
+<div class="find-replace-options">
+    <label class="find-replace-option">
+        <input type="checkbox" id="caseSensitive">
+        区分大小写
+    </label>
+</div>
+        </div>
+    </div>
+</div>
+
+<div class="code-editor-wrapper">
+    <textarea id="codeEditor">#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+FN Python在线编译器 - 示例代码
+支持在浏览器中直接运行Python代码
+"""
+
+import sys
+import time
+import math
+
+def main():
+    """主函数"""
+    print("=" * 60)
+    print("FN Python在线编译器")
+    print(f"Python版本: {sys.version.split()[0]}")
+    print("=" * 60)
+    
+    a = 15
+    b = 7
+    print(f"\n基本运算示例:")
+    print(f"{a} + {b} = {a + b}")
+    print(f"{a} - {b} = {a - b}")
+    print(f"{a} * {b} = {a * b}")
+    print(f"{a} / {b} = {a / b:.2f}")
+    
+    print(f"\n数学函数示例:")
+    print(f"math.sqrt({a}) = {math.sqrt(a):.2f}")
+    print(f"math.sin(math.pi/4) = {math.sin(math.pi/4):.4f}")
+    
+    def fibonacci(n):
+        """生成斐波那契数列"""
+        seq = [0, 1]
+        for i in range(2, n):
+            seq.append(seq[i-1] + seq[i-2])
+        return seq[:n]
+    
+    print(f"\n斐波那契数列 (前10项):")
+    print(fibonacci(10))
+    
+    squares = [x**2 for x in range(1, 11)]
+    print(f"\n1-10的平方: {squares}")
+    
+    print(f"\n性能测试:")
+    start_time = time.time()
+    total = sum(range(1, 1000001))
+    elapsed = time.time() - start_time
+    print(f"计算1到1000000的和: {total}")
+    print(f"耗时: {elapsed:.4f}秒")
+    
+    print("\n" + "=" * 60)
+    print("代码执行完成!")
+    print("=" * 60)
+
+if __name__ == "__main__":
+    main()</textarea>
+</div>
+        </div>
+    </div>
+    
+    <div class="right-panel">
+        <div class="output-container">
+<div class="output-header">
+    <div class="output-title">
+        <i class="fas fa-code"></i>
+        输出结果
+    </div>
+    <div class="output-actions">
+        <button id="clearOutputBtn" class="btn btn-sm">
+<i class="fas fa-trash"></i> 清空
+        </button>
+        <button id="copyOutputBtn" class="btn btn-sm">
+<i class="fas fa-copy"></i> 复制
+        </button>
+        <button id="exportOutputBtn" class="btn btn-sm">
+<i class="fas fa-download"></i> 导出
+        </button>
+    </div>
+</div>
+<div class="output-content" id="output">
+</div>
+        </div>
+        
+        <div class="terminal-container" id="terminalContainer" style="display: none;">
+<div class="terminal-header">
+    <div class="terminal-title">
+        <i class="fas fa-terminal"></i>
+        Python交互式终端
+    </div>
+    <div class="terminal-actions">
+        <button id="clearTerminalBtn" class="btn btn-sm">
+<i class="fas fa-trash"></i> 清空
+        </button>
+        <button id="copyTerminalBtn" class="btn btn-sm">
+<i class="fas fa-copy"></i> 复制
+        </button>
+    </div>
+</div>
+<div class="terminal-content" id="terminalContent">
+</div>
+<div class="terminal-input-line">
+    <span class="terminal-prompt">&gt;&gt;&gt;</span>
+    <input type="text" class="terminal-input" id="terminalInput" autocomplete="off" placeholder="输入Python代码或命令，按Enter执行">
+</div>
+        </div>
+    </div>
+</div>
+        </div>
+        
+        <div id="shortcutsModal" class="shortcuts-modal" style="display: none;">
+<div class="modal-header">
+    <div class="modal-title">键盘快捷键</div>
+    <button id="closeShortcutsBtn" class="btn btn-sm">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+<div class="shortcut-list">
+    <div class="shortcut-item">
+        <span>运行代码</span>
+        <span class="shortcut-key">Ctrl + Enter</span>
+    </div>
+    <div class="shortcut-item">
+        <span>停止运行</span>
+        <span class="shortcut-key">Ctrl + .</span>
+    </div>
+    <div class="shortcut-item">
+        <span>保存代码</span>
+        <span class="shortcut-key">Ctrl + S</span>
+    </div>
+    <div class="shortcut-item">
+        <span>打开设置</span>
+        <span class="shortcut-key">Ctrl + ,</span>
+    </div>
+    <div class="shortcut-item">
+        <span>打开/关闭终端</span>
+        <span class="shortcut-key">Ctrl + `</span>
+    </div>
+    <div class="shortcut-item">
+        <span>代码补全</span>
+        <span class="shortcut-key">Ctrl + Space</span>
+    </div>
+    <div class="shortcut-item">
+        <span>注释/取消注释</span>
+        <span class="shortcut-key">Ctrl + /</span>
+    </div>
+    <div class="shortcut-item">
+        <span>格式化代码</span>
+        <span class="shortcut-key">Shift + Alt + F</span>
+    </div>
+    <div class="shortcut-item">
+        <span>新建文件</span>
+        <span class="shortcut-key">Ctrl + N</span>
+    </div>
+    <div class="shortcut-item">
+        <span>查找</span>
+        <span class="shortcut-key">Ctrl + F</span>
+    </div>
+    <div class="shortcut-item">
+        <span>代码片段</span>
+        <span class="shortcut-key">Tab</span>
+    </div>
+</div>
+        </div>
+    </div><script src="https://fastly.jsdelivr.net/pyodide/v0.29.2/full/pyodide.js"></script><script>let pyodide=null;let codeEditor=null;let terminalVisible=false;let isRunning=false;let installedLibraries=new Set(['python标准库']);let terminalHistory=[];let terminalHistoryIndex=-1;let currentFileName='main.py';let files={'main.py':{name:'main.py',content:`#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import sys
+import time
+import math
+def main():
+    print("="*60)
+    print("FN Python在线编译器")
+    print(f"Python版本: {sys.version.split()[0]}")
+    print("="*60)
+    a=15
+    b=7
+    print(f"\n基本运算示例:")
+    print(f"{a}+{b}={a+b}")
+    print(f"{a}-{b}={a-b}")
+    print(f"{a}*{b}={a*b}")
+    print(f"{a}/{b}={a/b:.2f}")
+    print(f"\n数学函数示例:")
+    print(f"math.sqrt({a})={math.sqrt(a):.2f}")
+    print(f"math.sin(math.pi/4)={math.sin(math.pi/4):.4f}")
+    def fibonacci(n):
+        seq=[0,1]
+        for i in range(2,n):
+            seq.append(seq[i-1]+seq[i-2])
+        return seq[:n]
+    print(f"\n斐波那契数列 (前10项):")
+    print(fibonacci(10))
+    squares=[x**2 for x in range(1,11)]
+    print(f"\n1-10的平方: {squares}")
+    print(f"\n性能测试:")
+    start_time=time.time()
+    total=sum(range(1,1000001))
+    elapsed=time.time()-start_time
+    print(f"计算1到1000000的和: {total}")
+    print(f"耗时: {elapsed:.4f}秒")
+    print("\n"+"="*60)
+    print("代码执行完成!")
+    print("="*60)
+if __name__=="__main__":
+    main()`}};let autoSaveTimer=null;let autoSaveIntervalId=null;let outputWrap=false;let findActive=false;let findQuery='';let findMatches=[];let currentFindIndex=-1;const codeSnippets={'for':'for ${1:item} in ${2:iterable}:\n\t${3:# loop body}','while':'while ${1:condition}:\n\t${2:# loop body}','if':'if ${1:condition}:\n\t${2:# then}','ifelse':'if ${1:condition}:\n\t${2:# then}\nelse:\n\t${3:# else}','def':'def ${1:function_name}(${2:args}):\n\t"""${3:docstring}"""\n\t${4:# function body}\n\treturn ${5:value}','class':'class ${1:ClassName}:\n\tdef __init__(self${2:, args}):\n\t\t${3:# init body}','try':'try:\n\t${1:# try block}\nexcept ${2:Exception} as ${3:e}:\n\t${4:# handle exception}','main':'if __name__ == "__main__":\n\t${1:main()}','import':'import ${1:module}','from':'from ${1:module} import ${2:name}','print':'print(${1:message})','listcomp':'[${1:expression} for ${2:item} in ${3:iterable}]','dictcomp':'{${1:key}: ${2:value} for ${3:item} in ${4:iterable}}','lambda':'lambda ${1:args}: ${2:expression}','with':'with ${1:expression} as ${2:variable}:\n\t${3:# with block}','test':'def test_${1:function_name}():\n\t${2:# test body}\n\tassert ${3:condition}'};async function loadPyodideWithProgress(){try{console.log('开始加载Python环境...');const pyodideInstance=await loadPyodide({indexURL:"https://fastly.jsdelivr.net/pyodide/v0.29.2/full/",stdout:(text)=>{addOutput(text,'normal');},stderr:(text)=>{addOutput(text,'error');}});console.log('环境加载完成，版本:',pyodideInstance.version);await pyodideInstance.loadPackage(['micropip']);await pyodideInstance.runPythonAsync(`from js import prompt
+def input_fixed(prompt_text=""):
+    return prompt(prompt_text)
+__builtins__.input = input_fixed`);document.getElementById('loadingOverlay').style.opacity='0';setTimeout(()=>{document.getElementById('loadingOverlay').style.display='none';document.getElementById('app').style.display='block';},300);return pyodideInstance;}catch(error){console.error('加载环境失败:',error);document.getElementById('loadingOverlay').style.display='none';document.getElementById('app').style.display='block';addOutput(`加载失败: ${error.message}`,'error');return null;}}function updateCodeMetrics(){if(!codeEditor)return;const content=codeEditor.getValue();const lines=content.split('\n');const lineCount=lines.length;const charCount=content.length;const cursor=codeEditor.getCursor();document.getElementById('lineCount').textContent=lineCount;document.getElementById('charCount').textContent=charCount;document.getElementById('cursorPos').textContent=`${cursor.line+1}:${cursor.ch+1}`;document.getElementById('lineCountMobile').textContent=lineCount;document.getElementById('charCountMobile').textContent=charCount;document.getElementById('cursorPosMobile').textContent=`${cursor.line+1}:${cursor.ch+1}`;}function addOutput(text,type='normal'){const output=document.getElementById('output');const operationMessages=['已切换到文件:','已创建新文件:','编辑器已清空','输出已保存为','代码已保存为','代码已格式化','所有存储数据已清除','终端已清空'];let isOperationMessage=false;for(const msg of operationMessages){if(text.includes(msg)){isOperationMessage=true;break;}}if(isOperationMessage){return;}const div=document.createElement('div');div.className=`output-line ${type}`;const formattedText=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');div.innerHTML=formattedText;output.appendChild(div);output.scrollTop=output.scrollHeight;}function addTerminalOutput(text,type='normal'){const terminalContent=document.getElementById('terminalContent');const div=document.createElement('div');div.className=`terminal-line`;div.style.color=type==='error'?'#ff6b6b':type==='success'?'#4ec9b0':type==='info'?'#9cdcfe':'#cccccc';const formattedText=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');div.innerHTML=formattedText;terminalContent.appendChild(div);if(document.getElementById('terminalAutoScroll')?.checked!==false){terminalContent.scrollTop=terminalContent.scrollHeight;}}async function runCode(){if(!pyodide){addOutput('环境未加载，请等待加载完成','error');return;}if(isRunning){addOutput('代码正在运行中，请等待完成','warning');return;}isRunning=true;const runBtn=document.getElementById('runBtn');const stopBtn=document.getElementById('stopBtn');const runBtnMobile=document.getElementById('runBtnMobile');const stopBtnMobile=document.getElementById('stopBtnMobile');runBtn.disabled=true;stopBtn.disabled=false;runBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> 运行中...';if(runBtnMobile){runBtnMobile.disabled=true;stopBtnMobile.disabled=false;runBtnMobile.innerHTML='<i class="fas fa-spinner fa-spin"></i> 运行';}const startTime=performance.now();try{const code=codeEditor.getValue();const args=document.getElementById('cmdArgs').value.trim().split(/\s+/).filter(Boolean);const stdin=document.getElementById('stdinInput').value.trim().split('\n');const autoClear=document.getElementById('autoClearOutput')?.checked;if(autoClear){clearOutput();}const showExecutionTime=document.getElementById('showExecutionTime')?.checked;if(showExecutionTime){addOutput('开始执行代码...','info');}console.log('开始执行Python代码...');let setupCode=`import sys
+sys.argv = ["${currentFileName}"]
+`;if(args.length>0){setupCode+=`sys.argv.extend([${args.map(a=>`"${a}"`).join(', ')}])\n`;}if(stdin.length>0&&stdin[0]!==''){setupCode+=`_input_lines = ${JSON.stringify(stdin)}
+_input_index = 0
+def custom_input(prompt=""):
+    global _input_index
+    if _input_index < len(_input_lines):
+        value = _input_lines[_input_index]
+        _input_index += 1
+        return value
+    else:
+        return ""
+import __builtins__
+_original_input = __builtins__.input
+__builtins__.input = custom_input`;}console.log('执行设置代码:',setupCode);pyodide.runPython(setupCode);console.log('执行用户代码...');await pyodide.runPythonAsync(code);if(stdin.length>0&&stdin[0]!==''){pyodide.runPython(`if '_original_input' in locals():
+    __builtins__.input = _original_input`);}if(showExecutionTime){const endTime=performance.now();const executionTime=(endTime-startTime)/1000;addOutput(`代码执行完成！耗时: ${executionTime.toFixed(3)}秒`,'success');}}catch(error){console.error('执行错误:',error);addOutput(`执行错误: ${error.message}`,'error');const errorLineMatch=error.message.match(/line (\d+)/);if(errorLineMatch){const lineNum=parseInt(errorLineMatch[1])-1;codeEditor.setCursor(lineNum,0);codeEditor.focus();}try{pyodide.runPython(`if '_original_input' in locals():
+    __builtins__.input = _original_input`);}catch(e){console.error('恢复input函数失败:',e);}}finally{isRunning=false;runBtn.disabled=false;stopBtn.disabled=true;runBtn.innerHTML='<i class="fas fa-play"></i> 运行';if(runBtnMobile){runBtnMobile.disabled=false;stopBtnMobile.disabled=true;runBtnMobile.innerHTML='<i class="fas fa-play"></i> 运行';}}}function stopCode(){if(isRunning&&pyodide){try{pyodide.interruptExecution();addOutput('执行已中断','warning');}catch(e){console.error('中断失败:',e);}}}function formatCode(){if(!codeEditor)return;const code=codeEditor.getValue();let formatted=code;formatted=formatted.replace(/\s+$/gm,'');if(!formatted.endsWith('\n')){formatted+='\n';}const lines=formatted.split('\n');const formattedLines=[];let inMultilineString=false;let stringDelimiter='';for(let i=0;i<lines.length;i++){let line=lines[i];const trimmed=line.trimLeft();if(!inMultilineString){if(trimmed.startsWith("'''")||trimmed.startsWith('"""')){inMultilineString=true;stringDelimiter=trimmed.substring(0,3);formattedLines.push(line);continue;}}else{if(trimmed.includes(stringDelimiter)){inMultilineString=false;}formattedLines.push(line);continue;}if(trimmed.startsWith('#')){formattedLines.push(line);continue;}const match=line.match(/^(\s*)/);const indent=match?match[1]:'';let convertedIndent='';for(let j=0;j<indent.length;j++){if(indent[j]==='\t'){convertedIndent+='    ';}else{convertedIndent+=indent[j];}}const spaceMatch=convertedIndent.match(/^( *)/);if(spaceMatch){const spaceCount=spaceMatch[1].length;const tabCount=Math.floor(spaceCount/4);convertedIndent='    '.repeat(tabCount);}line=line.trimLeft();line=convertedIndent+line;formattedLines.push(line);}formatted=formattedLines.join('\n');formatted=formatted.replace(/\n\s*\n\s*\n/g,'\n\n');codeEditor.setValue(formatted);addTerminalOutput('代码已格式化','success');}async function installLibrary(){const libName=document.getElementById('libName').value.trim();const libVersion=document.getElementById('libVersion').value.trim();if(!libName){addTerminalOutput('请输入库名','warning');return;}if(installedLibraries.has(libName)){addTerminalOutput(`库 "${libName}" 已经安装`,'info');return;}const installBtn=document.getElementById('installBtn');installBtn.disabled=true;installBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> 安装中...';try{addTerminalOutput(`正在安装 ${libName}${libVersion?'=='+libVersion:''}...`,'info');await pyodide.loadPackage("micropip");const micropip=pyodide.pyimport("micropip");const packageSpec=libVersion?`${libName}==${libVersion}`:libName;await micropip.install(packageSpec);installedLibraries.add(libName);updateLibrariesList();addTerminalOutput(`${libName} ${libVersion||'最新版本'} 安装成功！`,'success');document.getElementById('libName').value='';document.getElementById('libVersion').value='';}catch(error){addTerminalOutput(`安装失败: ${error.message}`,'error');console.error('安装失败:',error);}finally{installBtn.disabled=false;installBtn.innerHTML='<i class="fas fa-download"></i> 安装库';}}function updateLibrariesList(){const librariesList=document.getElementById('librariesList');if(!librariesList)return;librariesList.innerHTML='';const stdLibItem=document.createElement('div');stdLibItem.className='library-item';stdLibItem.innerHTML=`<span class="library-name">python标准库</span><span class="library-status installed">内置</span>`;librariesList.appendChild(stdLibItem);installedLibraries.forEach(lib=>{if(lib!=='python标准库'){const libItem=document.createElement('div');libItem.className='library-item';libItem.innerHTML=`<span class="library-name">${lib}</span><span class="library-status installed">已安装</span>`;librariesList.appendChild(libItem);}});}function initTerminal(){const terminalContent=document.getElementById('terminalContent');const terminalInput=document.getElementById('terminalInput');const showWelcome=document.getElementById('showTerminalWelcome')?.checked!==false;terminalContent.innerHTML='';if(showWelcome){addTerminalOutput('$ Python交互式终端已启动','info');addTerminalOutput('$ 输入Python代码或命令，按Enter执行','info');addTerminalOutput('$ 输入\'help\'查看帮助，输入\'exit\'退出','info');addTerminalOutput('');}const handleTerminalInput=async(inputElement)=>{const command=inputElement.value.trim();inputElement.value='';if(command){terminalHistory.push(command);terminalHistoryIndex=terminalHistory.length;addTerminalOutput(`>>> ${command}`);if(command.toLowerCase()==='exit'||command.toLowerCase()==='quit'){addTerminalOutput('退出交互式终端','info');toggleTerminal();return;}if(command.toLowerCase()==='clear'){clearTerminal();return;}if(command.toLowerCase()==='help'){addTerminalOutput('可用命令:','info');addTerminalOutput('  clear - 清空终端','info');addTerminalOutput('  exit - 退出终端','info');addTerminalOutput('  help - 显示帮助','info');addTerminalOutput('  help() - 获取Python交互模式帮助','info');addTerminalOutput('  install [package] - 安装Python包','info');addTerminalOutput('  list - 列出已安装的包','info');addTerminalOutput('  files - 查看文件列表','info');addTerminalOutput('  format - 格式化当前代码','info');addTerminalOutput('  run - 运行当前代码','info');addTerminalOutput('  stop - 停止运行','info');addTerminalOutput('  save [filename] - 保存当前代码','info');addTerminalOutput('  load [filename] - 加载文件','info');addTerminalOutput('  delete [filename] - 删除文件','info');addTerminalOutput('  settings - 打开设置','info');return;}if(command.startsWith('install ')){const packageName=command.substring(8).trim();if(packageName){document.getElementById('libName').value=packageName;installLibrary();}return;}if(command.toLowerCase()==='list'){addTerminalOutput('已安装的包:','info');installedLibraries.forEach(lib=>{addTerminalOutput(`  ${lib}`,'info');});return;}if(command.toLowerCase()==='files'){addTerminalOutput('文件列表:','info');Object.keys(files).forEach(filename=>{const isCurrent=filename===currentFileName;addTerminalOutput(`  ${filename} ${isCurrent?'(当前)':''}`,'info');});return;}if(command.toLowerCase()==='format'){formatCode();return;}if(command.toLowerCase()==='run'){runCode();return;}if(command.toLowerCase()==='stop'){stopCode();return;}if(command.toLowerCase()==='settings'){toggleSettings();return;}if(command.startsWith('save ')){const filename=command.substring(5).trim();if(filename){saveCodeAs(filename);}else{saveCode();}return;}if(command.startsWith('load ')){const filename=command.substring(5).trim();if(files[filename]){switchFile(filename);addTerminalOutput(`已加载文件: ${filename}`,'success');}else{addTerminalOutput(`文件不存在: ${filename}`,'error');}return;}if(command.startsWith('delete ')){const filename=command.substring(7).trim();if(filename===currentFileName){addTerminalOutput('不能删除当前打开的文件，请先切换到其他文件。','error');return;}if(files[filename]){if(confirm(`确定要删除文件 "${filename}" 吗？\n此操作不可撤销。`)){delete files[filename];updateFileTabs();addTerminalOutput(`已删除文件: ${filename}`,'success');if(document.getElementById('enableLocalStorage')?.checked){saveToLocalStorage();}}}else{addTerminalOutput(`文件不存在: ${filename}`,'error');}return;}try{const result=await pyodide.runPythonAsync(command);if(result!==undefined){addTerminalOutput(result.toString(),'success');}}catch(error){addTerminalOutput(`错误: ${error.message}`,'error');}}};terminalInput.addEventListener('keydown',async function(e){if(e.key==='Enter'){await handleTerminalInput(this);}else if(e.key==='ArrowUp'){e.preventDefault();if(terminalHistory.length>0){if(terminalHistoryIndex>0){terminalHistoryIndex--;}this.value=terminalHistory[terminalHistoryIndex]||'';}}else if(e.key==='ArrowDown'){e.preventDefault();if(terminalHistory.length>0){if(terminalHistoryIndex<terminalHistory.length-1){terminalHistoryIndex++;this.value=terminalHistory[terminalHistoryIndex];}else{terminalHistoryIndex=terminalHistory.length;this.value='';}}}});const autoFocus=document.getElementById('autoFocusTerminal')?.checked!==false;if(autoFocus&&terminalVisible){setTimeout(()=>{terminalInput.focus();},100);}}function clearTerminal(){const terminalContent=document.getElementById('terminalContent');terminalContent.innerHTML='';addTerminalOutput('终端已清空','info');}function updateFileTabs(){const filesTabs=document.getElementById('filesTabs');if(!filesTabs)return;filesTabs.innerHTML='';Object.keys(files).forEach(filename=>{const isActive=filename===currentFileName;const tab=document.createElement('button');tab.className=`file-tab ${isActive?'active':''}`;tab.innerHTML=`${filename}${Object.keys(files).length>1?`<button class="file-tab-close" data-filename="${filename}">&times;</button>`:''}`;tab.addEventListener('click',()=>{switchFile(filename);});filesTabs.appendChild(tab);});document.querySelectorAll('.file-tab-close').forEach(closeBtn=>{closeBtn.addEventListener('click',(e)=>{e.stopPropagation();const filename=closeBtn.getAttribute('data-filename');if(Object.keys(files).length>1&&filename!==currentFileName){if(confirm(`确定要删除文件 "${filename}" 吗？\n此操作不可撤销。`)){delete files[filename];updateFileTabs();addTerminalOutput(`已删除文件: ${filename}`,'success');if(document.getElementById('enableLocalStorage')?.checked){saveToLocalStorage();}}}else if(filename===currentFileName){addTerminalOutput('不能删除当前打开的文件，请先切换到其他文件。','error');}else{addTerminalOutput('至少需要保留一个文件。','warning');}});});}function showNewFileDialog(){const modal=document.getElementById('newFileModal');modal.style.display='flex';document.getElementById('newFileName').focus();}function createNewFile(){const modal=document.getElementById('newFileModal');let fileName=document.getElementById('newFileName').value.trim();if(!fileName){alert('请输入文件名');return;}if(!fileName.endsWith('.py')){fileName=fileName+'.py';}if(files[fileName]){if(!confirm(`文件 "${fileName}" 已存在，是否覆盖？`)){return;}}const content=`#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+${fileName}
+新文件已创建
+"""
+print("Hello World")`;files[fileName]={name:fileName,content:content};switchFile(fileName);modal.style.display='none';document.getElementById('newFileName').value='new_file.py';addTerminalOutput(`已创建新文件: ${fileName}`,'success');}function switchFile(filename){if(!files[filename]){addTerminalOutput(`文件不存在: ${filename}`,'error');return;}files[currentFileName].content=codeEditor.getValue();currentFileName=filename;document.getElementById('currentFileName').textContent=filename;codeEditor.setValue(files[filename].content);updateFileTabs();updateCodeMetrics();setTimeout(()=>{if(codeEditor){codeEditor.refresh();}},50);addTerminalOutput(`已切换到文件: ${filename}`,'success');}function saveCodeAs(filename){const code=codeEditor.getValue();if(!filename.endsWith('.py')){filename=filename+'.py';}files[filename]={name:filename,content:code};if(filename!==currentFileName){switchFile(filename);}addTerminalOutput(`代码已保存为 ${filename}`,'success');}function setupFileUpload(){const fileUploadArea=document.getElementById('fileUploadArea');const fileUpload=document.getElementById('fileUpload');fileUploadArea.addEventListener('click',function(){fileUpload.click();});fileUploadArea.addEventListener('dragover',function(e){e.preventDefault();e.stopPropagation();this.style.borderColor='var(--primary-color)';this.style.background='rgba(0, 122, 204, 0.1)';});fileUploadArea.addEventListener('dragleave',function(e){e.preventDefault();e.stopPropagation();this.style.borderColor='var(--border-color)';this.style.background='';});fileUploadArea.addEventListener('drop',function(e){e.preventDefault();e.stopPropagation();this.style.borderColor='var(--border-color)';this.style.background='';const files=e.dataTransfer.files;if(files.length>0){handleFileUpload(files[0]);}});fileUpload.addEventListener('change',function(e){const file=e.target.files[0];if(file){handleFileUpload(file);}});}function handleFileUpload(file){if(!file)return;if(file.size>5*1024*1024){alert('文件太大，请选择小于5MB的文件');return;}const reader=new FileReader();reader.onload=function(e){const content=e.target.result;const fileName=file.name;if(confirm(`是否将 "${fileName}" 创建为新文件？`)){files[fileName]={name:fileName,content:content};switchFile(fileName);}else{codeEditor.setValue(content);files[currentFileName].content=content;}addTerminalOutput(`已加载文件: ${file.name} (${file.size} 字节)`,'success');};reader.readAsText(file);}async function importFromUrl(){const urlInput=document.getElementById('urlImport');const url=urlInput.value.trim();if(!url){addTerminalOutput('请输入URL','warning');return;}if(!url.startsWith('http://')&&!url.startsWith('https://')){addTerminalOutput('请输入有效的URL (以http://或https://开头)','warning');return;}try{addTerminalOutput(`正在从 ${url} 导入代码...`,'info');const response=await fetch(url);if(!response.ok){throw new Error(`HTTP错误: ${response.status}`);}const content=await response.text();const urlParts=url.split('/');const fileName=urlParts[urlParts.length-1]||'imported.py';if(confirm(`是否将 "${fileName}" 创建为新文件？`)){files[fileName]={name:fileName,content:content};switchFile(fileName);}else{codeEditor.setValue(content);files[currentFileName].content=content;}addTerminalOutput('代码导入成功','success');urlInput.value='';}catch(error){addTerminalOutput(`导入失败: ${error.message}`,'error');console.error('URL导入失败:',error);}}function clearEditor(){if(confirm('确定要清空编辑器吗？所有代码将会丢失。')){codeEditor.setValue('');files[currentFileName].content='';addTerminalOutput('编辑器已清空','info');updateCodeMetrics();}}function clearOutput(){const output=document.getElementById('output');output.innerHTML='';}function saveCode(){const code=codeEditor.getValue();const blob=new Blob([code],{type:'text/x-python'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=currentFileName;a.click();URL.revokeObjectURL(url);addTerminalOutput(`代码已保存为 ${currentFileName}`,'success');}function saveOutput(){const output=document.getElementById('output');const content=output.innerText||output.textContent;const blob=new Blob([content],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='output.txt';a.click();URL.revokeObjectURL(url);addTerminalOutput('输出已保存为 output.txt','success');}function copyOutput(){const output=document.getElementById('output');const content=output.innerText||output.textContent;navigator.clipboard.writeText(content).then(()=>{addTerminalOutput('输出内容已复制到剪贴板','success');}).catch(err=>{addTerminalOutput('复制失败: '+err.message,'error');});}function copyTerminal(){const terminalContent=document.getElementById('terminalContent');const content=terminalContent.innerText||terminalContent.textContent;navigator.clipboard.writeText(content).then(()=>{addTerminalOutput('终端内容已复制到剪贴板','success');}).catch(err=>{addTerminalOutput('复制失败: '+err.message,'error');});}function generateShareLink(){const code=codeEditor.getValue();const encoded=btoa(unescape(encodeURIComponent(code)));const shareLink=document.getElementById('shareLink');const url=window.location.href.split('?')[0];const shareUrl=`${url}?code=${encoded}`;shareLink.value=shareUrl;addTerminalOutput('分享链接已生成','success');}function copyShareLink(){const shareLink=document.getElementById('shareLink');shareLink.select();navigator.clipboard.writeText(shareLink.value).then(()=>{addTerminalOutput('分享链接已复制到剪贴板','success');}).catch(err=>{addTerminalOutput('复制失败: '+err.message,'error');});}function toggleTerminal(){const terminalContainer=document.getElementById('terminalContainer');const toggleBtn=document.getElementById('toggleTerminalBtn');terminalVisible=!terminalVisible;if(terminalVisible){terminalContainer.style.display='flex';toggleBtn.innerHTML='<i class="fas fa-terminal"></i> 隐藏终端';toggleBtn.classList.add('btn-primary');const autoFocus=document.getElementById('autoFocusTerminal')?.checked!==false;if(autoFocus){setTimeout(()=>{document.getElementById('terminalInput').focus();},100);}initTerminal();}else{terminalContainer.style.display='none';toggleBtn.innerHTML='<i class="fas fa-terminal"></i> 终端';toggleBtn.classList.remove('btn-primary');}}function toggleSettings(){const settingsContainer=document.getElementById('settingsContainer');const toggleBtn=document.getElementById('toggleSettingsBtn');if(settingsContainer.style.display==='none'||settingsContainer.style.display===''){settingsContainer.style.display='block';toggleBtn.innerHTML='<i class="fas fa-times"></i> 关闭设置';toggleBtn.classList.add('btn-primary');}else{settingsContainer.style.display='none';toggleBtn.innerHTML='<i class="fas fa-sliders-h"></i> 设置';toggleBtn.classList.remove('btn-primary');}}function toggleShortcuts(){const shortcutsModal=document.getElementById('shortcutsModal');shortcutsModal.style.display=shortcutsModal.style.display==='none'?'block':'none';}function toggleFindBar(){const findBar=document.getElementById('findReplaceBar');findActive=!findActive;if(findActive){findBar.style.display='block';document.getElementById('findInput').focus();document.getElementById('findInput').select();const query=document.getElementById('findInput').value;if(query){updateFindMatches();}}else{findBar.style.display='none';clearFindHighlights();}}function updateFindMatches(){const query=document.getElementById('findInput').value;const caseSensitive=document.getElementById('caseSensitive').checked;if(!query){clearFindHighlights();return;}findQuery=query;findMatches=[];currentFindIndex=-1;const content=codeEditor.getValue();const lines=content.split('\n');let searchIndex=0;for(let i=0;i<lines.length;i++){const line=lines[i];const searchLine=caseSensitive?line:line.toLowerCase();const searchQuery=caseSensitive?query:query.toLowerCase();let pos=searchLine.indexOf(searchQuery);while(pos!==-1){findMatches.push({line:i,start:pos,end:pos+query.length});pos=searchLine.indexOf(searchQuery,pos+1);}}highlightFindMatches();if(findMatches.length>0){currentFindIndex=0;highlightCurrentFindMatch();}}function highlightFindMatches(){clearFindHighlights();findMatches.forEach((match,index)=>{const marker=codeEditor.markText({line:match.line,ch:match.start},{line:match.line,ch:match.end},{className:'find-match',css:'background-color: rgba(255, 255, 0, 0.3); border: 1px solid rgba(255, 255, 0, 0.5);'});});}function highlightCurrentFindMatch(){if(currentFindIndex>=0&&currentFindIndex<findMatches.length){const match=findMatches[currentFindIndex];codeEditor.getAllMarks().forEach(marker=>{if(marker.className==='find-match-current'){marker.clear();}});const currentMarker=codeEditor.markText({line:match.line,ch:match.start},{line:match.line,ch:match.end},{className:'find-match-current',css:'background-color: rgba(255, 165, 0, 0.5); border: 2px solid orange;'});codeEditor.scrollIntoView({line:match.line,ch:match.start},{line:match.line,ch:match.end});codeEditor.setCursor(match.line,match.start);}}function clearFindHighlights(){codeEditor.getAllMarks().forEach(marker=>{if(marker.className==='find-match'||marker.className==='find-match-current'){marker.clear();}});}function findNext(){if(findMatches.length===0){updateFindMatches();}if(findMatches.length>0){currentFindIndex=(currentFindIndex+1)%findMatches.length;highlightCurrentFindMatch();}else{addTerminalOutput('未找到匹配项','warning');}}function findPrev(){if(findMatches.length===0){updateFindMatches();}if(findMatches.length>0){currentFindIndex=(currentFindIndex-1+findMatches.length)%findMatches.length;highlightCurrentFindMatch();}else{addTerminalOutput('未找到匹配项','warning');}}function replaceText(){const findInput=document.getElementById('findInput');const replaceInput=document.getElementById('replaceInput');const caseSensitive=document.getElementById('caseSensitive').checked;const query=findInput.value;const replacement=replaceInput.value;if(!query)return;if(currentFindIndex>=0&&currentFindIndex<findMatches.length){const match=findMatches[currentFindIndex];const lineContent=codeEditor.getLine(match.line);const before=lineContent.substring(0,match.start);const after=lineContent.substring(match.end);const newLine=before+replacement+after;codeEditor.replaceRange(newLine,{line:match.line,ch:0},{line:match.line,ch:lineContent.length});findMatches.splice(currentFindIndex,1);if(findMatches.length>0){currentFindIndex=Math.min(currentFindIndex,findMatches.length-1);highlightFindMatches();highlightCurrentFindMatch();}else{currentFindIndex=-1;clearFindHighlights();}addTerminalOutput('已替换','success');}else{addTerminalOutput('未找到匹配项','warning');}}function replaceAll(){const findInput=document.getElementById('findInput');const replaceInput=document.getElementById('replaceInput');const caseSensitive=document.getElementById('caseSensitive').checked;const query=findInput.value;const replacement=replaceInput.value;if(!query)return;updateFindMatches();if(findMatches.length===0){addTerminalOutput('未找到匹配项','warning');return;}let count=0;findMatches.sort((a,b)=>{if(a.line!==b.line)return b.line-a.line;return b.start-a.start;});findMatches.forEach(match=>{const lineContent=codeEditor.getLine(match.line);const before=lineContent.substring(0,match.start);const after=lineContent.substring(match.end);const newLine=before+replacement+after;codeEditor.replaceRange(newLine,{line:match.line,ch:0},{line:match.line,ch:lineContent.length});count++;});findMatches=[];currentFindIndex=-1;clearFindHighlights();addTerminalOutput(`已替换 ${count} 处`,'success');}function initEditor(){loadSettingsFromStorage();codeEditor=CodeMirror.fromTextArea(document.getElementById('codeEditor'),{mode:'python',theme:'monokai',lineNumbers:document.getElementById('lineNumbers')?.checked!==false,lineWrapping:document.getElementById('lineWrapping')?.checked||false,indentUnit:4,tabSize:parseInt(document.getElementById('tabSize')?.value||4),matchBrackets:document.getElementById('matchBrackets')?.checked!==false,foldGutter:false,gutters:["CodeMirror-linenumbers"],styleActiveLine:document.getElementById('highlightActiveLine')?.checked!==false,showTrailingSpace:document.getElementById('showWhitespace')?.checked||false,showInvisibles:document.getElementById('showWhitespace')?.checked||false,indentWithTabs:document.getElementById('indentType')?.value==='tabs',smartIndent:document.getElementById('autoIndent')?.checked!==false,electricChars:document.getElementById('autoIndent')?.checked!==false,showCursorWhenSelecting:document.getElementById('showLineEndings')?.checked||false,cursorBlinkRate:document.getElementById('showLineEndings')?.checked?530:0,extraKeys:{'Ctrl-Enter':runCode,'Cmd-Enter':runCode,'Ctrl-S':saveCode,'Ctrl-N':showNewFileDialog,'Ctrl-L':clearEditor,'Ctrl-.':stopCode,'Ctrl-,':toggleSettings,'Ctrl-`':toggleTerminal,'Ctrl-Space':'autocomplete','Ctrl-/':function(cm){cm.toggleComment();},'Shift-Alt-F':function(cm){formatCode();},'Ctrl-F':function(cm){toggleFindBar();return false;},'Esc':function(cm){if(findActive){toggleFindBar();return false;}},'F3':function(cm){if(findActive){findNext();return false;}},'Shift-F3':function(cm){if(findActive){findPrev();return false;}},'Tab':function(cm){if(document.getElementById('enableSnippets')?.checked){const cursor=cm.getCursor();const line=cm.getLine(cursor.line);const textBeforeCursor=line.substring(0,cursor.ch);for(const[keyword,snippet]of Object.entries(codeSnippets)){if(textBeforeCursor.endsWith(keyword)&&(textBeforeCursor.length===keyword.length||textBeforeCursor[textBeforeCursor.length-keyword.length-1].match(/\s/))){const from={line:cursor.line,ch:cursor.ch-keyword.length};const to={line:cursor.line,ch:cursor.ch};cm.replaceRange('',from,to);const snippetText=snippet.replace(/\$\{\d+:([^}]*)\}/g,'$1');const lines=snippetText.split('\n');for(let i=0;i<lines.length;i++){cm.replaceSelection(lines[i]);if(i<lines.length-1){cm.replaceSelection('\n');}}const placeholderMatch=snippet.match(/\$\{1:([^}]*)\}/);if(placeholderMatch){const placeholderLength=placeholderMatch[1].length;cm.setCursor({line:cursor.line,ch:cursor.ch-keyword.length+placeholderLength});}return;}}}if(cm.somethingSelected()){cm.indentSelection('add');}else{cm.replaceSelection('    ','end');}},'Shift-Tab':function(cm){cm.indentSelection('subtract');}},hintOptions:{completeSingle:false,alignWithWord:true,closeOnUnfocus:false}});setTimeout(()=>{if(codeEditor){codeEditor.refresh();codeEditor.focus();}},100);codeEditor.on('inputRead',function(cm,change){if(change.text.length===1&&change.text[0].length>0){setTimeout(()=>{if(!cm.state.completionActive&&document.getElementById('autoComplete')?.checked!==false){CodeMirror.commands.autocomplete(cm);}},100);}});codeEditor.on('cursorActivity',updateCodeMetrics);codeEditor.on('change',function(){files[currentFileName].content=codeEditor.getValue();updateFileTabs();updateCodeMetrics();if(findActive){updateFindMatches();}if(document.getElementById('autoSaveSettings')?.checked){saveToLocalStorage();}});codeEditor.on('cursorActivity',function(){if(findActive&&findMatches.length>0){highlightCurrentFindMatch();}});applyEditorSettings();updateCodeMetrics();}function applyEditorSettings(){if(!codeEditor)return;const tabSize=document.getElementById('tabSize')?.value||4;if(document.getElementById('tabSizeValue')){document.getElementById('tabSizeValue').textContent=tabSize;}codeEditor.setOption('tabSize',parseInt(tabSize));codeEditor.setOption('indentUnit',parseInt(tabSize));const lineNumbers=document.getElementById('lineNumbers')?.checked!==false;codeEditor.setOption('lineNumbers',lineNumbers);const lineWrapping=document.getElementById('lineWrapping')?.checked||false;codeEditor.setOption('lineWrapping',lineWrapping);const matchBrackets=document.getElementById('matchBrackets')?.checked!==false;codeEditor.setOption('matchBrackets',matchBrackets);const autoIndent=document.getElementById('autoIndent')?.checked!==false;codeEditor.setOption('smartIndent',autoIndent);codeEditor.setOption('electricChars',autoIndent);const editorFont=document.getElementById('editorFont')?.value||"'Monaco', 'Menlo', monospace";codeEditor.getWrapperElement().style.fontFamily=editorFont;const indentType=document.getElementById('indentType')?.value||'spaces';if(indentType==='tabs'){codeEditor.setOption('indentWithTabs',true);}else{codeEditor.setOption('indentWithTabs',false);}const showWhitespace=document.getElementById('showWhitespace')?.checked||false;codeEditor.setOption('showTrailingSpace',showWhitespace);codeEditor.setOption('showInvisibles',showWhitespace);const showLineEndings=document.getElementById('showLineEndings')?.checked||false;codeEditor.setOption('showCursorWhenSelecting',showLineEndings);codeEditor.setOption('cursorBlinkRate',showLineEndings?530:0);const theme=document.getElementById('theme')?.value||'monokai';codeEditor.setOption('theme',theme);setTimeout(()=>{codeEditor.refresh();},50);}function setupSettingsListeners(){const settingsInputs=['lineNumbers','lineWrapping','matchBrackets','autoIndent','autoClearOutput','autoFocusTerminal','showTerminalWelcome','showExecutionTime','highlightActiveLine','editorFont','theme','animations','installDependencies','autoSaveSettings','loadSavedSettings','enableLocalStorage','enableOptimizations','terminalAutoScroll','tabSize','memoryLimit','indentType','showWhitespace','showLineEndings','enableSnippets','autoSaveInterval'];settingsInputs.forEach(id=>{const element=document.getElementById(id);if(element){element.addEventListener('change',function(){if(id==='theme'||id==='editorFont'||id==='indentType'||id==='showWhitespace'||id==='showLineEndings'||id==='lineNumbers'||id==='lineWrapping'||id==='matchBrackets'||id==='autoIndent'){applyEditorSettings();}if(id==='enableLocalStorage'||id==='autoSaveInterval'){setupAutoSaveInterval();}saveSettingsToStorage();});}});const tabSizeSlider=document.getElementById('tabSize');if(tabSizeSlider){tabSizeSlider.addEventListener('input',function(){const value=this.value;if(document.getElementById('tabSizeValue')){document.getElementById('tabSizeValue').textContent=value;}applyEditorSettings();saveSettingsToStorage();});}const memoryLimitSlider=document.getElementById('memoryLimit');if(memoryLimitSlider){memoryLimitSlider.addEventListener('input',function(){const value=this.value;if(document.getElementById('memoryLimitValue')){document.getElementById('memoryLimitValue').textContent=value;}saveSettingsToStorage();});}const autoSaveIntervalSlider=document.getElementById('autoSaveInterval');if(autoSaveIntervalSlider){autoSaveIntervalSlider.addEventListener('input',function(){const value=this.value;if(document.getElementById('autoSaveIntervalValue')){document.getElementById('autoSaveIntervalValue').textContent=value;}setupAutoSaveInterval();saveSettingsToStorage();});}const previewThemeBtn=document.getElementById('previewThemeBtn');if(previewThemeBtn){previewThemeBtn.addEventListener('click',function(){const theme=document.getElementById('theme').value;const originalTheme=codeEditor.getOption('theme');codeEditor.setOption('theme',theme);setTimeout(()=>{if(codeEditor.getOption('theme')===theme){codeEditor.setOption('theme',originalTheme);}},3000);addTerminalOutput(`正在预览 ${theme} 主题，3秒后恢复`,'info');});}const resetEditorBtn=document.getElementById('resetEditorBtn');if(resetEditorBtn){resetEditorBtn.addEventListener('click',function(){if(confirm('确定要重置所有编辑器设置吗？\n这会将所有编辑器相关设置恢复为默认值。')){resetEditorSettings();addTerminalOutput('编辑器设置已重置为默认值','success');}});}const enableLocalStorage=document.getElementById('enableLocalStorage');if(enableLocalStorage){enableLocalStorage.addEventListener('change',function(){setupAutoSaveInterval();saveSettingsToStorage();});}}function saveSettingsToStorage(){if(!document.getElementById('autoSaveSettings')?.checked){return;}const settings={};const settingsInputs=['lineNumbers','lineWrapping','matchBrackets','autoIndent','autoClearOutput','autoFocusTerminal','showTerminalWelcome','showExecutionTime','highlightActiveLine','editorFont','theme','animations','installDependencies','autoSaveSettings','loadSavedSettings','enableLocalStorage','enableOptimizations','terminalAutoScroll','tabSize','memoryLimit','indentType','showWhitespace','showLineEndings','enableSnippets','autoSaveInterval'];settingsInputs.forEach(id=>{const element=document.getElementById(id);if(element){if(element.type==='checkbox'){settings[id]=element.checked;}else if(element.type==='range'){settings[id]=element.value;}else{settings[id]=element.value;}}});try{localStorage.setItem('pyodideSettings',JSON.stringify(settings));}catch(e){console.error('保存设置失败:',e);}}function loadSettingsFromStorage(){if(!document.getElementById('loadSavedSettings')?.checked){return;}try{const saved=localStorage.getItem('pyodideSettings');if(!saved){return;}const settings=JSON.parse(saved);for(const[key,value]of Object.entries(settings)){const element=document.getElementById(key);if(element){if(element.type==='checkbox'){element.checked=value;}else if(element.type==='range'){element.value=value;const valueDisplay=document.getElementById(key+'Value');if(valueDisplay){valueDisplay.textContent=value;}}else{element.value=value;}}}}catch(e){console.error('加载设置失败:',e);}}function resetEditorSettings(){const editorSettings={'lineNumbers':true,'lineWrapping':false,'matchBrackets':true,'autoIndent':true,'editorFont':"'Monaco', 'Menlo', monospace",'theme':'monokai','tabSize':4,'indentType':'spaces','showWhitespace':false,'showLineEndings':false,'enableSnippets':true};for(const[key,value]of Object.entries(editorSettings)){const element=document.getElementById(key);if(element){if(element.type==='checkbox'){element.checked=value;}else if(element.type==='range'){element.value=value;const valueDisplay=document.getElementById(key+'Value');if(valueDisplay){valueDisplay.textContent=value;}}else{element.value=value;}}}applyEditorSettings();saveSettingsToStorage();setupAutoSaveInterval();}function exportSettings(){const settings={};const settingsInputs=['lineNumbers','lineWrapping','matchBrackets','autoIndent','autoClearOutput','autoFocusTerminal','showTerminalWelcome','showExecutionTime','highlightActiveLine','editorFont','theme','animations','installDependencies','autoSaveSettings','loadSavedSettings','enableLocalStorage','enableOptimizations','terminalAutoScroll','tabSize','memoryLimit','indentType','showWhitespace','showLineEndings','enableSnippets','autoSaveInterval'];settingsInputs.forEach(id=>{const element=document.getElementById(id);if(element){if(element.type==='checkbox'){settings[id]=element.checked;}else if(element.type==='range'){settings[id]=element.value;}else{settings[id]=element.value;}}});const blob=new Blob([JSON.stringify(settings,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='pyodide_settings.json';a.click();URL.revokeObjectURL(url);addTerminalOutput('设置已导出到文件','success');}function importSettings(){const input=document.createElement('input');input.type='file';input.accept='.json';input.onchange=function(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){try{const settings=JSON.parse(e.target.result);for(const[key,value]of Object.entries(settings)){const element=document.getElementById(key);if(element){if(element.type==='checkbox'){element.checked=value;}else if(element.type==='range'){element.value=value;const valueDisplay=document.getElementById(key+'Value');if(valueDisplay){valueDisplay.textContent=value;}}else{element.value=value;}}}applyEditorSettings();saveSettingsToStorage();addTerminalOutput('设置已从文件导入','success');}catch(error){console.error('导入设置失败:',error);addTerminalOutput(`导入设置失败: ${error.message}`,'error');}};reader.readAsText(file);};input.click();}function clearSettings(){if(confirm('确定要清除所有本地设置吗？')){localStorage.removeItem('pyodideSettings');document.querySelectorAll('input[type="checkbox"]').forEach(checkbox=>{if(checkbox.id&&checkbox.id!=='installDependencies'){checkbox.checked=checkbox.defaultChecked;}});document.querySelectorAll('input[type="range"]').forEach(slider=>{if(slider.id){slider.value=slider.defaultValue;const valueDisplay=document.getElementById(slider.id+'Value');if(valueDisplay){valueDisplay.textContent=slider.value;}}});document.querySelectorAll('select').forEach(select=>{if(select.id){select.value=select.options[0].value;}});applyEditorSettings();addTerminalOutput('所有本地设置已清除','success');}}async function init(){loadSettingsFromStorage();initEditor();setupFileUpload();setupTabSwitching();setupSliderUpdates();setupSettingsListeners();bindEvents();loadFromLocalStorage();updateFileTabs();updateCodeMetrics();setupAutoSaveInterval();if(window.innerWidth<=768){document.querySelector('.editor-info-mobile').style.display='flex';document.querySelector('.editor-actions-mobile').style.display='flex';document.querySelector('.editor-info').style.display='none';document.querySelector('.editor-actions').style.display='none';}const urlParams=new URLSearchParams(window.location.search);const encodedCode=urlParams.get('code');if(encodedCode){try{const code=decodeURIComponent(escape(atob(encodedCode)));codeEditor.setValue(code);files[currentFileName].content=code;addTerminalOutput('已加载URL中的代码','success');}catch(e){console.error('解析URL代码失败:',e);}}console.log('开始初始化Python环境...');pyodide=await loadPyodideWithProgress();if(pyodide){document.getElementById('runBtn').disabled=false;document.getElementById('installBtn').disabled=false;document.getElementById('runBtnMobile').disabled=false;initTerminal();setTimeout(()=>{if(codeEditor){codeEditor.refresh();}},200);}else{console.error('环境加载失败');}console.log('应用初始化完成');}function setupTabSwitching(){document.querySelectorAll('.settings-tab').forEach(tab=>{tab.addEventListener('click',function(){const tabId=this.getAttribute('data-tab');document.querySelectorAll('.settings-tab').forEach(t=>{t.classList.remove('active');});document.querySelectorAll('.tab-content').forEach(c=>{c.classList.remove('active');});this.classList.add('active');document.getElementById(`tab-${tabId}`).classList.add('active');});});}function setupSliderUpdates(){const tabSizeSlider=document.getElementById('tabSize');const tabSizeValue=document.getElementById('tabSizeValue');tabSizeSlider.addEventListener('input',function(){tabSizeValue.textContent=this.value;applyEditorSettings();saveSettings();});const memoryLimitSlider=document.getElementById('memoryLimit');const memoryLimitValue=document.getElementById('memoryLimitValue');if(memoryLimitSlider&&memoryLimitValue){memoryLimitSlider.addEventListener('input',function(){memoryLimitValue.textContent=this.value;saveSettings();});}const autoSaveIntervalSlider=document.getElementById('autoSaveInterval');const autoSaveIntervalValue=document.getElementById('autoSaveIntervalValue');if(autoSaveIntervalSlider&&autoSaveIntervalValue){autoSaveIntervalSlider.addEventListener('input',function(){autoSaveIntervalValue.textContent=this.value;setupAutoSaveInterval();saveSettings();});}}function setupAutoSaveInterval(){if(autoSaveIntervalId){clearInterval(autoSaveIntervalId);}const interval=document.getElementById('autoSaveInterval')?.value||30;const enableLocalStorage=document.getElementById('enableLocalStorage')?.checked;if(enableLocalStorage&&interval>0){autoSaveIntervalId=setInterval(()=>{saveToLocalStorage();},interval*1000);}}function saveToLocalStorage(){if(!document.getElementById('enableLocalStorage')?.checked)return;const data={files:files,currentFileName:currentFileName,installedLibraries:Array.from(installedLibraries),timestamp:new Date().toISOString()};localStorage.setItem('pyodideFiles',JSON.stringify(data));}function loadFromLocalStorage(){if(!document.getElementById('enableLocalStorage')?.checked)return;try{const saved=localStorage.getItem('pyodideFiles');if(!saved)return;const data=JSON.parse(saved);if(data.files){files=data.files;}if(data.currentFileName&&files[data.currentFileName]){currentFileName=data.currentFileName;}if(data.installedLibraries){installedLibraries=new Set(data.installedLibraries);}updateFileTabs();updateLibrariesList();}catch(e){console.error('加载文件数据失败:',e);}}function exportAllFiles(){const data={files:files,currentFileName:currentFileName,installedLibraries:Array.from(installedLibraries),timestamp:new Date().toISOString(),version:'1.0'};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='pyodide_project.json';a.click();URL.revokeObjectURL(url);addTerminalOutput('所有文件已导出','success');}function importFiles(){const input=document.createElement('input');input.type='file';input.accept='.json';input.onchange=function(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){try{const data=JSON.parse(e.target.result);if(data.files){files=data.files;}if(data.currentFileName&&files[data.currentFileName]){currentFileName=data.currentFileName;}if(data.installedLibraries){installedLibraries=new Set(data.installedLibraries);}updateFileTabs();updateLibrariesList();switchFile(currentFileName);addTerminalOutput('项目文件已导入','success');}catch(error){addTerminalOutput(`导入文件失败: ${error.message}`,'error');}};reader.readAsText(file);};input.click();}function clearAllData(){if(confirm('确定要清除所有本地数据吗？包括所有文件、设置和库信息。此操作不可撤销！')){localStorage.clear();files={'main.py':{name:'main.py',content:`#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+print("Hello World!")`}};currentFileName='main.py';installedLibraries=new Set(['python标准库']);updateFileTabs();updateLibrariesList();switchFile(currentFileName);updateCodeMetrics();document.querySelectorAll('input[type="checkbox"]').forEach(checkbox=>{if(checkbox.id&&checkbox.id!=='installDependencies'){checkbox.checked=checkbox.defaultChecked;}});document.querySelectorAll('input[type="range"]').forEach(slider=>{if(slider.id){slider.value=slider.defaultValue;const valueDisplay=document.getElementById(slider.id+'Value');if(valueDisplay){valueDisplay.textContent=slider.value;}}});document.querySelectorAll('select').forEach(select=>{if(select.id){select.value=select.options[0].value;}});applyEditorSettings();clearOutput();clearTerminal();addTerminalOutput('所有本地数据已清除','success');}}function bindEvents(){document.getElementById('runBtn').addEventListener('click',runCode);document.getElementById('stopBtn').addEventListener('click',stopCode);document.getElementById('clearEditorBtn').addEventListener('click',clearEditor);document.getElementById('formatBtn').addEventListener('click',formatCode);document.getElementById('findBtn').addEventListener('click',toggleFindBar);document.getElementById('runBtnMobile').addEventListener('click',runCode);document.getElementById('stopBtnMobile').addEventListener('click',stopCode);document.getElementById('findBtnMobile').addEventListener('click',toggleFindBar);document.getElementById('newFileBtn').addEventListener('click',showNewFileDialog);document.getElementById('confirmNewFileBtn').addEventListener('click',createNewFile);document.getElementById('cancelNewFileBtn').addEventListener('click',function(){document.getElementById('newFileModal').style.display='none';});document.getElementById('clearOutputBtn').addEventListener('click',clearOutput);document.getElementById('copyOutputBtn').addEventListener('click',copyOutput);document.getElementById('exportOutputBtn').addEventListener('click',saveOutput);document.getElementById('clearTerminalBtn').addEventListener('click',clearTerminal);document.getElementById('copyTerminalBtn').addEventListener('click',copyTerminal);document.getElementById('toggleSettingsBtn').addEventListener('click',toggleSettings);document.getElementById('closeSettingsBtn').addEventListener('click',toggleSettings);document.getElementById('toggleTerminalBtn').addEventListener('click',toggleTerminal);document.getElementById('installBtn').addEventListener('click',installLibrary);document.getElementById('refreshLibrariesBtn').addEventListener('click',updateLibrariesList);document.getElementById('libName').addEventListener('keydown',function(e){if(e.key==='Enter'){installLibrary();}});document.getElementById('importUrlBtn').addEventListener('click',importFromUrl);document.getElementById('urlImport').addEventListener('keydown',function(e){if(e.key==='Enter'){importFromUrl();}});document.getElementById('saveCodeBtn').addEventListener('click',saveCode);document.getElementById('saveOutputBtn').addEventListener('click',saveOutput);document.getElementById('generateShareBtn').addEventListener('click',generateShareLink);document.getElementById('copyShareBtn').addEventListener('click',copyShareLink);document.getElementById('exportSettingsBtn').addEventListener('click',exportSettings);document.getElementById('importSettingsBtn').addEventListener('click',importSettings);document.getElementById('clearSettingsBtn').addEventListener('click',clearSettings);document.getElementById('exportAllFilesBtn').addEventListener('click',exportAllFiles);document.getElementById('importFilesBtn').addEventListener('click',importFiles);document.getElementById('clearAllDataBtn').addEventListener('click',clearAllData);document.getElementById('shortcutsBtn').addEventListener('click',toggleShortcuts);document.getElementById('closeShortcutsBtn').addEventListener('click',toggleShortcuts);document.getElementById('closeFindBtn').addEventListener('click',toggleFindBar);document.getElementById('findPrevBtn').addEventListener('click',findPrev);document.getElementById('findNextBtn').addEventListener('click',findNext);document.getElementById('replaceBtn').addEventListener('click',replaceText);document.getElementById('replaceAllBtn').addEventListener('click',replaceAll);document.getElementById('findInput').addEventListener('input',updateFindMatches);document.getElementById('caseSensitive').addEventListener('change',updateFindMatches);document.getElementById('findInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();findNext();}if(e.key==='Escape'){toggleFindBar();}});document.getElementById('previewThemeBtn').addEventListener('click',function(){const theme=document.getElementById('theme').value;const originalTheme=codeEditor.getOption('theme');codeEditor.setOption('theme',theme);setTimeout(()=>{if(codeEditor.getOption('theme')===theme){codeEditor.setOption('theme',originalTheme);}},3000);addTerminalOutput(`正在预览 ${theme} 主题，3秒后恢复`,'info');});document.getElementById('resetEditorBtn').addEventListener('click',function(){if(confirm('确定要重置所有编辑器设置吗？\n这会将所有编辑器相关设置恢复为默认值。')){resetEditorSettings();addTerminalOutput('编辑器设置已重置为默认值','success');}});document.getElementById('enableLocalStorage').addEventListener('change',function(){setupAutoSaveInterval();});}document.addEventListener('DOMContentLoaded',init);document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='`'){e.preventDefault();toggleTerminal();}if(e.ctrlKey&&e.key===','){e.preventDefault();toggleSettings();}if(e.ctrlKey&&e.key==='.'){e.preventDefault();stopCode();}if(e.ctrlKey&&e.key==='n'){e.preventDefault();showNewFileDialog();}if(e.key==='Escape'){const settingsContainer=document.getElementById('settingsContainer');const shortcutsModal=document.getElementById('shortcutsModal');const newFileModal=document.getElementById('newFileModal');if(findActive){toggleFindBar();}if(settingsContainer.style.display==='block'){settingsContainer.style.display='none';document.getElementById('toggleSettingsBtn').innerHTML='<i class="fas fa-sliders-h"></i> 设置';document.getElementById('toggleSettingsBtn').classList.remove('btn-primary');}if(shortcutsModal.style.display==='block'){shortcutsModal.style.display='none';}if(newFileModal.style.display==='flex'){newFileModal.style.display='none';}}});window.addEventListener('beforeunload',function(e){if(autoSaveIntervalId){clearInterval(autoSaveIntervalId);}if(isRunning){e.preventDefault();e.returnValue='代码正在运行，确定要离开吗？';}});window.addEventListener('resize',function(){if(window.innerWidth<=768){document.querySelector('.editor-info-mobile').style.display='flex';document.querySelector('.editor-actions-mobile').style.display='flex';document.querySelector('.editor-info').style.display='none';document.querySelector('.editor-actions').style.display='none';}else{document.querySelector('.editor-info-mobile').style.display='none';document.querySelector('.editor-actions-mobile').style.display='none';document.querySelector('.editor-info').style.display='flex';document.querySelector('.editor-actions').style.display='flex';}});</script></body></html>
