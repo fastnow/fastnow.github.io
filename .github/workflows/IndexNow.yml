@@ -2,23 +2,20 @@ name: "IndexNow"
 on:
   push:
     branches:
-    	# when git push to the master branch
-      - master
+      - main
   schedule:
-    # scheduled in UTC.
-    - cron:  '0 0,12 * * *'
-
+    - cron: '0 4 */7 * *'
 jobs:
   check-and-submit:
     runs-on: ubuntu-latest
     steps:
       - name: submit-to-bing
-        uses: bojieyang/indexnow-action@v1
+        uses: bojieyang/indexnow-action@v2
         with:
           sitemap-location: "https://fastnow.github.io/sitemap.xml"
           endpoint: "www.bing.com"
-          since: 1
+          since: 7
           since-unit: "day"
-          limit: 100
+          limit: 20
           key: ${{ secrets.INDEXNOW_KEY }}
           key-location: ${{ secrets.INDEXNOW_KEY_LOCATION }}
