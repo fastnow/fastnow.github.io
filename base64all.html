@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64全能转换工具 - 文本、文件、图像Base64在线编码解码</title>
+    <meta name="description" content="专业Base64编码解码工具，支持文本、文件、图像、PDF、JSON转换，大文件处理，在线预览下载，提供多种实用转换功能">
+    <meta name="keywords" content="Base64编码,Base64解码,在线工具,文件转换,图像转Base64,Base64转PDF,文本编码,JSON转换">
+    <meta name="author" content="Base64全能转换工具">
+    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:monospace;font-size:14px;color:#000;background:#fff;padding:10px}.topnav{display:flex;gap:5px;border-top:1px solid #ccc;padding:10px;margin-bottom:10px;white-space:nowrap;overflow-x:auto}.nav-btn{padding:8px 12px;border:1px solid #000;text-align:center;cursor:pointer;background:#fff;min-width:80px}.nav-btn.active{background:#000;color:#fff}.section{display:none;margin-bottom:20px}.section.active{display:block}h1{font-size:25px;margin-bottom:10px}h2{font-size:16px;margin:15px 0 10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}@media (max-width:900px){.grid{grid-template-columns:1fr}}textarea,input,select,button{font-family:monospace;font-size:14px;border:1px solid #000;padding:6px;margin:3px 0}textarea{width:100%;max-width:600px;min-height:120px;max-height:350px;resize:vertical}button{background:#000;color:#fff;border:none;padding:6px 12px;cursor:pointer}.result{border:1px solid #000;margin:10px 0;min-height:100px;max-height:300px;overflow:auto;width:100%;max-width:600px}.info{margin:5px 0;color:#666}.img-preview{max-width:100%;max-height:200px;margin:10px 0}</style>
+</head>
+<body>
+    <h1>Base64全能转换工具</h1>
+    <div class="topnav">
+        <div class="nav-btn active" data-section="text">文本</div>
+        <div class="nav-btn" data-section="file">文件</div>
+        <div class="nav-btn" data-section="image">图像</div>
+        <div class="nav-btn" data-section="url">URL</div>
+        <div class="nav-btn" data-section="pdf">PDF</div>
+        <div class="nav-btn" data-section="json">JSON</div>
+        <div class="nav-btn" data-section="batch">批量</div>
+        <div class="nav-btn" data-section="convert">转换</div>
+    </div>
+    
+    <div class="main">
+        
+        <div class="section active" id="text-section">
+            <h2>文本编码解码</h2>
+            <div class="grid">
+                <div>
+                    <textarea id="textInput" placeholder="输入文本或Base64..."></textarea>
+                    <button onclick="encodeText()">编码</button>
+                    <button onclick="decodeText()">解码</button>
+                    <button onclick="clearText()">清空</button>
+                </div>
+                <div>
+                    <div class="info">结果:</div>
+                    <div class="result" id="textResult"></div>
+                    <button onclick="copyResult('textResult')">复制</button>
+                    <button onclick="downloadText()">下载</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="file-section">
+            <h2>文件编码解码 (50MB)</h2>
+            <div class="grid">
+                <div>
+                    <input type="file" id="fileInput">
+                    <div class="info" id="fileInfo"></div>
+                    <button onclick="encodeFile()">编码</button>
+                    <button onclick="decodeFile()">解码</button>
+                    <button onclick="clearFile()">清空</button>
+                    <input type="text" id="fileName" placeholder="文件名">
+                </div>
+                <div>
+                    <div class="info">结果:</div>
+                    <div class="result" id="fileResult"></div>
+                    <button onclick="copyResult('fileResult')">复制</button>
+                    <button onclick="downloadFile()">下载</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="image-section">
+            <h2>图像编码解码</h2>
+            <div class="grid">
+                <div>
+                    <h3>编码</h3>
+                    <input type="file" id="imageInput" accept="image/*">
+                    <input type="text" id="imageUrl" placeholder="URL">
+                    <button onclick="encodeImage()">编码</button>
+                    <button onclick="loadImageUrl()">URL加载</button>
+                    
+                    <h3>解码</h3>
+                    <input type="file" id="imageDecodeFile" accept="image/*">
+                    <textarea id="imageBase64Input" placeholder="Base64数据..."></textarea>
+                    <button onclick="decodeImageFile()">解码文件</button>
+                    <button onclick="decodeImageBase64()">解码Base64</button>
+                    <button onclick="clearImage()">清空</button>
+                </div>
+                <div>
+                    <div class="info">Base64结果:</div>
+                    <div class="result" id="imageResult"></div>
+                    <img id="imagePreview" class="img-preview" style="display:none">
+                    <button onclick="copyResult('imageResult')">复制</button>
+                    <button onclick="downloadImage()">下载</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="url-section">
+            <h2>URL转换</h2>
+            <div class="grid">
+                <div>
+                    <input type="text" id="urlInput" placeholder="输入URL">
+                    <select id="urlType">
+                        <option value="auto">自动</option>
+                        <option value="text">文本</option>
+                        <option value="image">图像</option>
+                    </select>
+                    <button onclick="loadUrl()">转换</button>
+                    <button onclick="clearUrl()">清空</button>
+                </div>
+                <div>
+                    <div class="info">结果:</div>
+                    <div class="result" id="urlResult"></div>
+                    <button onclick="copyResult('urlResult')">复制</button>
+                    <button onclick="downloadUrl()">下载</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="pdf-section">
+            <h2>PDF转换</h2>
+            <div class="grid">
+                <div>
+                    <textarea id="pdfBase64Input" placeholder="Base64数据..."></textarea>
+                    <input type="file" id="pdfFileInput">
+                    <input type="text" id="pdfFileName" placeholder="文件名">
+                    <button onclick="base64ToPdf()">转PDF</button>
+                    <button onclick="pdfToBase64()">转Base64</button>
+                    <button onclick="clearPdf()">清空</button>
+                </div>
+                <div>
+                    <div class="info">结果:</div>
+                    <div class="result" id="pdfResult"></div>
+                    <button onclick="downloadPdf()">下载</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="json-section">
+            <h2>JSON转换</h2>
+            <div class="grid">
+                <div>
+                    <textarea id="jsonInput" placeholder='{"name":"示例"}'></textarea>
+                    <button onclick="encodeJson()">编码</button>
+                    <button onclick="decodeJson()">解码</button>
+                    <button onclick="clearJson()">清空</button>
+                </div>
+                <div>
+                    <div class="info">结果:</div>
+                    <div class="result" id="jsonResult"></div>
+                    <button onclick="copyResult('jsonResult')">复制</button>
+                    <button onclick="downloadJson()">下载</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="batch-section">
+            <h2>批量处理</h2>
+            <div class="grid">
+                <div>
+                    <textarea id="batchInput" placeholder="每行一个项目..."></textarea>
+                    <select id="batchType">
+                        <option value="encode">编码</option>
+                        <option value="decode">解码</option>
+                    </select>
+                    <button onclick="batchProcess()">处理</button>
+                    <button onclick="clearBatch()">清空</button>
+                </div>
+                <div>
+                    <div class="info">结果:</div>
+                    <div class="result" id="batchResult"></div>
+                    <button onclick="copyResult('batchResult')">复制</button>
+                    <button onclick="downloadBatch()">下载</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="convert-section">
+            <h2>转换工具</h2>
+            <div class="grid">
+                <div>
+                    <textarea id="convertInput" placeholder="输入内容..."></textarea>
+                    <select id="convertType">
+                        <option value="hex">十六进制</option>
+                        <option value="datauri">Data URI</option>
+                    </select>
+                    <button onclick="convert()">转换</button>
+                    <button onclick="clearConvert()">清空</button>
+                </div>
+                <div>
+                    <div class="info">结果:</div>
+                    <div class="result" id="convertResult"></div>
+                    <button onclick="copyResult('convertResult')">复制</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;"> &copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</footer>
+    </div>
+
+    <script>
+        let cache = {};
+        
+        function init(){
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                    btn.classList.add('active');
+                    const section = btn.getAttribute('data-section');
+                    document.getElementById(section + '-section').classList.add('active');
+                });
+            });
+            
+            cache.elements = {};
+            ['textInput','textResult','fileInput','fileInfo','fileResult','fileName','imageInput','imageUrl',
+            'imageResult','imagePreview','imageDecodeFile','imageBase64Input','urlInput','urlType','urlResult',
+            'pdfBase64Input','pdfFileInput','pdfFileName','pdfResult','jsonInput','jsonResult','batchInput',
+            'batchType','batchResult','convertInput','convertType','convertResult']
+            .forEach(id => cache.elements[id] = document.getElementById(id));
+        }
+        
+        function showPreview(content, elementId, max=1000000){
+            const el = cache.elements[elementId];
+            if(!el) return;
+            if(content.length > max){
+                el.textContent = content.substring(0,max) + '\n\n... [预览已截断，完整内容请下载]';
+            }else{
+                el.textContent = content;
+            }
+        }
+        
+        function copyResult(elementId){
+            const el = cache.elements[elementId];
+            if(!el || !el.textContent.trim()) return alert('无内容');
+            const text = el.textContent;
+            if(navigator.clipboard){
+                navigator.clipboard.writeText(text).then(() => alert('已复制'));
+            }else{
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('已复制');
+            }
+        }
+        
+        function downloadBlob(content, filename){
+            const blob = content instanceof Blob ? content : new Blob([content], {type:'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        }
+        
+        function formatSize(bytes){
+            if(bytes===0) return '0 B';
+            const k=1024, sizes=['B','KB','MB','GB'];
+            const i=Math.floor(Math.log(bytes)/Math.log(k));
+            return parseFloat((bytes/Math.pow(k,i)).toFixed(2))+' '+sizes[i];
+        }
+        
+        function fileToBase64(file){
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function extractBase64(input){
+            let clean = input;
+            const match = input.match(/^data:[^;]+;base64,(.+)$/);
+            if(match) clean = match[1];
+            return clean.replace(/\s+/g,'');
+        }
+        
+        // 文本工具
+        function encodeText(){
+            const input = cache.elements.textInput.value.trim();
+            if(!input) return alert('请输入文本');
+            try{
+                const base64 = btoa(unescape(encodeURIComponent(input)));
+                showPreview(base64, 'textResult');
+                cache.textResult = base64;
+            }catch(e){alert('编码错误')}
+        }
+        
+        function decodeText(){
+            const input = cache.elements.textInput.value.trim();
+            if(!input) return alert('请输入Base64');
+            try{
+                const clean = extractBase64(input);
+                const decoded = decodeURIComponent(escape(atob(clean)));
+                showPreview(decoded, 'textResult');
+                cache.textResult = decoded;
+            }catch(e){alert('解码错误')}
+        }
+        
+        function downloadText(){
+            if(!cache.textResult) return alert('无内容');
+            downloadBlob(cache.textResult, 'base64_result.txt');
+        }
+        
+        function clearText(){
+            cache.elements.textInput.value = '';
+            cache.elements.textResult.textContent = '';
+            cache.textResult = null;
+        }
+        
+        // 文件工具
+        async function encodeFile(){
+            const file = cache.elements.fileInput.files[0];
+            if(!file) return alert('请选择文件');
+            if(file.size > 50*1024*1024) return alert('文件过大');
+            cache.elements.fileInfo.textContent = `文件: ${file.name} 大小: ${formatSize(file.size)}`;
+            try{
+                const base64 = await fileToBase64(file);
+                showPreview(base64, 'fileResult');
+                cache.fileResult = base64;
+            }catch(e){alert('编码错误')}
+        }
+        
+        function decodeFile(){
+            const file = cache.elements.fileInput.files[0];
+            if(!file) return alert('请选择文件');
+            const reader = new FileReader();
+            reader.onload = function(e){
+                try{
+                    const base64 = extractBase64(e.target.result);
+                    const binary = atob(base64);
+                    const bytes = new Uint8Array(binary.length);
+                    for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+                    const blob = new Blob([bytes], {type:'application/octet-stream'});
+                    const name = cache.elements.fileName.value.trim() || file.name.replace(/\.(txt|b64)$/i,'') || 'decoded.bin';
+                    cache.fileBlob = blob;
+                    cache.fileName = name;
+                    showPreview(`文件解码成功 大小: ${formatSize(binary.length)}`, 'fileResult');
+                }catch(e){alert('解码错误')}
+            };
+            reader.readAsText(file);
+        }
+        
+        function downloadFile(){
+            if(cache.fileResult){
+                downloadBlob(cache.fileResult, 'file_base64.txt');
+            }else if(cache.fileBlob){
+                downloadBlob(cache.fileBlob, cache.fileName);
+            }else{
+                alert('无内容');
+            }
+        }
+        
+        function clearFile(){
+            cache.elements.fileInput.value = '';
+            cache.elements.fileInfo.textContent = '';
+            cache.elements.fileResult.textContent = '';
+            cache.elements.fileName.value = '';
+            cache.fileResult = null;
+            cache.fileBlob = null;
+        }
+        
+        // 图像工具
+        async function encodeImage(){
+            const file = cache.elements.imageInput.files[0];
+            const url = cache.elements.imageUrl.value.trim();
+            if(file){
+                if(!file.type.startsWith('image/')) return alert('请选择图像');
+                if(file.size > 50*1024*1024) return alert('图像过大');
+                try{
+                    const base64 = await fileToBase64(file);
+                    showPreview(base64, 'imageResult');
+                    cache.imageResult = base64;
+                    cache.elements.imagePreview.src = base64;
+                    cache.elements.imagePreview.style.display = 'block';
+                }catch(e){alert('编码错误')}
+            }else if(url){
+                try{
+                    const response = await fetch(url);
+                    if(!response.ok) throw new Error('无法加载');
+                    const blob = await response.blob();
+                    if(!blob.type.startsWith('image/')) throw new Error('不是图像');
+                    if(blob.size > 50*1024*1024) throw new Error('图像过大');
+                    const base64 = await fileToBase64(blob);
+                    showPreview(base64, 'imageResult');
+                    cache.imageResult = base64;
+                    cache.elements.imagePreview.src = base64;
+                    cache.elements.imagePreview.style.display = 'block';
+                }catch(e){alert('加载错误')}
+            }else{
+                alert('请选择图像或输入URL');
+            }
+        }
+        
+        function decodeImageFile(){
+            const file = cache.elements.imageDecodeFile.files[0];
+            if(!file) return alert('请选择文件');
+            const reader = new FileReader();
+            reader.onload = function(e){
+                cache.elements.imagePreview.src = e.target.result;
+                cache.elements.imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function decodeImageBase64(){
+            const input = cache.elements.imageBase64Input.value.trim();
+            if(!input) return alert('请输入Base64');
+            let data = input;
+            if(!input.startsWith('data:image/')) data = 'data:image/jpeg;base64,'+input;
+            cache.elements.imagePreview.src = data;
+            cache.elements.imagePreview.style.display = 'block';
+        }
+        
+        function loadImageUrl(){
+            const url = cache.elements.imageUrl.value.trim();
+            if(!url) return alert('请输入URL');
+            cache.elements.imagePreview.src = url;
+            cache.elements.imagePreview.style.display = 'block';
+        }
+        
+        function downloadImage(){
+            if(cache.imageResult){
+                downloadBlob(cache.imageResult, 'image_base64.txt');
+            }else{
+                alert('无内容');
+            }
+        }
+        
+        function clearImage(){
+            cache.elements.imageInput.value = '';
+            cache.elements.imageUrl.value = '';
+            cache.elements.imageDecodeFile.value = '';
+            cache.elements.imageBase64Input.value = '';
+            cache.elements.imageResult.textContent = '';
+            cache.elements.imagePreview.src = '';
+            cache.elements.imagePreview.style.display = 'none';
+            cache.imageResult = null;
+        }
+        
+        // URL工具
+        async function loadUrl(){
+            const url = cache.elements.urlInput.value.trim();
+            const type = cache.elements.urlType.value;
+            if(!url) return alert('请输入URL');
+            try{
+                const response = await fetch(url);
+                if(!response.ok) throw new Error('无法加载');
+                const contentType = response.headers.get('content-type') || '';
+                if(type==='text'||(type==='auto'&&contentType.startsWith('text/'))){
+                    const text = await response.text();
+                    const base64 = btoa(unescape(encodeURIComponent(text)));
+                    showPreview(base64, 'urlResult');
+                    cache.urlResult = base64;
+                }else{
+                    const blob = await response.blob();
+                    const base64 = await fileToBase64(blob);
+                    showPreview(base64, 'urlResult');
+                    cache.urlResult = base64;
+                }
+            }catch(e){alert('加载错误')}
+        }
+        
+        function downloadUrl(){
+            if(cache.urlResult){
+                downloadBlob(cache.urlResult, 'url_content.txt');
+            }else{
+                alert('无内容');
+            }
+        }
+        
+        function clearUrl(){
+            cache.elements.urlInput.value = '';
+            cache.elements.urlResult.textContent = '';
+            cache.urlResult = null;
+        }
+        
+        // PDF工具
+        function base64ToPdf(){
+            const input = cache.elements.pdfBase64Input.value.trim();
+            const file = cache.elements.pdfFileInput.files[0];
+            let base64 = '';
+            if(input){
+                base64 = extractBase64(input);
+            }else if(file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    createPdf(extractBase64(e.target.result));
+                };
+                reader.readAsText(file);
+                return;
+            }else{
+                alert('请输入Base64或选择文件');
+                return;
+            }
+            createPdf(base64);
+        }
+        
+        function createPdf(base64){
+            try{
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+                const blob = new Blob([bytes], {type:'application/pdf'});
+                const name = cache.elements.pdfFileName.value.trim() || 'document.pdf';
+                cache.pdfBlob = blob;
+                cache.elements.pdfResult.textContent = `PDF创建成功 大小: ${formatSize(blob.size)}`;
+            }catch(e){alert('创建PDF失败')}
+        }
+        
+        async function pdfToBase64(){
+            const file = cache.elements.pdfFileInput.files[0];
+            if(!file) return alert('请选择PDF文件');
+            try{
+                const base64 = await fileToBase64(file);
+                cache.elements.pdfBase64Input.value = base64;
+                cache.elements.pdfResult.textContent = `PDF编码完成 大小: ${formatSize(file.size)}`;
+            }catch(e){alert('编码错误')}
+        }
+        
+        function downloadPdf(){
+            if(cache.pdfBlob){
+                downloadBlob(cache.pdfBlob, cache.elements.pdfFileName.value.trim() || 'document.pdf');
+            }else{
+                alert('无内容');
+            }
+        }
+        
+        function clearPdf(){
+            cache.elements.pdfBase64Input.value = '';
+            cache.elements.pdfFileInput.value = '';
+            cache.elements.pdfFileName.value = '';
+            cache.elements.pdfResult.textContent = '';
+            cache.pdfBlob = null;
+        }
+        
+        // JSON工具
+        function encodeJson(){
+            const input = cache.elements.jsonInput.value.trim();
+            if(!input) return alert('请输入JSON');
+            try{
+                const obj = JSON.parse(input);
+                const str = JSON.stringify(obj);
+                const base64 = btoa(unescape(encodeURIComponent(str)));
+                showPreview(base64, 'jsonResult');
+                cache.jsonResult = base64;
+            }catch(e){alert('JSON错误')}
+        }
+        
+        function decodeJson(){
+            const input = cache.elements.jsonInput.value.trim();
+            if(!input) return alert('请输入Base64');
+            try{
+                const clean = extractBase64(input);
+                const decoded = decodeURIComponent(escape(atob(clean)));
+                const obj = JSON.parse(decoded);
+                const formatted = JSON.stringify(obj, null, 2);
+                showPreview(formatted, 'jsonResult');
+                cache.jsonResult = formatted;
+            }catch(e){alert('解码错误')}
+        }
+        
+        function downloadJson(){
+            if(cache.jsonResult){
+                downloadBlob(cache.jsonResult, 'data.json');
+            }else{
+                alert('无内容');
+            }
+        }
+        
+        function clearJson(){
+            cache.elements.jsonInput.value = '';
+            cache.elements.jsonResult.textContent = '';
+            cache.jsonResult = null;
+        }
+        
+        // 批量处理
+        function batchProcess(){
+            const input = cache.elements.batchInput.value.trim();
+            const type = cache.elements.batchType.value;
+            if(!input) return alert('请输入内容');
+            const lines = input.split('\n').filter(l => l.trim());
+            const results = [];
+            lines.forEach((line, i) => {
+                try{
+                    if(type === 'encode'){
+                        results.push(`#${i+1}: ${btoa(unescape(encodeURIComponent(line)))}`);
+                    }else{
+                        const clean = extractBase64(line);
+                        const decoded = decodeURIComponent(escape(atob(clean)));
+                        results.push(`#${i+1}: ${decoded}`);
+                    }
+                }catch(e){
+                    results.push(`#${i+1}: 错误`);
+                }
+            });
+            const result = results.join('\n\n');
+            showPreview(result, 'batchResult');
+            cache.batchResult = result;
+        }
+        
+        function downloadBatch(){
+            if(cache.batchResult){
+                downloadBlob(cache.batchResult, 'batch_result.txt');
+            }else{
+                alert('无内容');
+            }
+        }
+        
+        function clearBatch(){
+            cache.elements.batchInput.value = '';
+            cache.elements.batchResult.textContent = '';
+            cache.batchResult = null;
+        }
+        
+        // 转换工具
+        function convert(){
+            const input = cache.elements.convertInput.value.trim();
+            const type = cache.elements.convertType.value;
+            if(!input) return alert('请输入内容');
+            if(type === 'hex'){
+                const clean = extractBase64(input);
+                const binary = atob(clean);
+                let hex = '';
+                for(let i=0;i<binary.length;i++){
+                    hex += binary.charCodeAt(i).toString(16).padStart(2,'0');
+                }
+                showPreview(hex.toUpperCase(), 'convertResult');
+            }else if(type === 'datauri'){
+                const base64 = btoa(unescape(encodeURIComponent(input)));
+                const dataUri = `data:text/plain;base64,${base64}`;
+                showPreview(dataUri, 'convertResult');
+            }
+        }
+        
+        function clearConvert(){
+            cache.elements.convertInput.value = '';
+            cache.elements.convertResult.textContent = '';
+        }
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
