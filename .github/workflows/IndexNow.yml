@@ -3,8 +3,7 @@ on:
   push:
     branches:
       - main
-  schedule:
-    - cron: '0 4 */7 * *'
+
 jobs:
   check-and-submit:
     runs-on: ubuntu-latest
@@ -16,6 +15,6 @@ jobs:
           endpoint: "www.bing.com"
           since: 7
           since-unit: "day"
-          limit: 20
+          limit: 10
           key: ${{ secrets.INDEXNOW_KEY }}
           key-location: ${{ secrets.INDEXNOW_KEY_LOCATION }}
