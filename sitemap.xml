@@ -4,89 +4,100 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
 <url>
   <loc>https://fastnow.github.io/</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
+  <loc>https://fastnow.github.io/fastcraftx.html</loc>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://fastnow.github.io/base64all.html</loc>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
   <loc>https://fastnow.github.io/face.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/pyonline.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/pcr.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/all_music.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/dashsaver.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/online.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/pvst.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/fm.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/xtcf2f.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/shk.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/micige_cipher.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/astral_simulation.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/gobangbot.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/getcode.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/kaomoji.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fastnow.github.io/game_of_life.html</loc>
-  <lastmod>2026-02-01T10:21:42+00:00</lastmod>
+  <lastmod>2026-02-07T02:00:23+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 
