@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>FastKB 网页虚拟键盘插件 - 详细使用指南</title>
+</head>
+<body>
+    <h1>FastKB 网页虚拟键盘插件</h1>
+    <p>可自由布局、双击编辑的网页虚拟键盘。支持宏、连发、手势、多配置等20+功能，完美适配触摸屏与桌面。让您在任意网页上拥有自定义的虚拟键盘，提升操作效率与游戏体验。</p>
+
+    <h2>快速安装</h2>
+    <ol>
+        <li>确保浏览器已安装 Tampermonkey 扩展（<a href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo" target="_blank">Chrome</a> / <a href="https://addons.mozilla.org/firefox/addon/tampermonkey/" target="_blank">Firefox</a>）。</li>
+        <li>点击以下链接，Tampermonkey 将自动弹出安装页面：
+            <br><a href="https://fastly.jsdelivr.net/gh/fastnow/FastKB@main/fastkb.user.js">https://fastly.jsdelivr.net/gh/fastnow/FastKB@main/fastkb.user.js</a>
+        </li>
+        <li>点击“安装”即可。安装后刷新任意网页，页面顶部会出现红色控制条。</li>
+    </ol>
+
+    <h2>基础使用</h2>
+    <ul>
+        <li><strong>单击按钮</strong>：发送对应的键盘事件（例如方向键、空格、ESC），按钮有按下动画和震动/声音反馈（若启用）。</li>
+        <li><strong>拖拽按钮</strong>：需先在设置中开启“编辑模式”，然后长按按钮即可拖拽移动位置，松开后自动保存。</li>
+        <li><strong>双击编辑</strong>：编辑模式下，双击按钮（或触摸屏快速两次点击）弹出浮动编辑栏，可调整大小、颜色、按键映射、显示文本，并有连接线指示关联。</li>
+        <li><strong>打开设置面板</strong>：点击顶部控制条即可打开/关闭设置面板。控制条本身也可按住拖拽移动。</li>
+    </ul>
+
+    <h2>设置面板详解</h2>
+    <p>设置面板分为五个选项卡，点击顶部标签切换：<strong>常规</strong>、<strong>按键</strong>、<strong>连发</strong>、<strong>高级</strong>、<strong>配置</strong>。</p>
+
+    <h3>常规</h3>
+    <ul>
+        <li><strong>隐藏键盘</strong>：开关所有按钮的可见性和交互性。</li>
+        <li><strong>编辑模式</strong>：开启后可拖拽按钮，双击按钮编辑。</li>
+        <li><strong>震动反馈</strong>：启用设备振动。</li>
+        <li><strong>按键声音</strong>：启用点击时的蜂鸣声。</li>
+        <li><strong>边缘吸附</strong>：拖拽按钮时自动靠边。</li>
+        <li><strong>控制条宽度/高度/偏移</strong>：滑块调整控制条尺寸和垂直偏移。</li>
+        <li><strong>控制条颜色</strong>：颜色选择器。</li>
+        <li><strong>控制条水平位置</strong>：输入框（支持百分比如“50%”或像素如“200px”）。</li>
+    </ul>
+
+    <h3>按键</h3>
+    <ul>
+        <li><strong>添加按键</strong>：创建一个新按钮，并显示在列表中。</li>
+        <li><strong>按钮列表</strong>：列出所有按钮，每行可修改按键映射（key）、大小（30-120px）、背景色、锁定状态（锁定后不可拖拽/编辑），并可删除按钮。修改实时生效。</li>
+    </ul>
+
+    <h3>连发</h3>
+    <ul>
+        <li><strong>启用连发</strong>：开关连发功能。</li>
+        <li><strong>CPS (每秒次数)</strong>：设置连发频率，例如10表示每秒10次。</li>
+        <li><strong>随机偏移(ms)</strong>：为每次连发间隔添加随机偏移，使连发更自然，避免被检测。</li>
+    </ul>
+
+    <h3>高级</h3>
+    <p>此选项卡包含众多进阶功能，下面逐一说明操作步骤。</p>
+    <ul>
+        <li><strong>手势控制</strong>：勾选后启用，滑动屏幕可触发预设宏（需自行实现回调）。</li>
+        <li><strong>宏录制</strong>：这是最常用的功能，具体步骤见后文“宏录制详细教程”。</li>
+        <li><strong>自动连点</strong>：勾选后定时自动点击空格键，下方输入框可调节CPS（每秒点击次数）。</li>
+        <li><strong>屏蔽系统按键</strong>：勾选后可阻止某些系统按键影响游戏（需自行实现屏蔽列表）。</li>
+        <li><strong>屏幕锁定</strong>：尝试锁定屏幕方向（移动端需用户手势）。</li>
+        <li><strong>鼠标模拟</strong>：勾选后可用按钮模拟鼠标点击（框架）。</li>
+        <li><strong>游戏模式</strong>：勾选后禁用页面滚动。</li>
+        <li><strong>长按触发时间</strong>：设置长按多少毫秒后触发额外逻辑。</li>
+        <li><strong>双击间隔</strong>：设置识别双击的时间阈值。</li>
+        <li><strong>快速切换快捷键</strong>：设置一个快捷键（如F5），按下后循环切换配置文件。</li>
+        <li><strong>导出配置</strong>：将全部配置文件导出为JSON文件。</li>
+        <li><strong>导入配置</strong>：从JSON文件导入配置（会覆盖当前所有配置）。</li>
+    </ul>
+
+    <h4>宏录制详细教程</h4>
+    <p>宏功能允许您录制一系列按键操作，然后一键回放。请按照以下步骤操作：</p>
+    <ol>
+        <li>打开设置面板，切换到“高级”选项卡。</li>
+        <li>找到“宏录制”复选框，<strong>先勾选它</strong>——此时开始录制宏（页面会弹出提示“开始录制，点击按钮记录按键...”）。</li>
+        <li>点击您想要录制的虚拟按钮（或使用物理键盘），每次按键按下和释放都会被记录，并自动添加默认延迟（100ms）。</li>
+        <li>录制完成后，<strong>再次勾掉“宏录制”复选框</strong>（或点击旁边的“停止录制”按钮），录制结束，并显示录制的步数。</li>
+        <li>要播放宏，请点击下方的“播放宏”按钮。宏会按照录制的顺序和延迟依次执行按键事件。</li>
+    </ol>
+    <p>注意：</p>
+    <ul>
+        <li>宏数据与当前配置文件绑定，切换配置或导出/导入时会一并保存。</li>
+        <li>每次重新录制会覆盖之前录制的宏。</li>
+        <li>播放宏时请勿操作键盘，以免干扰。</li>
+    </ul>
+
+    <h3>配置</h3>
+    <ul>
+        <li><strong>配置文件下拉框</strong>：选择要切换的配置文件。</li>
+        <li><strong>保存</strong>：将当前修改保存到活动配置。</li>
+        <li><strong>新建</strong>：创建新配置文件，可基于当前配置克隆。</li>
+        <li><strong>重命名</strong>：修改当前配置名称（默认配置不可重命名）。</li>
+        <li><strong>删除</strong>：删除当前配置（默认配置不可删除）。</li>
+        <li><strong>重置当前配置为默认</strong>：将活动配置恢复为默认值。</li>
+    </ul>
+
+    <h2>快速切换配置</h2>
+    <p>在“高级”选项卡中设置好快捷键（如F5）后，在任何页面按下该键即可循环切换到下一个配置文件，手柄界面会自动重建为新配置的布局。</p>
+
+    <h2>注意事项</h2>
+    <ul>
+        <li>移动端浏览器可能要求用户手势后才能播放音频（按键声音）或启用振动，首次点击按钮可能无反馈，后续正常。</li>
+        <li>屏幕锁定功能需要HTTPS环境且由用户手势触发（例如在按钮点击事件中调用），否则可能无效。</li>
+        <li>游戏模式会强制页面不可滚动，如需退出请关闭该选项。</li>
+        <li>所有配置均通过Tampermonkey的存储API保存，数据不会丢失。</li>
+        <li>若与其他脚本冲突，可尝试调整脚本执行顺序或禁用其他键盘类脚本。</li>
+    </ul>
+
+    <h2>许可证</h2>
+    <p>MIT © 2025 FastNow Studio</p>
+    <p>项目地址：<a href="https://github.com/fastnow/FastKB">https://github.com/fastnow/FastKB</a></p>
+    <p>更新与下载：<a href="https://raw.githubusercontent.com/fastnow/FastKB/main/fastkb.user.js">直接安装脚本</a></p>
+</body>
+</html>
