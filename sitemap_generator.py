@@ -6,7 +6,7 @@ from xml.dom import minidom
 BASE_URL = "https://fastnow.github.io/"
 OUTPUT_FILE = "sitemap.xml"
 IGNORE_DIRS = {".git", ".github", "assets"}
-IGNORE_FILES = {"sitemap_generator.py", "README.md"}
+IGNORE_FILES = {"sitemap_generator.py", "README.md", "404.html"}
 
 def get_last_modified(filepath):
     timestamp = os.path.getmtime(filepath)
