@@ -1,13 +1,21 @@
-name: "IndexNow"
+name: IndexNow
+
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Update Sitemap"]
+    types:
+      - completed
 
 jobs:
   check-and-submit:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+
       - name: submit-to-bing
         uses: bojieyang/indexnow-action@v2
         with:
