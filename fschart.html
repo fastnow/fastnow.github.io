@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="description" content="FSChart是一款支持自然语言生成2D/3D图形的AI工具。基于纯前端环境，无需担心密钥泄露。输入文字描述即可实时生成正弦曲线、立体几何体、动态动画，集成Three.js与Chart.js双渲染，适合数学平面+立体几何展示、物理模型可视化、教学演示与创意编程。">
+<meta name="keywords" content="FSChart,几何,立体模型,AI生成图形,3D几何体,2D曲线,数学可视化,Three.js,自然语言绘图,动态动画,立体几何,正弦曲线,三维建模">
+<meta name="author" content="FastNow Studio">
+<meta name="robots" content="index, follow">
+<title>FSChart - 一句话生成2D函数/3D模型及运动模拟 | 多功能AI函数模型可视化工具</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://fastly.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{margin:0;overflow:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background-color:#f5f5f7;color:#1e1e2f;}
+#canvasContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;background-color:#eef2f5;}
+#chartContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;background-color:#ffffff;display:none;}
+#chartCanvas{width:100%;height:100%;}
+.status-dot{position:absolute;top:16px;left:16px;width:10px;height:10px;border-radius:50%;background-color:#8b8c9e;z-index:20;transition:background-color 0.2s;box-shadow:0 0 6px rgba(0,0,0,0.1);}
+.status-dot.idle{background-color:#6c757d;}
+.status-dot.busy{background-color:#0d6efd;}
+.status-dot.error{background-color:#dc3545;}
+.status-dot.animating{background-color:#198754;}
+.coords-display{position:absolute;bottom:24px;right:24px;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);padding:6px 12px;border-radius:20px;font-size:0.7rem;font-family:monospace;pointer-events:none;z-index:10;color:#f8f9fa;}
+.bottom-panel{position:absolute;bottom:24px;left:24px;right:24px;background:rgba(255,255,255,0.9);backdrop-filter:blur(12px);border-radius:32px;border:0.5px solid rgba(0,0,0,0.1);pointer-events:auto;z-index:15;font-size:13px;transition:all 0.2s ease;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.05);width:calc(100% - 48px);}
+.panel-header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;cursor:pointer;border-bottom:0.5px solid rgba(0,0,0,0.05);}
+.panel-header h3{margin:0;font-size:0.9rem;font-weight:500;letter-spacing:-0.3px;color:#1e1e2f;}
+.toggle-icon{font-size:0.9rem;color:#6c757d;transition:transform 0.2s;}
+.panel-content{padding:16px 20px;max-height:60vh;overflow-y:auto;transition:max-height 0.3s ease;width:100%;}
+.panel-content.collapsed{max-height:0;padding:0 20px;overflow:hidden;}
+.form-group{margin-bottom:16px;width:100%;}
+label{display:block;margin-bottom:6px;font-weight:500;font-size:0.7rem;color:#495057;letter-spacing:0.3px;}
+textarea,input,select{width:100%;padding:8px 12px;background:#fff;border:0.5px solid #ced4da;color:#212529;border-radius:20px;font-size:0.75rem;font-family:monospace;box-sizing:border-box;}
+textarea{resize:vertical;}
+select{cursor:pointer;}
+button{background:#e9ecef;border:none;color:#1e1e2f;padding:8px 12px;border-radius:24px;cursor:pointer;font-weight:500;transition:0.2s;width:100%;font-size:0.75rem;}
+button:hover{background:#dee2e6;}
+.btn-secondary{background:#f8f9fa;border:0.5px solid #dee2e6;}
+.btn-secondary:hover{background:#e9ecef;}
+.row{display:flex;gap:8px;margin-top:8px;width:100%;}
+.row button{flex:1;}
+.mode-select{display:flex;gap:16px;justify-content:center;margin-bottom:12px;width:100%;}
+.mode-select label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.7rem;color:#495057;}
+.config-block{margin-top:16px;border-top:0.5px solid rgba(0,0,0,0.05);width:100%;}
+.block-header{display:flex;justify-content:space-between;align-items:center;padding:8px 0;cursor:pointer;color:#495057;width:100%;}
+.block-header:hover{color:#1e1e2f;}
+.block-icon{font-size:0.8rem;transition:transform 0.2s;color:#6c757d;}
+.block-content{max-height:0;overflow:hidden;transition:max-height 0.3s ease,visibility 0.3s ease;width:100%;padding:0;margin:0;visibility:hidden;}
+.block-content.expanded{max-height:400px;width:100%;padding:0;margin:0;visibility:visible;}
+#listContent{width:100%;padding:4px 0;margin:0;}
+.warning{background:#fff3cd;border-left:2px solid #ffc107;padding:6px 10px;margin-top:8px;font-size:0.65rem;border-radius:8px;color:#856404;width:100%;}
+.expressions-list{width:100%;padding:0;margin:0;}
+.expressions-list ul{list-style:none;padding:0;margin:0;width:100%;}
+.expressions-list li{font-size:0.7rem;font-family:monospace;padding:12px 16px;margin:6px 0;border-radius:12px;border:none;display:flex;justify-content:space-between;align-items:center;cursor:default;transition:background 0.2s;flex-wrap:nowrap;gap:10px;box-sizing:border-box;width:100% !important;min-width:100%;}
+.expressions-list li.selected{background:rgba(13,110,253,0.15);border:1px solid rgba(13,110,253,0.2) !important;border-radius:12px;}
+.expressions-list li:hover{background:rgba(0,0,0,0.03);}
+.obj-name{font-weight:500;color:#0d6efd;flex:1;text-align:left;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;padding:0;margin:0;font-size:0.75rem;}
+.obj-name i{width:20px;text-align:center;flex-shrink:0;}
+.obj-name.strikethrough{text-decoration:line-through;color:#6c757d;}
+.obj-actions{display:flex;gap:10px;align-items:center;flex-shrink:0 !important;width:auto;margin:0;padding:0;}
+.visibility-btn{background:none;border:none;cursor:pointer;font-size:0.8rem;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;transition:0.2s;color:#6c757d;flex-shrink:0;}
+.visibility-btn:hover{background:rgba(0,0,0,0.1);color:#1e1e2f;}
+.visibility-btn.hidden{color:#adb5bd;}
+.visibility-btn.visible{color:#0d6efd;}
+.focus-btn{background:none;border:none;cursor:pointer;font-size:0.8rem;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;transition:0.2s;color:#6c757d;flex-shrink:0;}
+.focus-btn:hover{background:rgba(0,0,0,0.1);color:#1e1e2f;}
+.color-preview{width:22px;height:22px;border-radius:50%;display:inline-block;cursor:pointer;border:1px solid rgba(0,0,0,0.2);flex-shrink:0 !important;box-shadow:0 1px 2px rgba(0,0,0,0.1);transition:transform 0.1s;}
+.color-preview:hover{transform:scale(1.1);}
+.flex-between{display:flex;justify-content:space-between;align-items:center;width:100%;}
+.clear-btn{background:#f8d7da;color:#842029;}
+.clear-btn:hover{background:#f5c2c7;}
+.control-bar{position:absolute;bottom:100px;left:24px;background:rgba(255,255,255,0.9);backdrop-filter:blur(12px);border-radius:40px;pointer-events:auto;z-index:12;border:0.5px solid rgba(0,0,0,0.1);transition:all 0.2s ease;display:flex;align-items:center;padding:6px 12px;gap:8px;}
+.control-bar.hidden{display:none;}
+.control-bar.collapsed{width:40px;padding:6px;justify-content:center;}
+.control-bar.collapsed .controls-content{display:none;}
+.controls-content{display:flex;gap:12px;align-items:center;flex:1;}
+.collapse-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#6c757d;font-size:0.9rem;transition:0.2s;background:none;border:none;border-radius:50%;}
+.collapse-btn:hover{color:#1e1e2f;background:rgba(0,0,0,0.05);}
+.control-bar button{width:auto;padding:6px 14px;background:#e9ecef;display:inline-flex;align-items:center;gap:8px;border-radius:30px;}
+.control-bar button i{font-size:0.7rem;}
+.control-bar input{flex:1;min-width:60px;background:#fff;border:0.5px solid #ced4da;color:#212529;border-radius:20px;padding:4px 8px;font-size:0.7rem;}
+.control-bar span{font-size:0.7rem;color:#6c757d;}
+.control-bar .duration-input{width:65px;flex:none;}
+#timeSlider{flex:2;min-width:80px;margin:0;}
+@media (max-width:700px){.bottom-panel{left:12px;right:12px;bottom:12px;width:calc(100% - 24px) !important;}.control-bar{left:12px;bottom:90px;}.control-bar input{width:auto;}.control-bar .duration-input{width:50px;}.expressions-list li{padding:10px 12px;width:100% !important;margin:4px 0;}.obj-name{font-size:0.7rem;}.obj-actions{gap:6px;}.color-preview{width:20px;height:20px;}.visibility-btn,.focus-btn{width:22px;height:22px;}}
+.error-message{position:absolute;top:80px;left:24px;background:#f8d7da;color:#721c24;padding:8px 16px;border-radius:20px;font-size:0.7rem;z-index:20;display:none;max-width:300px;pointer-events:none;}
+.hide-in-2d{display:block;}
+.render-mode-2d .hide-in-2d{display:none !important;}
+.show-in-2d{display:none;}
+.render-mode-2d .show-in-2d{display:block !important;}
+.copyright{text-align:center;font-size:0.6rem;color:#aaa;margin-top:12px;padding-top:8px;border-top:0.5px solid rgba(0,0,0,0.05);width:100%;}
+.copyright a{color:#aaa;text-decoration:none;}
+.copyright a:hover{color:#0d6efd;}
+#chartStyleContent{overflow-y:auto;width:100%;}
+.chart-style-buttons{margin-top:8px;width:100%;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.js"></script>
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.128.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.128.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div id="canvasContainer"></div>
+<div id="chartContainer"><canvas id="chartCanvas"></canvas></div>
+<div class="status-dot idle" id="statusDot"></div>
+<div class="coords-display" id="coordsDisplay">(0,0,0)</div>
+<div class="error-message" id="errorMessage"></div>
+<div class="bottom-panel">
+<div class="panel-header" id="panelHeader"><h3><i class="fas fa-cubes"></i> FSChart</h3><span class="toggle-icon" id="toggleIcon">▼</span></div>
+<div class="panel-content" id="panelContent">
+<div class="form-group"><label><i class="fas fa-comment"></i> 自然语言描述</label><textarea id="userPrompt" rows="2" placeholder="例如：绘制正弦曲线 y = sin(x)；或绘制三棱锥，并让三棱锥左右摆动。"></textarea></div>
+<div class="mode-select"><label><input type="radio" name="animMode" value="static" checked> <i class="fas fa-pause"></i> 静态</label><label><input type="radio" name="animMode" value="dynamic"> <i class="fas fa-play"></i> 动态</label></div>
+<div class="row" style="margin-bottom:8px;"><button id="render3dBtn" class="btn-secondary" style="background:#0d6efd; color:white;"><i class="fas fa-cube"></i> 3D渲染</button><button id="render2dBtn" class="btn-secondary"><i class="fas fa-chart-line"></i> 2D渲染</button></div>
+<button id="generateBtn"><i class="fas fa-magic"></i> 生成图形</button>
+<button id="clearAllBtn" class="clear-btn" style="margin-top:8px;"><i class="fas fa-trash"></i> 清除所有图形</button>
+<div class="hide-in-2d"><div class="row" style="margin-top:8px;"><button id="resetCameraBtn" class="btn-secondary"><i class="fas fa-camera"></i> 重置相机</button><button id="toggleGridBtn" class="btn-secondary"><i class="fas fa-border-all"></i> 切换网格</button><button id="toggleAxesBtn" class="btn-secondary"><i class="fas fa-chart-line"></i> 切换坐标轴</button></div></div>
+<div class="config-block"><div class="block-header" id="listHeader"><span><i class="fas fa-list"></i> 图形列表</span><span class="block-icon" id="listIcon"><i class="fas fa-chevron-down"></i></span></div><div class="block-content expanded" id="listContent"><ul id="objectsList"></ul></div></div>
+<div class="config-block show-in-2d"><div class="block-header" id="chartStyleHeader"><span><i class="fas fa-palette"></i> 图表样式</span><span class="block-icon" id="chartStyleIcon"><i class="fas fa-chevron-right"></i></span></div><div class="block-content" id="chartStyleContent"><div class="form-group"><label>坐标轴类型</label><select id="axisType"><option value="cartesian">笛卡尔坐标系</option><option value="radial">径向坐标系</option></select></div><div class="form-group"><label>网格线显示</label><select id="gridDisplay"><option value="both">全部显示</option><option value="x">仅X轴</option><option value="y">仅Y轴</option><option value="none">不显示</option></select></div><div class="form-group"><label>网格线颜色</label><input type="color" id="gridColor" value="#e0e0e0"></div><div class="form-group"><label>刻度标签颜色</label><input type="color" id="tickColor" value="#666666"></div><div class="form-group"><label>轴线颜色</label><input type="color" id="borderColor" value="#cccccc"></div><div class="form-group"><label>背景色</label><input type="color" id="chartBgColor" value="#ffffff"></div><div class="chart-style-buttons"><button id="applyChartStyle" class="btn-secondary">应用样式</button></div></div></div>
+<div class="config-block hide-in-2d"><div class="block-header" id="advancedHeader"><span><i class="fas fa-sliders-h"></i> 渲染设置</span><span class="block-icon" id="advancedIcon"><i class="fas fa-chevron-right"></i></span></div><div class="block-content" id="advancedContent"><div class="form-group"><label>渲染距离 (相机远平面)</label><input type="number" id="farPlane" value="100000" step="10000"></div><div class="form-group"><label>环境光强度</label><input type="range" id="ambientIntensity" min="0" max="1" step="0.01" value="0.4"></div><div class="form-group"><label>主光源强度 (暖色)</label><input type="range" id="mainLightIntensity" min="0" max="1.5" step="0.01" value="1.0"></div><div class="form-group"><label>辅光源强度 (冷色)</label><input type="range" id="fillLightIntensity" min="0" max="1.5" step="0.01" value="0.6"></div><div class="form-group"><label>背光强度</label><input type="range" id="backLightIntensity" min="0" max="1.5" step="0.01" value="0.5"></div><button id="applySettingsBtn" class="btn-secondary">应用设置</button></div></div>
+<div class="config-block"><div class="block-header" id="apiHeader"><span><i class="fas fa-plug"></i> API设置</span><span class="block-icon" id="apiIcon"><i class="fas fa-chevron-right"></i></span></div><div class="block-content" id="apiContent"><input type="password" id="apiKey" placeholder="API Key" value="" style="margin-bottom:8px;"><input type="text" id="apiUrl" placeholder="API地址" value="https://api.openai.com/v1/chat/completions" style="margin-bottom:8px;"><input type="text" id="modelName" placeholder="模型名称" value="gpt-4" style="margin-bottom:8px;"><div class="row"><button id="saveApiBtn" class="btn-secondary">保存</button><button id="testApiBtn" class="btn-secondary">测试</button></div></div></div>
+<div class="copyright">&copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</div>
+</div>
+</div>
+<div id="animationControls" class="control-bar hidden"><button class="collapse-btn" id="collapseAnimBtn"><i class="fas fa-chevron-right"></i></button><div class="controls-content"><button id="playPauseBtn"><i class="fas fa-play"></i> 播放</button><span><i class="fas fa-clock"></i> 周期(s)</span><input type="number" id="animPeriod" class="duration-input" value="10" step="0.5" min="0.5"><span>进度</span><input type="range" id="timeSlider" min="0" max="1" step="0.001" value="0"><button id="resetAnimBtn"><i class="fas fa-undo-alt"></i> 重置</button></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+let renderMode='3d';
+const canvasContainer=document.getElementById('canvasContainer');
+const chartContainer=document.getElementById('chartContainer');
+const render3dBtn=document.getElementById('render3dBtn');
+const render2dBtn=document.getElementById('render2dBtn');
+const errorMessageDiv=document.getElementById('errorMessage');
+const bottomPanel=document.querySelector('.bottom-panel');
+const generateBtn=document.getElementById('generateBtn');
+function setRenderMode(mode){
+renderMode=mode;
+if(mode==='3d'){
+canvasContainer.style.display='block';
+chartContainer.style.display='none';
+render3dBtn.style.background='#0d6efd';
+render3dBtn.style.color='white';
+render2dBtn.style.background='';
+render2dBtn.style.color='';
+bottomPanel.classList.remove('render-mode-2d');
+if(currentSpecs)renderCurrentSpecs();
+}else{
+canvasContainer.style.display='none';
+chartContainer.style.display='block';
+render2dBtn.style.background='#0d6efd';
+render2dBtn.style.color='white';
+render3dBtn.style.background='';
+render3dBtn.style.color='';
+bottomPanel.classList.add('render-mode-2d');
+if(currentSpecs)renderCurrentSpecs();
+}
+}
+render3dBtn.addEventListener('click',()=>setRenderMode('3d'));
+render2dBtn.addEventListener('click',()=>setRenderMode('2d'));
+let currentSpecs=null;
+let animations=[];
+let animating=false;
+let animCurrentTime=0;
+let animFrameId=null;
+let globalPeriod=10;
+const timeSlider=document.getElementById('timeSlider');
+let sliderLock=false;
+const statusDot=document.getElementById('statusDot');
+function setStatus(state){statusDot.className=`status-dot ${state}`;}
+function showError(msg){
+errorMessageDiv.textContent=msg;
+errorMessageDiv.style.display='block';
+setTimeout(()=>errorMessageDiv.style.display='none',5000);
+}
+function preprocessAIResponse(raw){
+let processed=raw;
+processed=processed.replace(/Math\.PI/g,'3.141592653589793');
+processed=processed.replace(/Math\.PI\s*\/\s*2/g,'1.5707963267948966');
+processed=processed.replace(/Math\.PI\s*\/\s*4/g,'0.7853981633974483');
+return processed;
+}
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xf0f2f5);
+scene.fog=new THREE.FogExp2(0xf0f2f5,0.008);
+const camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,100000);
+camera.position.set(8,6,10);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.shadowMap.enabled=true;
+canvasContainer.appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.target.set(0,0,0);
+const ambientLight=new THREE.AmbientLight(0xffffff,0.4);
+scene.add(ambientLight);
+const mainLight=new THREE.DirectionalLight(0xffeedd,1.0);
+mainLight.position.set(-3,5,2);
+mainLight.castShadow=true;
+scene.add(mainLight);
+const fillLight=new THREE.DirectionalLight(0x88aaff,0.6);
+fillLight.position.set(3,-2,-2);
+scene.add(fillLight);
+const backLight=new THREE.DirectionalLight(0xffccaa,0.5);
+backLight.position.set(0,0,-5);
+scene.add(backLight);
+let gridHelper=new THREE.GridHelper(100,50,0xaaaacc,0x8888aa);
+gridHelper.position.y=-0.2;
+gridHelper.material.transparent=true;
+gridHelper.material.opacity=0.3;
+scene.add(gridHelper);
+let axesHelper=new THREE.AxesHelper(8);
+axesHelper.material.transparent=true;
+axesHelper.material.opacity=0.3;
+scene.add(axesHelper);
+function applyAdvancedSettings(){
+camera.far=parseFloat(document.getElementById('farPlane').value);
+camera.updateProjectionMatrix();
+ambientLight.intensity=parseFloat(document.getElementById('ambientIntensity').value);
+mainLight.intensity=parseFloat(document.getElementById('mainLightIntensity').value);
+fillLight.intensity=parseFloat(document.getElementById('fillLightIntensity').value);
+backLight.intensity=parseFloat(document.getElementById('backLightIntensity').value);
+}
+document.getElementById('applySettingsBtn').addEventListener('click',applyAdvancedSettings);
+document.getElementById('farPlane').value=camera.far;
+document.getElementById('ambientIntensity').value=ambientLight.intensity;
+document.getElementById('mainLightIntensity').value=mainLight.intensity;
+document.getElementById('fillLightIntensity').value=fillLight.intensity;
+document.getElementById('backLightIntensity').value=backLight.intensity;
+document.getElementById('resetCameraBtn').addEventListener('click',()=>{camera.position.set(8,6,10);controls.target.set(0,0,0);controls.update();});
+let gridVisible=true;
+document.getElementById('toggleGridBtn').addEventListener('click',()=>{gridVisible=!gridVisible;gridHelper.visible=gridVisible;});
+let axesVisible=true;
+document.getElementById('toggleAxesBtn').addEventListener('click',()=>{axesVisible=!axesVisible;axesHelper.visible=axesVisible;});
+const coordsDisplay=document.getElementById('coordsDisplay');
+const raycaster=new THREE.Raycaster();
+const mouse=new THREE.Vector2();
+window.addEventListener('mousemove',(event)=>{
+mouse.x=(event.clientX/renderer.domElement.clientWidth)*2-1;
+mouse.y=-(event.clientY/renderer.domElement.clientHeight)*2+1;
+raycaster.setFromCamera(mouse,camera);
+const intersects=raycaster.intersectObjects(scene.children,true);
+if(intersects.length){
+const point=intersects[0].point;
+coordsDisplay.innerHTML=`(${point.x.toFixed(2)}, ${point.y.toFixed(2)}, ${point.z.toFixed(2)})`;
+}else{coordsDisplay.innerHTML=`(—, —, —)`;}
+});
+let sceneObjects=[];
+let currentChart=null;
+let selectedObjectIndex=-1;
+function updateObjectsList(){
+const objectsList=document.getElementById('objectsList');
+if(!objectsList)return;
+objectsList.innerHTML='';
+sceneObjects.forEach((item,idx)=>{
+const li=document.createElement('li');
+const desc=item.spec.expression||`${item.spec.primitive||item.spec.type||'图形'}`;
+const visible=item.obj.visible;
+const strikeClass=visible?'':'strikethrough';
+li.className=idx===selectedObjectIndex?'selected':'';
+li.innerHTML=`<span class="obj-name ${strikeClass}" data-idx="${idx}"><i class="fas fa-cube"></i> ${desc.substring(0,40)}</span><div class="obj-actions"><button class="visibility-btn ${visible?'visible':'hidden'}" data-idx="${idx}" title="显示/隐藏"><i class="fas ${visible?'fa-eye':'fa-eye-slash'}"></i></button><button class="focus-btn" data-idx="${idx}" title="聚焦"><i class="fas fa-crosshairs"></i></button><div class="color-preview" style="background-color: ${item.color}"></div></div>`;
+li.querySelector('.obj-name').addEventListener('click',(e)=>{e.stopPropagation();selectedObjectIndex=idx;updateObjectsList();});
+const visBtn=li.querySelector('.visibility-btn');
+visBtn.addEventListener('click',(e)=>{
+e.stopPropagation();
+toggleObjectVisibility(idx);
+const newVisible=item.obj.visible;
+visBtn.classList.toggle('visible',newVisible);
+visBtn.classList.toggle('hidden',!newVisible);
+visBtn.innerHTML=`<i class="fas ${newVisible?'fa-eye':'fa-eye-slash'}"></i>`;
+const nameSpan=li.querySelector('.obj-name');
+if(newVisible)nameSpan.classList.remove('strikethrough');
+else nameSpan.classList.add('strikethrough');
+if(renderMode==='2d'&&currentSpecs){render2D(currentSpecs);}
+});
+li.querySelector('.focus-btn').addEventListener('click',(e)=>{e.stopPropagation();focusObject(idx);});
+const colorPreview=li.querySelector('.color-preview');
+colorPreview.addEventListener('click',(e)=>{
+e.stopImmediatePropagation();
+e.preventDefault();
+e.stopPropagation();
+const colorInput=document.createElement('input');
+colorInput.type='color';
+colorInput.value=item.color;
+colorInput.style.position='fixed';
+colorInput.style.top=`${e.clientY+10}px`;
+colorInput.style.left=`${e.clientX+10}px`;
+colorInput.style.zIndex='99999';
+colorInput.style.border='2px solid #fff';
+colorInput.style.boxShadow='0 2px 8px rgba(0,0,0,0.2)';
+colorInput.style.borderRadius='4px';
+colorInput.style.width='40px';
+colorInput.style.height='40px';
+document.body.appendChild(colorInput);
+colorInput.focus();
+colorInput.click();
+colorInput.addEventListener('change',(changeEvent)=>{
+const newColor=changeEvent.target.value;
+if(item.obj.material){
+if(Array.isArray(item.obj.material)){item.obj.material.forEach(mat=>mat.color.set(newColor));}
+else{item.obj.material.color.set(newColor);}
+}
+item.color=newColor;
+colorPreview.style.backgroundColor=newColor;
+if(renderMode==='2d'&&currentChart&&currentSpecs){
+if(currentChart.data.datasets[idx]){
+currentChart.data.datasets[idx].borderColor=newColor;
+currentChart.data.datasets[idx].pointBackgroundColor=newColor;
+currentChart.update();
+}
+}
+document.body.removeChild(colorInput);
+});
+colorInput.addEventListener('blur',()=>{if(document.body.contains(colorInput)){document.body.removeChild(colorInput);}});
+colorInput.addEventListener('click',(e)=>{e.stopPropagation();});
+});
+objectsList.appendChild(li);
+});
+}
+function toggleObjectVisibility(idx){const item=sceneObjects[idx];if(!item)return;const newVisible=!item.obj.visible;item.obj.visible=newVisible;}
+function focusObject(idx){
+const item=sceneObjects[idx];
+if(!item)return;
+const box=new THREE.Box3().setFromObject(item.obj);
+const center=box.getCenter(new THREE.Vector3());
+const size=box.getSize(new THREE.Vector3()).length();
+const dist=Math.max(size*1.5,5);
+camera.position.set(center.x+dist,center.y+dist*0.6,center.z+dist);
+controls.target.copy(center);
+controls.update();
+}
+function clearAllObjects(){
+sceneObjects.forEach(item=>{scene.remove(item.obj);if(item.obj.geometry)item.obj.geometry.dispose();if(item.obj.material){if(Array.isArray(item.obj.material))item.obj.material.forEach(m=>m.dispose());else item.obj.material.dispose();}});
+sceneObjects=[];
+selectedObjectIndex=-1;
+if(currentChart){currentChart.destroy();currentChart=null;const canvas=document.getElementById('chartCanvas');const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);}
+animations=[];
+if(animFrameId)cancelAnimationFrame(animFrameId);
+animating=false;
+document.getElementById('animationControls').classList.add('hidden');
+setStatus('idle');
+updateObjectsList();
+}
+document.getElementById('clearAllBtn').addEventListener('click',clearAllObjects);
+function updateAnimations(t){animations.forEach(anim=>{try{anim.func(anim.obj,t);}catch(e){}});if(renderMode==='2d'&&currentSpecs&&animations.length>0){render2D(currentSpecs);}}
+function syncSlider(progress){if(!sliderLock&&timeSlider){timeSlider.value=Math.min(1.0,Math.max(0.0,progress)).toFixed(3);}}
+let animationStartRealTime=0;
+let animationStartAnimTime=0;
+function startAnimation(){
+if(animations.length===0)return;
+if(animFrameId)cancelAnimationFrame(animFrameId);
+animating=true;
+const playPauseBtn=document.getElementById('playPauseBtn');
+playPauseBtn.innerHTML='<i class="fas fa-pause"></i> 暂停';
+setStatus('animating');
+animationStartRealTime=performance.now();
+animationStartAnimTime=animCurrentTime;
+function step(now){
+if(!animating)return;
+const elapsed=(now-animationStartRealTime)/1000;
+let newTime=animationStartAnimTime+elapsed;
+const period=globalPeriod;
+if(newTime>=period){
+newTime=newTime%period;
+animationStartRealTime=now;
+animationStartAnimTime=newTime;
+}
+animCurrentTime=newTime;
+const progress=newTime/period;
+syncSlider(progress);
+updateAnimations(newTime);
+animFrameId=requestAnimationFrame(step);
+}
+animFrameId=requestAnimationFrame(step);
+}
+function stopAnimation(){
+if(animFrameId)cancelAnimationFrame(animFrameId);
+animating=false;
+const playPauseBtn=document.getElementById('playPauseBtn');
+if(playPauseBtn)playPauseBtn.innerHTML='<i class="fas fa-play"></i> 播放';
+setStatus('idle');
+}
+function setAnimTime(progress){
+const wasAnim=animating;
+if(wasAnim)stopAnimation();
+const rawProgress=parseFloat(progress);
+const roundedProgress=Math.round(rawProgress*1000)/1000;
+const clampedProgress=roundedProgress>=0.9995?1.0:Math.min(1.0,Math.max(0.0,roundedProgress));
+animCurrentTime=clampedProgress*globalPeriod;
+syncSlider(clampedProgress);
+updateAnimations(animCurrentTime);
+if(wasAnim){
+animationStartRealTime=performance.now();
+animationStartAnimTime=animCurrentTime;
+startAnimation();
+}
+}
+function resetAnimation(){
+sliderLock=true;
+if(timeSlider)timeSlider.value=0.0;
+sliderLock=false;
+animations.forEach(anim=>{if(anim.obj.userData){anim.obj.userData={};}});
+setAnimTime(0);
+}
+const playPauseBtn=document.getElementById('playPauseBtn');
+const resetAnimBtn=document.getElementById('resetAnimBtn');
+const animPeriodInput=document.getElementById('animPeriod');
+const collapseAnimBtn=document.getElementById('collapseAnimBtn');
+const animControlsDiv=document.getElementById('animationControls');
+let animCollapsed=true;
+function updateAnimCollapse(){
+if(animCollapsed){
+animControlsDiv.classList.add('collapsed');
+collapseAnimBtn.innerHTML='<i class="fas fa-chevron-right"></i>';
+}else{
+animControlsDiv.classList.remove('collapsed');
+collapseAnimBtn.innerHTML='<i class="fas fa-chevron-left"></i>';
+}
+}
+if(collapseAnimBtn)collapseAnimBtn.addEventListener('click',()=>{animCollapsed=!animCollapsed;updateAnimCollapse();});
+updateAnimCollapse();
+if(playPauseBtn)playPauseBtn.addEventListener('click',()=>{if(animating)stopAnimation();else startAnimation();});
+if(timeSlider){const handleTimeSlider=(e)=>{sliderLock=true;setAnimTime(e.target.value);sliderLock=false;};timeSlider.addEventListener('input',handleTimeSlider);timeSlider.addEventListener('change',handleTimeSlider);}
+if(resetAnimBtn)resetAnimBtn.addEventListener('click',resetAnimation);
+if(animPeriodInput)animPeriodInput.addEventListener('change',()=>{const newPeriod=Math.max(0.5,parseFloat(animPeriodInput.value)||10);const oldPeriod=globalPeriod;const progress=animCurrentTime/oldPeriod;globalPeriod=newPeriod;animCurrentTime=progress*globalPeriod;syncSlider(progress);updateAnimations(animCurrentTime);if(animating){stopAnimation();startAnimation();}});
+function getChartOptions(){
+const axisType=document.getElementById('axisType').value;
+const gridDisplay=document.getElementById('gridDisplay').value;
+const gridColor=document.getElementById('gridColor').value;
+const tickColor=document.getElementById('tickColor').value;
+const borderColor=document.getElementById('borderColor').value;
+const bgColor=document.getElementById('chartBgColor').value;
+const options={responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:(ctx)=>`(${ctx.raw.x.toFixed(4)}, ${ctx.raw.y.toFixed(4)})`}}},onClick:(event,activeElements)=>{if(activeElements.length>0){const element=activeElements[0];const datasetIndex=element.datasetIndex;const dataIndex=element.index;const point=currentChart.data.datasets[datasetIndex].data[dataIndex];alert(`📊 详细数据\n图形: ${currentChart.data.datasets[datasetIndex].label}\n坐标: (${point.x.toFixed(6)}, ${point.y.toFixed(6)})`);}}};
+if(axisType==='cartesian'){
+options.scales={x:{type:'linear',title:{display:true,text:'x'},grid:{display:gridDisplay==='both'||gridDisplay==='x',color:gridColor},ticks:{color:tickColor},border:{color:borderColor,display:true}},y:{type:'linear',title:{display:true,text:'y'},grid:{display:gridDisplay==='both'||gridDisplay==='y',color:gridColor},ticks:{color:tickColor},border:{color:borderColor,display:true}}};
+}else if(axisType==='radial'){
+options.scales={r:{type:'radialLinear',beginAtZero:true,ticks:{color:tickColor},grid:{color:gridColor,circular:true},angleLines:{color:borderColor}}};
+options.scales.x={display:false};
+options.scales.y={display:false};
+}
+return options;
+}
+let render2DPending=false;
+function render2D(specs){
+if(render2DPending)return;
+render2DPending=true;
+setTimeout(()=>{
+const canvas=document.getElementById('chartCanvas');
+const ctx=canvas.getContext('2d');
+if(currentChart){currentChart.destroy();currentChart=null;}
+ctx.clearRect(0,0,canvas.width,canvas.height);
+const datasets=[];
+const colors=['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6'];
+specs.forEach((spec,idx)=>{
+const objItem=sceneObjects[idx];
+if(objItem&&!objItem.obj.visible){return;}
+let points=[];
+if(spec.expression){
+const expr=spec.expression;
+const isExplicit=/^y\s*=/.test(expr);
+if(isExplicit){
+const rhs=expr.split('=')[1].trim();
+const xRange=spec.xRange||[-10,10];
+const start=xRange[0];
+const end=xRange[1];
+const step=(end-start)/400;
+for(let x=start;x<=end+1e-6;x+=step){
+let y;
+try{y=math.evaluate(rhs,{x});}catch(e){continue;}
+if(isFinite(y))points.push({x,y});
+}
+}else if(expr.includes('=')){
+const circle=parseCircleEquation(expr);
+if(circle){
+const radius=circle.radius;
+const center=circle.center;
+for(let ang=0;ang<=2*Math.PI;ang+=0.05){
+const x=center.x+radius*Math.cos(ang);
+const y=center.y+radius*Math.sin(ang);
+points.push({x,y});
+}
+}
+}
+}
+if(points.length>0){
+datasets.push({label:spec.expression||`图形${idx+1}`,data:points.map(p=>({x:p.x,y:p.y})),borderColor:objItem?objItem.color:(spec.color||colors[idx%colors.length]),backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0.1,showLine:true});
+}
+});
+if(datasets.length===0){showError('2D模式暂不支持当前图形，请使用3D模式');render2DPending=false;return;}
+const options=getChartOptions();
+currentChart=new Chart(ctx,{type:'scatter',data:{datasets},options:options});
+render2DPending=false;
+},10);
+}
+document.getElementById('applyChartStyle').addEventListener('click',()=>{if(renderMode==='2d'&&currentChart&&currentSpecs){const newOptions=getChartOptions();currentChart.options=newOptions;currentChart.update();}});
+function parseCircleEquation(expr){
+if(expr.includes('z'))return null;
+const eq=expr.replace(/\s/g,'');
+if(!eq.includes('='))return null;
+const [left,right]=eq.split('=');
+let r2;
+try{r2=math.evaluate(right);}catch(e){return null;}
+if(r2<=0)return null;
+const radius=Math.sqrt(r2);
+let cx=0,cy=0;
+const xPattern=/\(x\s*-\s*([^)]+)\)\^2|\(x\s*\+\s*([^)]+)\)\^2|x\^2/;
+const xMatch=left.match(xPattern);
+if(xMatch){if(xMatch[1])cx=parseFloat(xMatch[1]);else if(xMatch[2])cx=-parseFloat(xMatch[2]);}
+const yPattern=/\(y\s*-\s*([^)]+)\)\^2|\(y\s*\+\s*([^)]+)\)\^2|y\^2/;
+const yMatch=left.match(yPattern);
+if(yMatch){if(yMatch[1])cy=parseFloat(yMatch[1]);else if(yMatch[2])cy=-parseFloat(yMatch[2]);}
+const hasXY=/x\*y|y\*x/.test(left);
+if(!hasXY&&(xMatch||yMatch))return{isCircle:true,radius,center:{x:cx,y:cy}};
+return null;
+}
+function createCircle(radius,center,color){const pts=[];for(let i=0;i<=64;i++){const a=(i/64)*Math.PI*2;pts.push(new THREE.Vector3(center.x+radius*Math.cos(a),center.y+radius*Math.sin(a),0));}const geo=new THREE.BufferGeometry().setFromPoints(pts);return new THREE.LineLoop(geo,new THREE.LineBasicMaterial({color}));}
+function createExplicitCurve(expr,xRange,color){const rhs=expr.split('=')[1].trim();const pts=[];const start=xRange[0],end=xRange[1],step=(end-start)/400;for(let x=start;x<=end+1e-6;x+=step){let y;try{y=math.evaluate(rhs,{x});}catch(e){y=0;}if(isNaN(y)||!isFinite(y))y=0;pts.push(new THREE.Vector3(x,y,0));}const geo=new THREE.BufferGeometry().setFromPoints(pts);return new THREE.Line(geo,new THREE.LineBasicMaterial({color}));}
+function marchingSquares(equation,color){const [xMin,xMax,yMin,yMax]=[-10,10,-10,10];const stepX=(xMax-xMin)/400,stepY=(yMax-yMin)/400;const field=Array(401);for(let i=0;i<=400;i++){field[i]=Array(401);const x=xMin+i*stepX;for(let j=0;j<=400;j++){const y=yMin+j*stepY;field[i][j]=evaluateEquation(equation,x,y,0);}}const verts=[],lines=[];function interp(p1,p2,v1,v2){if(Math.abs(v1-v2)<1e-6)return[(p1[0]+p2[0])/2,(p1[1]+p2[1])/2];const t=(0-v1)/(v2-v1);return[p1[0]+t*(p2[0]-p1[0]),p1[1]+t*(p2[1]-p1[1])];}for(let i=0;i<400;i++){for(let j=0;j<400;j++){const x0=xMin+i*stepX,y0=yMin+j*stepY,x1=x0+stepX,y1=y0+stepY;const v00=field[i][j],v10=field[i+1][j],v11=field[i+1][j+1],v01=field[i][j+1];let idx=0;if(v00<0)idx|=1;if(v10<0)idx|=2;if(v11<0)idx|=4;if(v01<0)idx|=8;if(idx===0||idx===15)continue;const edges=[interp([x0,y0],[x1,y0],v00,v10),interp([x1,y0],[x1,y1],v10,v11),interp([x1,y1],[x0,y1],v11,v01),interp([x0,y1],[x0,y0],v01,v00)];const caseTable={1:[0,3],2:[1,0],3:[1,3],4:[2,1],5:[0,2,1,3],6:[2,0],7:[2,3],8:[3,2],9:[0,1,2,3],10:[1,2],11:[1,3,2,0],12:[3,0],13:[0,1,3,2],14:[1,2,0,3]};const conn=caseTable[idx];if(conn){for(let e=0;e<conn.length;e+=2){const p1=edges[conn[e]],p2=edges[conn[e+1]];if(p1&&p2){const i1=verts.length;verts.push(new THREE.Vector3(p1[0],p1[1],0));const i2=verts.length;verts.push(new THREE.Vector3(p2[0],p2[1],0));lines.push(i1,i2);}}}}}if(verts.length===0)return null;const geo=new THREE.BufferGeometry();const pos=new Float32Array(verts.length*3);verts.forEach((v,i)=>{pos[i*3]=v.x;pos[i*3+1]=v.y;pos[i*3+2]=v.z;});geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setIndex(lines);return new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color}));}
+function createPointCloud(equation,color){const pts=[];for(let x=-10;x<=10;x+=0.2)for(let y=-10;y<=10;y+=0.2)for(let z=-10;z<=10;z+=0.2){let val;try{let expr=equation;if(expr.includes('=')){const p=expr.split('=');expr=`(${p[0]}) - (${p[1]})`;}val=math.evaluate(expr,{x,y,z});}catch(e){continue;}if(Math.abs(val)<0.1)pts.push(new THREE.Vector3(x,y,z));}if(pts.length===0)return null;const geo=new THREE.BufferGeometry().setFromPoints(pts);return new THREE.Points(geo,new THREE.PointsMaterial({color,size:0.1}));}
+function createPoint(x,y,z,color){const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array([x,y,z]),3));return new THREE.Points(geo,new THREE.PointsMaterial({color,size:0.2}));}
+function createSolid(primitive,params,color){const mat=new THREE.MeshStandardMaterial({color,metalness:0.4,roughness:0.3});let geo;switch(primitive){case'cylinder':geo=new THREE.CylinderGeometry(params.radius||1,params.radius||1,params.height||2,32);break;case'cone':geo=new THREE.ConeGeometry(params.radius||1,params.height||2,32);break;case'cube':case'box':case'sphere':geo=new THREE.SphereGeometry(params.radius||1,32,32);break;case'torus':geo=new THREE.TorusGeometry(params.radius||1,params.tube||0.4,32,64);break;default:return null;}const mesh=new THREE.Mesh(geo,mat);if(params.position)mesh.position.set(params.position.x||0,params.position.y||0,params.position.z||0);if(params.rotation)mesh.rotation.set(params.rotation.x||0,params.rotation.y||0,params.rotation.z||0);mesh.castShadow=true;mesh.receiveShadow=true;return mesh;}
+function evaluateEquation(equation,x,y,z=0){try{let expr=equation;if(expr.includes('=')){const p=expr.split('=');expr=`(${p[0]}) - (${p[1]})`;}return math.evaluate(expr,{x,y,z});}catch(e){return NaN;}}
+function executeCustomCode(code,color){try{const fn=new Function('THREE','color',code);let result=fn(THREE,color);if(result&&(result.isObject3D||result.isGroup))return result;if(typeof result==='function'){result=result(THREE,color);if(result&&(result.isObject3D||result.isGroup))return result;}throw new Error('未返回有效物体');}catch(e){showError(`自定义代码执行失败: ${e.message}`);const geom=new THREE.BoxGeometry(1,1,1);const mat=new THREE.MeshStandardMaterial({color});const mesh=new THREE.Mesh(geom,mat);mesh.userData.pendingAnimation=code;return mesh;}}
+function createFromSpec(spec,color){
+if(spec.type==='solid')return createSolid(spec.primitive,spec.params,color);
+if(spec.type==='custom')return executeCustomCode(spec.code,color);
+const trimmed=spec.expression;
+const pointMatch=trimmed.match(/点\s*\(([^)]+)\)|\((\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)(?:,\s*(\d+(?:\.\d+)?))?\)/);
+if(pointMatch){let x=0,y=0,z=0;if(pointMatch[1]){const c=pointMatch[1].split(',').map(Number);x=c[0];y=c[1];z=c[2]||0;}else{x=parseFloat(pointMatch[2]);y=parseFloat(pointMatch[3]);z=parseFloat(pointMatch[4])||0;}return createPoint(x,y,z,color);}
+const hasZ=trimmed.includes('z');
+const circle=!hasZ?parseCircleEquation(trimmed):null;
+if(circle)return createCircle(circle.radius,circle.center,color);
+if(!hasZ&&/^y\s*=/.test(trimmed))return createExplicitCurve(trimmed,spec.xRange||[-10,10],color);
+if(hasZ)return createPointCloud(trimmed,color);
+return marchingSquares(trimmed,color);
+}
+function parseAIResponseToSpecs(raw){
+let cleaned=raw.trim();
+const codeMatch=cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+if(codeMatch)cleaned=codeMatch[1];
+let data;
+try{data=JSON.parse(cleaned);}catch(e){const firstBrace=cleaned.indexOf('{');if(firstBrace!==-1){try{data=JSON.parse(cleaned.substring(firstBrace));}catch(e2){throw new Error('解析失败');}}else{throw new Error('无有效JSON');}}
+if(!Array.isArray(data))data=[data];
+const specs=[];
+for(let item of data){
+if(item.type==='solid'){
+specs.push({type:'solid',primitive:item.primitive,params:item.params||{},animation:item.animation||null,period:item.period||null,color:item.color||'#3b82f6'});
+}else if(item.type==='custom'){
+specs.push({type:'custom',code:item.code,animation:item.animation||null,period:item.period||null,color:item.color||'#3b82f6'});
+}else if(item.expression){
+specs.push({expression:item.expression,xRange:item.xRange||null,animation:item.animation||null,period:item.period||null,color:item.color||'#3b82f6'});
+}
+}
+if(specs.length===0)throw new Error('无有效图形');
+return specs;
+}
+async function generateFromAI(prompt){
+const config={key:document.getElementById('apiKey').value.trim(),url:document.getElementById('apiUrl').value.trim(),model:document.getElementById('modelName').value.trim()};
+if(!config.url)throw new Error('请填写API地址');
+const systemPrompt=`你是几何专家。输出JSON数组，每个元素描述一个图形。**必须输出纯JSON，禁止使用Math.PI等JS表达式（因为JSON不支持）。如需圆周率，直接使用3.141592653589793。**
+支持的类型：
+1. 平面曲线/隐式方程：{"expression": "y = sin(x)", "xRange": [-10,10]}  // 用于2D曲线、圆、椭圆、抛物线、直线等所有平面图形。**表达式必须使用 y = ... 格式，变量仅为 x，不得包含 t 或其他字母（除非用户明确指定且该字母在表达式中作为常数，此时应将该常数替换为具体数值）。默认定义域为全体实数，但在生成时应指定一个合理的范围（如[-10,10]），以便显示。**
+2. 立体几何体：{"type": "solid", "primitive": "cylinder|cone|cube|sphere|torus", "params": {"radius":1, "height":2, "position": {"x":0,"y":0,"z":0}, "rotation": {"x":0,"y":0,"z":0}},"color":"#3b82f6"}  // 仅用于3D立体物体（圆柱、圆锥、立方体、球体、圆环）。**注意：rotation的值必须是数字，不能是Math.PI/2，应写为1.5707963267948966。**
+3. 点：{"expression": "点(1,2)"} 或 {"expression": "(1,2,3)"}  // 绘制单个点，支持2D/3D坐标
+4. 自定义模型：{"type":"custom","code":"返回THREE.Group或THREE.Mesh的代码","color":"#3b82f6"}  // 仅在标准solid类型无法满足时使用（如三棱柱、五棱锥、DNA双螺旋等非标准几何体）。代码中可使用THREE和color变量。例如三棱柱：const geom = new THREE.CylinderGeometry(1,1,2,3); const mat = new THREE.MeshStandardMaterial({color}); const mesh = new THREE.Mesh(geom, mat); return mesh;
+**重要约束：**
+- 用户输入中的字母（如k、a等）如果是常数，在expression中必须替换为具体数值（如用户说“y = k sin(x)”，k未给定则用默认值1）。如果用户输入“y = t sin(x)”，t可能是动画时间，但静态表达式中不能出现t，请将t解释为动画参数，并在animation字段中实现动态变化，而expression中应使用具体数值（如t=1）。
+- 动画函数：只有当用户明确描述运动时（如“让...运动/摆动/移动”），才在相应图形对象中添加 "animation" 字段。动画代码格式为 "obj.position.x = Math.sin(t * 2) * 2;"，其中t是时间（秒），可以是表达式。动画代码中的字母t是保留字，表示时间，其他字母如k、a等若作为动画参数，需定义在代码中（如let k = 0.5; obj.position.x = k * t;）。
+- **动画代码可以包含任意JS逻辑，包括速度、加速度等物理模拟。t 是从0开始连续增加的时间（秒），永不重置，适合模拟物理运动。如需周期性运动，请使用 Math.sin(t * 频率) 等函数。**
+- 对于三棱柱等非标准几何体，请使用自定义模型。
+- 所有参数值必须为数字或字符串，不得包含任何JS表达式（如Math.PI、Math.sin等）。JS表达式仅允许出现在animation字段中。
+只输出JSON数组。`;
+const messages=[{role:"system",content:systemPrompt},{role:"user",content:prompt}];
+const headers={'Content-Type':'application/json'};
+if(config.key)headers['Authorization']=`Bearer ${config.key}`;
+const response=await fetch(config.url,{method:'POST',headers,body:JSON.stringify({model:config.model,messages,temperature:0.3,max_tokens:1500})});
+if(!response.ok)throw new Error(`API错误 ${response.status}: ${await response.text()}`);
+const data=await response.json();
+const content=data.choices[0].message.content;
+return content;
+}
+async function onGenerate(){
+const prompt=document.getElementById('userPrompt').value.trim();
+if(!prompt)return;
+const animMode=document.querySelector('input[name="animMode"]:checked').value;
+generateBtn.style.background='#adb5bd';
+generateBtn.style.cursor='not-allowed';
+generateBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> 生成中…';
+generateBtn.disabled=true;
+setStatus('busy');
+try{
+const aiText=await generateFromAI(prompt);
+const processed=preprocessAIResponse(aiText);
+const specs=parseAIResponseToSpecs(processed);
+currentSpecs=specs;
+clearAllObjects();
+animations=[];
+for(let i=0;i<specs.length;i++){
+const spec=specs[i];
+const defColor=spec.color||'#3b82f6';
+const obj=createFromSpec(spec,defColor);
+if(obj){
+scene.add(obj);
+sceneObjects.push({obj,spec,color:defColor});
+if(animMode==='dynamic'&&spec.animation){
+try{
+let code=spec.animation.trim();
+if(code.startsWith('function')){
+const m=code.match(/\{([\s\S]*)\}/);
+if(m)code=m[1];
+}
+const func=new Function('obj','t',code);
+animations.push({obj,func});
+}catch(e){}
+}
+}
+}
+updateObjectsList();
+if(animations.length){
+animControlsDiv.classList.remove('hidden');
+if(!animCollapsed){animCollapsed=true;updateAnimCollapse();}
+animCurrentTime=0;
+resetAnimation();
+}else{
+animControlsDiv.classList.add('hidden');
+}
+if(sceneObjects.length){
+const box=new THREE.Box3();
+sceneObjects.forEach(item=>box.expandByObject(item.obj));
+const center=box.getCenter(new THREE.Vector3());
+const size=box.getSize(new THREE.Vector3()).length();
+const dist=Math.max(size*1.5,5);
+camera.position.set(center.x+dist*0.8,center.y+dist*0.6,center.z+dist);
+controls.target.copy(center);
+controls.update();
+}
+renderCurrentSpecs();
+setStatus('idle');
+}catch(e){
+showError(`生成失败: ${e.message}`);
+setStatus('error');
+setTimeout(()=>setStatus('idle'),2000);
+}finally{
+generateBtn.style.background='';
+generateBtn.style.cursor='pointer';
+generateBtn.innerHTML='<i class="fas fa-magic"></i> 生成图形';
+generateBtn.disabled=false;
+}
+}
+function renderCurrentSpecs(){if(!currentSpecs)return;if(renderMode==='3d'){}else{render2D(currentSpecs);}}
+document.getElementById('generateBtn').addEventListener('click',onGenerate);
+function setupCollapsible(headerId,contentId,iconId,defaultExpanded=true){
+const header=document.getElementById(headerId);
+const content=document.getElementById(contentId);
+const icon=document.getElementById(iconId);
+if(!header||!content||!icon)return;
+let expanded=defaultExpanded;
+if(!expanded)content.classList.remove('expanded');
+icon.innerHTML=expanded?'<i class="fas fa-chevron-down"></i>':'<i class="fas fa-chevron-right"></i>';
+header.addEventListener('click',(e)=>{e.stopPropagation();expanded=!expanded;if(expanded){content.classList.add('expanded');icon.innerHTML='<i class="fas fa-chevron-down"></i>';}else{content.classList.remove('expanded');icon.innerHTML='<i class="fas fa-chevron-right"></i>';}});
+}
+setupCollapsible('listHeader','listContent','listIcon',true);
+setupCollapsible('chartStyleHeader','chartStyleContent','chartStyleIcon',false);
+setupCollapsible('advancedHeader','advancedContent','advancedIcon',false);
+setupCollapsible('apiHeader','apiContent','apiIcon',false);
+const panelHeader=document.getElementById('panelHeader'),panelContent=document.getElementById('panelContent'),toggleIcon=document.getElementById('toggleIcon');
+let isPanelCollapsed=false;
+panelHeader.addEventListener('click',()=>{isPanelCollapsed=!isPanelCollapsed;if(isPanelCollapsed){panelContent.classList.add('collapsed');toggleIcon.textContent='▲';}else{panelContent.classList.remove('collapsed');toggleIcon.textContent='▼';}});
+function handleLightSlider(e,targetLight,maxVal=1.5){
+let rawVal=parseFloat(e.target.value);
+let roundedVal;
+if(e.target.step==='0.01'){roundedVal=Math.round(rawVal*100)/100;if(roundedVal>=0.995&&maxVal===1.0)roundedVal=1.0;else if(roundedVal>=1.495&&maxVal===1.5)roundedVal=1.5;}else{roundedVal=rawVal;}
+const clamped=Math.min(maxVal,Math.max(0,roundedVal));
+e.target.value=clamped;
+targetLight.intensity=clamped;
+}
+const ambientSlider=document.getElementById('ambientIntensity');
+const mainSlider=document.getElementById('mainLightIntensity');
+const fillSlider=document.getElementById('fillLightIntensity');
+const backSlider=document.getElementById('backLightIntensity');
+if(ambientSlider){ambientSlider.addEventListener('input',(e)=>handleLightSlider(e,ambientLight,1.0));ambientSlider.addEventListener('change',(e)=>handleLightSlider(e,ambientLight,1.0));}
+if(mainSlider){mainSlider.addEventListener('input',(e)=>handleLightSlider(e,mainLight,1.5));mainSlider.addEventListener('change',(e)=>handleLightSlider(e,mainLight,1.5));}
+if(fillSlider){fillSlider.addEventListener('input',(e)=>handleLightSlider(e,fillLight,1.5));fillSlider.addEventListener('change',(e)=>handleLightSlider(e,fillLight,1.5));}
+if(backSlider){backSlider.addEventListener('input',(e)=>handleLightSlider(e,backLight,1.5));backSlider.addEventListener('change',(e)=>handleLightSlider(e,backLight,1.5));}
+function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);}
+animate();
+window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);if(currentChart)currentChart.resize();});
+function saveApiConfig(){const cfg={key:document.getElementById('apiKey').value.trim(),url:document.getElementById('apiUrl').value.trim(),model:document.getElementById('modelName').value.trim()};localStorage.setItem('geom_key',cfg.key);localStorage.setItem('geom_url',cfg.url);localStorage.setItem('geom_model',cfg.model);alert('已保存');}
+function loadStoredConfig(){document.getElementById('apiKey').value=localStorage.getItem('geom_key')||'';document.getElementById('apiUrl').value=localStorage.getItem('geom_url')||'https://api.openai.com/v1/chat/completions';document.getElementById('modelName').value=localStorage.getItem('geom_model')||'gpt-4';}
+document.getElementById('saveApiBtn').addEventListener('click',saveApiConfig);
+document.getElementById('testApiBtn').addEventListener('click',async()=>{const url=document.getElementById('apiUrl').value.trim();if(!url)return;setStatus('busy');try{const headers={'Content-Type':'application/json'};const key=document.getElementById('apiKey').value.trim();if(key)headers['Authorization']=`Bearer ${key}`;const res=await fetch(url,{method:'POST',headers,body:JSON.stringify({model:document.getElementById('modelName').value.trim(),messages:[{role:'user',content:'ping'}],max_tokens:5})});if(res.ok)alert('连接成功');else alert(`失败 ${res.status}`);}catch(e){alert(`失败: ${e.message}`);}setStatus('idle');});
+loadStoredConfig();
+setRenderMode('3d');
+</script>
+</body>
+</html>
