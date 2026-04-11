@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在线排序算法可视化演示工具 | 多功能自定义/冒泡/选择/插入/快速/归并排序</title>
+  <meta name="description" content="沉浸式排序算法可视化工具，通过动态柱状图动画、逐行代码高亮与音效反馈，直观演示冒泡、选择、插入、快速、归并排序。支持自定义代码，让抽象逻辑一目了然，是编程入门与算法教学的绝佳互动伴侣。">
+  <meta name="keywords" content="排序算法可视化, 算法可视化, 排序动画, 冒泡排序, 选择排序, 插入排序, 快速排序, 归并排序, 音效排序, 代码逐行高亮, 自定义排序, 算法教学, 编程可视化, JavaScript排序">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0}body{background:#f2f2f2;font-family:system-ui,'Segoe UI',Roboto,sans-serif;padding:12px;min-height:100vh;display:flex;align-items:flex-start;justify-content:center}h1{font-size:20px;margin-bottom:14px;color:#222;font-weight:600;}.panel{max-width:1100px;width:100%;background:#fff;border:1px solid #aaa;padding:16px 18px}canvas{display:block;width:100%;height:auto;background:#fafafa;border:1px solid #888;margin-bottom:14px}.row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:12px}button,select,input{background:#fff;border:1px solid #777;padding:4px 10px;font-size:13px;color:#000;outline:none;cursor:pointer;font-family:inherit}button{background:#e6e6e6}button:hover{background:#d4d4d4}button.primary{background:#333;border-color:#111;color:#fff}button.primary:hover{background:#1a1a1a}input[type="number"]{width:70px}input[type="range"]{width:120px;padding:0}.code-panel{margin-top:6px;border:1px solid #888;background:#fcfcfc}.code-header{display:flex;justify-content:space-between;align-items:center;padding:6px 12px;background:#e0e0e0;border-bottom:1px solid #aaa;font-size:13px}.code-editor-wrapper{display:flex;background:#fff;max-height:50vh;min-height:200px;overflow:auto;font-family:'SF Mono','Monaco','Inconsolata','Fira Code',monospace;font-size:13px;line-height:1.5}.line-numbers{color:#6a6a6a;text-align:right;padding:8px 10px 0 6px;user-select:none;background:#f8f8f8;border-right:1px solid #bbb;font-family:inherit;font-size:inherit;line-height:inherit;white-space:pre;flex-shrink:0}.code-content{flex:1;padding:8px 12px 0 0;min-width:0}#editableCode{font-family:inherit;font-size:inherit;line-height:inherit;color:#111;white-space:pre;outline:none;tab-size:4;caret-color:#000;background:transparent;margin:0;border:0;padding:0}#editableCode:focus{background:#f9f9f9}.hljs{background:transparent!important;padding:0!important}.highlight-line{background:#ffe484!important;display:inline-block;width:100%;color:#000}.status{display:flex;justify-content:space-between;margin-top:10px;font-size:13px;color:#222;border-top:1px solid #aaa;padding-top:8px}.error{color:#b00;margin-top:6px;font-size:12px;padding:0 4px}.api-hint{background:#f5f5f5;border:1px solid #aaa;padding:10px 14px;margin:12px 0 6px;font-size:12px}.api-hint summary{font-weight:600;cursor:pointer;user-select:none;color:#000}.api-hint pre{background:#fff;padding:10px 12px;margin:10px 0 0;overflow-x:auto;border:1px solid #ccc;color:#111;line-height:1.4}
+  </style>
+</head>
+<body>
+<div class="panel">
+  <h1>在线排序算法可视化演示工具</h1>
+  <canvas id="sortCanvas" width="920" height="320"></canvas>
+  <div class="row">
+    <button id="runStopBtn" class="primary">执行</button>
+    <button id="shuffleBtn">随机</button>
+    <select id="algoSelect" style="min-width:120px">
+      <option value="bubble">冒泡排序</option>
+      <option value="selection">选择排序</option>
+      <option value="insertion">插入排序</option>
+      <option value="quick">快速排序</option>
+      <option value="merge">归并排序</option>
+      <option value="custom" selected>自定义</option>
+    </select>
+    <label style="display:flex;align-items:center;gap:3px"><span>数量</span><input type="number" id="sizeInput" min="5" max="200" value="35"></label>
+    <label style="display:flex;align-items:center;gap:3px"><span>延迟</span><input type="range" id="delaySlider" min="0" max="200" value="30" step="5"><span id="delayVal">30ms</span></label>
+    <label style="display:flex;align-items:center;gap:3px"><input type="checkbox" id="soundToggle" checked><span>音效</span></label>
+  </div>
+
+  <details class="api-hint">
+    <summary>自定义算法 API</summary>
+    <pre>// === 比较与交换（带动画与音效）===
+await compare(i, j)          // 比较 array[i] 和 array[j]，返回 true 表示前者 > 后者
+await swap(i, j)             // 交换并显示动画
+
+// === 标记与等待 ===
+await mark(i, [j], [type])   // 标记颜色: 'compare'(红), 'swap'(橙), 'pivot'(紫)
+await sleep(ms)              // 等待毫秒
+
+// === 数组查询（无动画）===
+getLength()                  // 返回当前数组长度
+getValue(i)                  // 获取 array[i]
+getArrayCopy()               // 返回数组浅拷贝
+
+// === 数组修改（立即刷新画布）===
+setValue(i, val)             // 设置 array[i] = val
+setArray(newArr)             // 整体替换数组
+push/pop/shift/unshift       // 增删元素
+splice/fill/reverse/sort     // 其他修改方法
+
+// === 示例：奇偶排序 ===
+const n = getLength();
+for (let phase = 0; phase &lt; n; phase++) {
+  for (let i = phase % 2; i &lt; n - 1; i += 2) {
+    await mark(i, i+1);
+    if (await compare(i, i+1)) {
+      await swap(i, i+1);
+    }
+  }
+}</pre>
+  </details>
+
+  <div class="code-panel">
+    <div class="code-header"><span>算法代码</span></div>
+    <div class="code-editor-wrapper">
+      <div class="line-numbers" id="lineNumbers"></div>
+      <div class="code-content"><pre><code id="editableCode" contenteditable="false" spellcheck="false">const n = getLength();
+for (let i = 1; i &lt; n; i++) {
+  let j = i;
+  while (j &gt; 0 &amp;&amp; await compare(j - 1, j)) {
+    await swap(j - 1, j);
+    j--;
+  }
+}</code></pre></div>
+    </div>
+    <div id="errorMsg" class="error"></div>
+  </div>
+
+  <div class="status"><span id="statusMsg">就绪</span><span id="statsDisplay">比较: 0 | 交换: 0</span></div>
+  <footer style="margin-top: -15px; font-size: 0.8rem; color: #666; text-align: center;"> &copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  const canvas = document.getElementById('sortCanvas');
+  const ctx = canvas.getContext('2d');
+  const sizeInput = document.getElementById('sizeInput');
+  const delaySlider = document.getElementById('delaySlider');
+  const delayVal = document.getElementById('delayVal');
+  const statusMsg = document.getElementById('statusMsg');
+  const statsDisplay = document.getElementById('statsDisplay');
+  const errorMsgDiv = document.getElementById('errorMsg');
+  const algoSelect = document.getElementById('algoSelect');
+  const editableCode = document.getElementById('editableCode');
+  const lineNumbers = document.getElementById('lineNumbers');
+  const shuffleBtn = document.getElementById('shuffleBtn');
+  const runStopBtn = document.getElementById('runStopBtn');
+  const soundToggle = document.getElementById('soundToggle');
+
+  let array = [];
+  let size = 35;
+  let isSorting = false;
+  let stopFlag = false;
+  let delayMs = 30;
+  let compares = 0, swaps = 0;
+  let completionActive = false;
+  let greenCount = 0;
+  let animTimer = null;
+  let markState = { indices: [], type: 'compare' };
+
+  let audioCtx = null;
+
+  const algorithmCode = {
+    bubble: `const n = getLength();
+for (let i = 0; i < n - 1; i++) {
+  for (let j = 0; j < n - i - 1; j++) {
+    if (await compare(j, j + 1)) {
+      await swap(j, j + 1);
+    }
+  }
+}`,
+    selection: `const n = getLength();
+for (let i = 0; i < n - 1; i++) {
+  let minIdx = i;
+  for (let j = i + 1; j < n; j++) {
+    if (!(await compare(j, minIdx))) {
+      minIdx = j;
+    }
+  }
+  if (minIdx !== i) await swap(i, minIdx);
+}`,
+    insertion: `const n = getLength();
+for (let i = 1; i < n; i++) {
+  let j = i;
+  while (j > 0 && await compare(j - 1, j)) {
+    await swap(j - 1, j);
+    j--;
+  }
+}`,
+    quick: `async function quickSort(l, r) {
+  if (l >= r) return;
+  await mark(r, null, 'pivot');
+  let i = l - 1;
+  for (let j = l; j < r; j++) {
+    if (!(await compare(j, r))) {
+      i++;
+      if (i !== j) await swap(i, j);
+    }
+  }
+  if (i + 1 !== r) await swap(i + 1, r);
+  const p = i + 1;
+  await quickSort(l, p - 1);
+  await quickSort(p + 1, r);
+}
+await quickSort(0, getLength() - 1);`,
+    merge: `async function merge(l, mid, r) {
+  let temp = [];
+  for (let i = l; i <= r; i++) temp[i] = getValue(i);
+  let i = l, j = mid + 1, k = l;
+  while (i <= mid && j <= r) {
+    await mark(i, j);
+    await playCompareSoundManual(temp[i], temp[j]);
+    if (temp[i] <= temp[j]) {
+      setValue(k++, temp[i++]);
+    } else {
+      setValue(k++, temp[j++]);
+    }
+    await sleep(delayMs);
+  }
+  while (i <= mid) {
+    setValue(k++, temp[i++]);
+    await sleep(delayMs / 2);
+  }
+  while (j <= r) {
+    setValue(k++, temp[j++]);
+    await sleep(delayMs / 2);
+  }
+}
+async function mergeSort(l, r) {
+  if (l >= r) return;
+  const mid = Math.floor((l + r) / 2);
+  await mergeSort(l, mid);
+  await mergeSort(mid + 1, r);
+  await merge(l, mid, r);
+}
+await mergeSort(0, getLength() - 1);`,
+    custom: `const n = getLength();
+for (let i = 1; i < n; i++) {
+  let j = i;
+  while (j > 0 && await compare(j - 1, j)) {
+    await swap(j - 1, j);
+    j--;
+  }
+}`
+  };
+
+  function setEditable(enable) { editableCode.contentEditable = enable; }
+  function getCleanText() {
+    let text = editableCode.innerText || '';
+    text = text.replace(/^\n+/, '').replace(/\n+$/, '');
+    return text || ' ';
+  }
+  function updateLineNumbers() {
+    const text = getCleanText();
+    const lines = text.split('\n').length;
+    lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
+  }
+  function renderHighlight(lineNumber = -1) {
+    const code = getCleanText();
+    const highlighted = hljs.highlight(code, { language: 'javascript' }).value;
+    const lines = highlighted.split('\n');
+    let html = '';
+    for (let i = 0; i < lines.length; i++) {
+      let content = lines[i];
+      if (i + 1 === lineNumber) {
+        html += `<span class="highlight-line">${content}</span>`;
+      } else {
+        html += content;
+      }
+      if (i < lines.length - 1) html += '\n';
+    }
+    editableCode.innerHTML = html;
+    updateLineNumbers();
+  }
+  function applySyntaxHighlight() { renderHighlight(-1); }
+  function highlightLineDOM(lineNumber) { if (lineNumber) renderHighlight(lineNumber); }
+  function clearHighlight() { applySyntaxHighlight(); }
+  function setEditorCode(code) {
+    if (isSorting) return;
+    editableCode.innerText = code;
+    applySyntaxHighlight();
+    setEditable(algoSelect.value === 'custom');
+  }
+  function onAlgorithmChange() {
+    if (isSorting) return;
+    const algo = algoSelect.value;
+    if (algorithmCode[algo]) setEditorCode(algorithmCode[algo]);
+  }
+  function handleUserEdit() {
+    if (isSorting) return;
+    if (algoSelect.value !== 'custom') {
+      algoSelect.value = 'custom';
+      setEditable(true);
+    }
+    applySyntaxHighlight();
+  }
+
+  function updateStats() { statsDisplay.textContent = `比较: ${compares} | 交换: ${swaps}`; }
+  function resetStats() { compares = swaps = 0; updateStats(); }
+  function setStatus(s) { statusMsg.textContent = s; }
+  function clearError() { errorMsgDiv.textContent = ''; }
+  function stopAnim() { if (animTimer) clearTimeout(animTimer); animTimer = null; completionActive = false; }
+  function randomArray(n) { return Array.from({length: n}, () => Math.floor(Math.random() * 80) + 12); }
+  function shuffle() {
+    if (isSorting) { stopFlag = true; return; }
+    stopAnim();
+    size = Math.min(200, Math.max(5, parseInt(sizeInput.value) || 35));
+    sizeInput.value = size;
+    array = randomArray(size);
+    greenCount = 0;
+    completionActive = false;
+    markState = { indices: [], type: 'compare' };
+    resetStats();
+    drawArray();
+    setStatus(`就绪`);
+    clearError();
+    clearHighlight();
+  }
+
+  function drawArray(hi1 = -1, hi2 = -1, swapHi = -1) {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    if (!array.length) return;
+    const n = array.length;
+    const barW = (w - 20) / n;
+    const maxV = Math.max(...array, 1);
+    const scale = (h - 36) / maxV;
+    const markIndices = markState.indices || [];
+    const markType = markState.type || 'compare';
+
+    for (let i = 0; i < n; i++) {
+      const val = array[i];
+      const bh = val * scale;
+      const x = 10 + i * barW;
+      const y = h - 18 - bh;
+      let color;
+      if (completionActive) {
+        color = i < greenCount ? '#2e7d32' : '#1565c0';
+      } else {
+        color = '#1565c0';
+        if (markIndices.includes(i)) {
+          if (markType === 'swap') color = '#b85e00';
+          else if (markType === 'pivot') color = '#6a1b9a';
+          else color = '#b71c1c';
+        } else {
+          if (i === hi1 || i === hi2) color = '#b71c1c';
+          if (i === swapHi) color = '#b85e00';
+        }
+      }
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, Math.max(barW - 1, 1), bh);
+      ctx.fillStyle = '#000';
+      ctx.globalAlpha = 0.15;
+      ctx.fillRect(x, y, Math.max(barW - 1, 1), 2);
+      ctx.globalAlpha = 1.0;
+      if (barW > 22) {
+        ctx.font = 'bold 11px monospace';
+        ctx.fillStyle = '#000';
+        ctx.textAlign = 'center';
+        ctx.fillText(val, x + (barW - 1) / 2, y - 4);
+      }
+    }
+  }
+ 
+  function initAudio() {
+    if (audioCtx) return audioCtx;
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+    return audioCtx;
+  }
+  async function resumeAudio() {
+    if (!audioCtx) initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+  }
+  function playTone(freq) {
+    if (!soundToggle.checked || !audioCtx || audioCtx.state === 'closed') return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(now + 0.12);
+  }
+  function playCompareSound(a, b) {
+    const minVal = Math.min(a, b);
+    const freq = 400 + (minVal / 100) * 1200;
+    playTone(freq);
+  }
+  function playScanSound(val) {
+    const freq = 400 + (val / 100) * 1200;
+    playTone(freq);
+  }
+  async function playCompareSoundManual(a, b) {
+    initAudio();
+    playCompareSound(a, b);
+  }
+  
+  function startCompletion() {
+    stopAnim();
+    completionActive = true;
+    greenCount = 0;
+    const n = array.length;
+    function step() {
+      if (greenCount < n) {
+        initAudio();
+        playScanSound(array[greenCount]);
+        greenCount++;
+        drawArray();
+        animTimer = setTimeout(step, 30);
+      } else {
+        animTimer = null;
+      }
+    }
+    step();
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function compare(i, j) {
+    if (stopFlag) throw new Error('停止');
+    initAudio();
+    playCompareSound(array[i], array[j]);
+    compares++;
+    updateStats();
+    markState = { indices: [i, j], type: 'compare' };
+    drawArray(i, j, -1);
+    await sleep(delayMs);
+    return array[i] > array[j];
+  }
+
+  async function swap(i, j) {
+    if (stopFlag) throw new Error('停止');
+    [array[i], array[j]] = [array[j], array[i]];
+    swaps++;
+    updateStats();
+    markState = { indices: [i, j], type: 'swap' };
+    drawArray(i, j, i);
+    await sleep(delayMs);
+    markState = { indices: [], type: 'compare' };
+    drawArray(-1, -1, -1);
+  }
+
+  async function mark(i, j = null, type = 'compare') {
+    if (stopFlag) throw new Error('停止');
+    const indices = (j !== null && j !== undefined) ? [i, j] : [i];
+    markState = { indices, type };
+    drawArray();
+    await sleep(delayMs);
+  }
+
+  function getLength() { return array.length; }
+  function getValue(i) { return array[i]; }
+  function getArrayCopy() { return array.slice(); }
+  function setValue(i, val) { array[i] = val; drawArray(); }
+  function setArray(newArr) { array = newArr.slice(); drawArray(); }
+  function push(...items) { const r = array.push(...items); drawArray(); return r; }
+  function pop() { const r = array.pop(); drawArray(); return r; }
+  function shift() { const r = array.shift(); drawArray(); return r; }
+  function unshift(...items) { const r = array.unshift(...items); drawArray(); return r; }
+  function splice(start, deleteCount, ...items) { const r = array.splice(start, deleteCount, ...items); drawArray(); return r; }
+  function fill(value, start, end) { const r = array.fill(value, start, end); drawArray(); return r; }
+  function reverse() { const r = array.reverse(); drawArray(); return r; }
+  function sort(compareFn) { const r = array.sort(compareFn); drawArray(); return r; }
+
+  async function highlight(lineNumber) {
+    if (stopFlag) throw new Error('停止');
+    if (lineNumber) highlightLineDOM(lineNumber);
+    await sleep(delayMs);
+  }
+
+  function injectAutoHighlight(code) {
+    const lines = code.split('\n');
+    const processed = [];
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+      const lineNumber = i + 1;
+      if (trimmed === '' || trimmed.startsWith('//') || trimmed === '{' || trimmed === '}') {
+        processed.push(line);
+        continue;
+      }
+      const indent = line.match(/^\s*/)[0];
+      processed.push(`${indent}await highlight(${lineNumber});`);
+      processed.push(line);
+    }
+    return processed.join('\n');
+  }
+
+  const AsyncFunction = (async function() {}).constructor;
+
+  function compileCustom(code) {
+    clearError();
+    const trimmed = code.trim();
+    if (!trimmed) throw new Error('代码为空');
+    const injected = injectAutoHighlight(trimmed);
+    try {
+      return new AsyncFunction(
+        'array', 'compare', 'swap', 'highlight', 'mark', 'sleep',
+        'getLength', 'getValue', 'getArrayCopy', 'setValue', 'setArray',
+        'push', 'pop', 'shift', 'unshift', 'splice', 'fill', 'reverse', 'sort',
+        'delayMs', 'playCompareSoundManual',
+        `try { ${injected} } catch(e) {
+          if (e.message === '停止') return;
+          throw new Error('运行错误：' + e.message);
+        }`
+      );
+    } catch (e) {
+      throw new Error(`语法错误: ${e.message}`);
+    }
+  }
+
+  async function runCurrentAlgorithm() {
+    if (isSorting) { stopFlag = true; return; }
+    if (!array.length) shuffle();
+
+    initAudio();
+    await resumeAudio();
+
+    isSorting = true;
+    stopFlag = false;
+    setEditable(false);
+    stopAnim();
+    completionActive = false;
+    greenCount = 0;
+    markState = { indices: [], type: 'compare' };
+    clearHighlight();
+    setStatus('排序中...');
+    resetStats();
+    drawArray();
+    clearError();
+
+    runStopBtn.textContent = '停止';
+
+    const start = performance.now();
+    try {
+      let codeToRun;
+      const algo = algoSelect.value;
+      if (algo === 'custom') codeToRun = editableCode.innerText;
+      else codeToRun = algorithmCode[algo] || algorithmCode.custom;
+
+      const customFn = compileCustom(codeToRun);
+      await customFn(
+        array, compare, swap, highlight, mark, sleep,
+        getLength, getValue, getArrayCopy, setValue, setArray,
+        push, pop, shift, unshift, splice, fill, reverse, sort,
+        delayMs, playCompareSoundManual
+      );
+
+      if (!stopFlag) {
+        startCompletion();
+        setStatus(`完成 ${(performance.now() - start).toFixed(0)}ms`);
+        clearHighlight();
+      } else {
+        setStatus('已停止');
+        drawArray();
+        clearHighlight();
+      }
+    } catch (e) {
+      stopAnim(); drawArray(); clearHighlight();
+      const errStr = e.message || String(e);
+      setStatus(`错误: ${errStr}`);
+    } finally {
+      isSorting = false;
+      stopFlag = false;
+      setEditable(algoSelect.value === 'custom');
+      runStopBtn.textContent = '执行';
+    }
+  }
+
+  delaySlider.addEventListener('input', () => {
+    delayMs = parseInt(delaySlider.value);
+    delayVal.textContent = delayMs + 'ms';
+  });
+  sizeInput.addEventListener('change', () => {
+    if (!isSorting) {
+      size = Math.min(200, Math.max(5, parseInt(sizeInput.value) || 35));
+      sizeInput.value = size;
+      array = randomArray(size);
+      stopAnim(); completionActive = false; greenCount = 0;
+      drawArray(); resetStats();
+      setStatus(`就绪`);
+      clearHighlight();
+    }
+  });
+  shuffleBtn.addEventListener('click', shuffle);
+  runStopBtn.addEventListener('click', runCurrentAlgorithm);
+  algoSelect.addEventListener('change', onAlgorithmChange);
+  editableCode.addEventListener('input', handleUserEdit);
+
+  (function init() {
+    size = 35;
+    sizeInput.value = size;
+    array = randomArray(size);
+    drawArray();
+    resetStats();
+    delayMs = 30;
+    delaySlider.value = 30;
+    delayVal.textContent = '30ms';
+    algoSelect.value = 'custom';
+    setEditorCode(algorithmCode.custom);
+    setEditable(true);
+  })();
+
+})();
+</script>
+</body>
+</html>
