@@ -151,7 +151,7 @@
     </div>
     <div class="bottom-panel">
         <div class="panel-header" id="panelHeader">
-            <h3><i class="fas fa-cube"></i> FSChart · Pollinations</h3>
+            <h3><i class="fas fa-cube"></i> FSChart</h3>
             <span class="toggle-icon" id="toggleIcon"><i class="fas fa-chevron-down"></i></span>
         </div>
         <div class="panel-content" id="panelContent">
@@ -200,7 +200,7 @@
                 <div class="block-header" id="apiHeader"><span><i class="fas fa-plug"></i> Pollinations API Settings</span><span class="block-icon" id="apiIcon"><i class="fas fa-chevron-right"></i></span></div>
                 <div class="block-content" id="apiContent">
                     <div id="apiConfigPanel">
-                        <div class="form-group"><label>API Key</label><input type="password" id="apiKey" placeholder="pk_..." style="margin-bottom:6px;"><div class="row" style="margin:0;gap:8px;"><button id="polliLoginBtn" class="btn-secondary" style="width:auto;font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Login with Pollinations</button><button id="polliLogoutBtn" class="btn-secondary" style="width:auto;font-size:0.7rem;display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button></div><div id="polliUserInfo" style="font-size:0.65rem;color:#666;margin-top:4px;display:none;"></div></div>
+                        <div class="form-group"><label>API Key</label><input type="password" id="apiKey" placeholder="sk_..." style="margin-bottom:6px;"><div class="row" style="margin:0;gap:8px;"><button id="polliLoginBtn" class="btn-secondary" style="width:auto;font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Login with Pollinations</button><button id="polliLogoutBtn" class="btn-secondary" style="width:auto;font-size:0.7rem;display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button></div><div id="polliUserInfo" style="font-size:0.65rem;color:#666;margin-top:4px;display:none;"></div></div>
                         <div class="form-group"><label>API URL</label><input type="text" id="apiUrl" value="https://gen.pollinations.ai/v1/chat/completions"></div>
                         <div class="form-group"><label>Model</label><div class="row" style="margin:0;gap:8px;"><input type="text" id="modelDisplay" readonly placeholder="Loading models..." style="flex:1;background:#f5f5f7;"><button id="selectModelBtn" class="btn-secondary" style="width:auto;"><i class="fas fa-list"></i> Browse</button></div></div>
                         <hr class="settings-divider">
@@ -283,7 +283,7 @@
         const cancelModelBtn = document.getElementById('cancelModelBtn');
         const undoBtn = document.getElementById('undoBtn');
 
-        // ---------- Loading simulation (frame clockwise progress) ----------
+        // ---------- Loading simulation ----------
         let progress = 0;
         const loadingInterval = setInterval(() => {
             progress += Math.random() * 10;
@@ -300,7 +300,7 @@
         });
 
         // ---------- Pollinations OAuth ----------
-        const POLLI_CLIENT_ID = 'pk_your_publishable_key';
+        const POLLI_CLIENT_ID = 'pk_MVluf036AgSDyWIS';
         const POLLI_REDIRECT_URI = window.location.origin + window.location.pathname;
         const POLLI_AUTH_URL = 'https://enter.pollinations.ai/authorize';
         const polliLoginBtn = document.getElementById('polliLoginBtn');
