@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="description" content="FSChart Pollinations Edition – AI-powered 2D/3D geometry visualization tool with Pollinations API. Generate curves, surfaces, solids from natural language. Pure frontend.">
+    <title>FSChart · Pollinations Edition | AI Geometry Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script defer src="https://fastly.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <script defer src="https://fastly.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js">
+    </script>
+    <script defer src="https://fastly.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
+    </script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.js">
+    </script>
+    <script type="importmap">
+    {"imports": {"three": "https://unpkg.com/three@0.128.0/build/three.module.js","three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"}}
+    </script>
+    <style>
+        :root{--progress:0;--bg:#f5f5f7;--surface:rgba(255,255,255,0.9);--text:#1e1e2f;--subtle:#6c757d;--accent:#0d6efd;--border:rgba(0,0,0,0.08);--radius:32px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{overflow:hidden;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text)}
+        #loadingOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity 0.5s ease}
+        #loadingOverlay.fade-out{opacity:0;pointer-events:none}
+        .loading-frame{width:220px;height:220px;display:flex;align-items:center;justify-content:center;border-radius:22px;background:conic-gradient(from 0deg,var(--accent) calc(var(--progress)*3.6deg),#e9ecef calc(var(--progress)*3.6deg))}
+        .loading-inner{width:calc(100% - 14px);height:calc(100% - 14px);background:var(--bg);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .loading-logo{font-size:1.8rem;font-weight:600;letter-spacing:-0.5px;color:var(--accent);margin-bottom:6px}
+        .loading-author{font-size:0.75rem;color:var(--subtle)}
+        #canvasContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;background:#eef2f5}
+        #chartContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;background:#fff;display:none}
+        #chartCanvas{width:100%;height:100%;cursor:grab;touch-action:none;background:#fff}
+        #chartCanvas:active{cursor:grabbing}
+        .empty-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;color:#ccc;pointer-events:none;display:none;z-index:2}
+        .bottom-panel{position:absolute;bottom:24px;left:24px;right:24px;background:var(--surface);backdrop-filter:blur(12px);border-radius:var(--radius);border:.5px solid rgba(0,0,0,.1);pointer-events:auto;z-index:15;font-size:13px;transition:all .2s;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.05);width:calc(100% - 48px)}
+        .panel-header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;cursor:pointer;border-bottom:.5px solid var(--border)}
+        .panel-header h3{margin:0;font-size:.9rem;font-weight:500;letter-spacing:-.3px}
+        .toggle-icon{font-size:.9rem;color:var(--subtle);transition:transform .2s}
+        .panel-content{padding:16px 20px;max-height:60vh;overflow-y:auto;transition:max-height .3s}
+        .panel-content.collapsed{max-height:0;padding:0 20px;overflow:hidden}
+        .form-group{margin-bottom:10px}
+        label{display:block;margin-bottom:4px;font-weight:500;font-size:.7rem;color:#495057;letter-spacing:.3px}
+        textarea,input,select{width:100%;padding:8px 12px;background:#fff;border:.5px solid #ced4da;color:#212529;border-radius:20px;font-size:.75rem;font-family:monospace;box-sizing:border-box}
+        textarea{resize:vertical}
+        select{cursor:pointer}
+        button{background:#e9ecef;border:none;color:var(--text);padding:8px 12px;border-radius:24px;cursor:pointer;font-weight:500;transition:.2s;width:100%;font-size:.75rem}
+        button:hover{background:#dee2e6}
+        .btn-secondary{background:#f8f9fa;border:.5px solid #dee2e6}
+        .btn-secondary:hover{background:#e9ecef}
+        .row{display:flex;gap:8px;margin-top:8px}
+        .row button{flex:1}
+        .config-block{margin-top:16px;border-top:.5px solid var(--border)}
+        .block-header{display:flex;justify-content:space-between;align-items:center;padding:8px 0;cursor:pointer;color:#495057}
+        .block-header:hover{color:var(--text)}
+        .block-icon{font-size:.8rem;transition:transform .2s;color:var(--subtle)}
+        .block-content{max-height:0;overflow:hidden;transition:max-height .3s,visibility .3s;visibility:hidden}
+        .block-content.expanded{max-height:800px;overflow-y:auto;visibility:visible}
+        #objectsList li{font-size:.7rem;font-family:monospace;padding:8px 12px;margin:4px 0;display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none;border-radius:12px}
+        #objectsList li.selected{background:rgba(13,110,253,.15)}
+        #objectsList li:hover{background:rgba(0,0,0,.05)}
+        .obj-name{font-weight:500;color:var(--accent);flex:1;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;font-size:.75rem}
+        .obj-name i{width:20px;text-align:center;flex-shrink:0}
+        .obj-name.strikethrough{text-decoration:line-through;color:var(--subtle)}
+        .obj-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+        .visibility-btn,.focus-btn,.edit-btn,.delete-btn{background:none;border:none;cursor:pointer;font-size:.8rem;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;transition:.2s;color:var(--subtle)}
+        .visibility-btn:hover,.focus-btn:hover,.edit-btn:hover{background:rgba(0,0,0,.1);color:var(--text)}
+        .delete-btn:hover{background:rgba(0,0,0,.1);color:#dc3545}
+        .visibility-btn.hidden{color:#adb5bd}
+        .visibility-btn.visible{color:var(--accent)}
+        .color-preview{width:22px;height:22px;border-radius:50%;display:inline-block;cursor:pointer;border:1px solid rgba(0,0,0,.2);flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.1);transition:transform .1s}
+        .color-preview:hover{transform:scale(1.1)}
+        .clear-btn{background:#f8d7da;color:#842029}
+        .clear-btn:hover{background:#f5c2c7}
+        .ai-panel{position:fixed;top:20px;right:20px;background:#fff;border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,.15);z-index:30;max-width:340px;border:1px solid rgba(0,0,0,.1)}
+        .ai-panel-header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.1)}
+        .ai-panel-header h4{font-size:.8rem;margin:0;display:flex;align-items:center;gap:6px}
+        .ai-panel-content{padding:8px 12px;font-size:.75rem;line-height:1.5;max-height:220px;overflow-y:auto;white-space:pre-wrap}
+        .ai-panel.hidden{display:none}
+        .hide-in-2d{display:block}
+        .render-mode-2d .hide-in-2d{display:none!important}
+        .show-in-2d{display:none}
+        .render-mode-2d .show-in-2d{display:block!important}
+        .copyright{text-align:center;font-size:.6rem;color:#aaa;margin-top:12px;padding-top:8px;border-top:.5px solid var(--border)}
+        .switch-group{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+        .switch-group label{margin-bottom:0;font-size:.75rem;cursor:pointer}
+        .switch-group input{width:auto;margin:0;transform:scale(1.1);cursor:pointer}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center}
+        .modal-content{background:#fff;border-radius:24px;width:90%;max-width:500px;max-height:70vh;overflow:auto;padding:20px}
+        .modal-content h3{margin-bottom:16px;font-size:1.1rem}
+        .modal-content textarea{width:100%;height:350px;font-family:monospace;font-size:.8rem;margin-bottom:16px}
+        .modal-buttons{display:flex;gap:12px;justify-content:flex-end}
+        .modal-buttons button{width:auto;padding:8px 20px}
+        .settings-divider{border:none;border-top:1px solid var(--border);margin:10px 0}
+        .sub-options{margin-left:8px;padding-left:12px;border-left:2px solid rgba(13,110,253,.25);display:none}
+        .sub-options.visible{display:block}
+        .model-search-input{width:100%;padding:10px;margin-bottom:12px;border:1px solid #ced4da;border-radius:20px;font-size:0.8rem}
+        .model-list{max-height:300px;overflow-y:auto}
+        .model-list-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;font-size:0.8rem;display:flex;justify-content:space-between;align-items:center;background:#fff}
+        .model-list-item:first-child{border-top-left-radius:6px;border-top-right-radius:6px}
+        .model-list-item:last-child{border-bottom:none;border-bottom-left-radius:6px;border-bottom-right-radius:6px}
+        .model-list-item:hover{background:#f5f5f7}
+        .model-list-item.active{background:#d0ebff}
+        .stop-btn{background:#dc3545!important;color:white!important}
+        .control-bar{position:absolute;bottom:90px;left:24px;background:#ffffff;backdrop-filter:blur(12px);border-radius:40px;pointer-events:auto;z-index:12;border:.5px solid rgba(0,0,0,.1);display:flex;align-items:center;padding:6px 12px;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,.05);max-width:calc(100vw - 50px);overflow-x:auto;overflow-y:hidden;white-space:nowrap}
+        .control-bar.hidden{display:none}
+        .control-bar.collapsed{width:auto;padding:6px;justify-content:center;border-radius:40px}
+        .control-bar.collapsed .controls-content{display:none}
+        .controls-content{display:flex;gap:12px;align-items:center;flex:1;min-width:0}
+        .collapse-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--subtle);font-size:.9rem;background:none;border:none;border-radius:50%;flex-shrink:0}
+        .collapse-btn:hover{color:var(--text);background:rgba(0,0,0,.05)}
+        .control-bar button{width:auto;padding:6px 14px;background:#e9ecef;display:inline-flex;align-items:center;gap:8px;border-radius:30px;flex-shrink:0}
+        .control-bar input{flex:1;min-width:60px;background:#fff;border:.5px solid #ced4da;border-radius:20px;padding:4px 8px;font-size:.7rem;flex-shrink:0}
+        .control-bar span{font-size:.7rem;color:var(--subtle);flex-shrink:0}
+        @media (max-width:700px){.bottom-panel{left:12px;right:12px;bottom:12px;width:calc(100% - 24px)!important}
+        .control-bar{left:12px}}
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div class="loading-frame" id="loadingFrame">
+            <div class="loading-inner">
+                <div class="loading-logo"><i class="fas fa-cube"></i> FSChart</div>
+                <div class="loading-author">By FastNow Studio · Pollinations</div>
+            </div>
+        </div>
+    </div>
+    <div id="canvasContainer"></div>
+    <div id="chartContainer">
+        <canvas id="chartCanvas"></canvas>
+        <div id="emptyOverlay" class="empty-overlay">Empty</div>
+    </div>
+    <div class="ai-panel hidden" id="aiPanel">
+        <div class="ai-panel-header">
+            <h4><i class="fas fa-comment-dots"></i> <span id="tokenDisplay"></span></h4>
+            <button id="hideAiPanelBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="ai-panel-content" id="aiPanelContent">No messages yet</div>
+    </div>
+    <div id="animationControls" class="control-bar hidden">
+        <button class="collapse-btn" id="collapseAnimBtn"><i class="fas fa-chevron-right"></i></button>
+        <div class="controls-content">
+            <button id="playPauseBtn"><i class="fas fa-play"></i> Play</button>
+            <span><i class="fas fa-tachometer-alt"></i> Speed</span>
+            <input type="range" id="animSpeed" min="0.25" max="4" step="0.05" value="1" class="speed-input" style="width:80px;">
+            <span id="speedValue">1.00x</span>
+            <span><i class="fas fa-clock"></i> Period(s)</span>
+            <input type="number" id="animPeriod" class="duration-input" value="10" step="0.5" min="0.5">
+            <span>Progress</span>
+            <input type="range" id="timeSlider" min="0" max="1" step="0.001" value="0">
+        </div>
+    </div>
+    <div class="bottom-panel">
+        <div class="panel-header" id="panelHeader">
+            <h3><i class="fas fa-cube"></i> FSChart · Pollinations</h3>
+            <span class="toggle-icon" id="toggleIcon"><i class="fas fa-chevron-down"></i></span>
+        </div>
+        <div class="panel-content" id="panelContent">
+            <div class="form-group"><label><i class="fas fa-comment"></i> Natural Language Description</label><textarea id="userPrompt" rows="2" placeholder="e.g. Draw sine curve y = sin(x); or a rotating red cube"></textarea></div>
+            <button id="generateBtn"><i class="fas fa-magic"></i> Send Command</button>
+            <div class="row"><button id="render3dBtn" class="btn-secondary" style="background:#0d6efd;color:white;"><i class="fas fa-cube"></i> 3D</button><button id="render2dBtn" class="btn-secondary"><i class="fas fa-chart-line"></i> 2D</button></div>
+            <div class="show-in-2d">
+                <div class="row"><button id="increaseSampleBtn" class="btn-secondary"><i class="fas fa-plus-circle"></i> More Samples</button><span id="sampleDisplay" style="font-size:0.75rem;color:#0d6efd;padding:0 4px;">Samples: 200</span><button id="decreaseSampleBtn" class="btn-secondary"><i class="fas fa-minus-circle"></i> Less Samples</button></div>
+                <button id="screenshot2dBtn" class="btn-secondary" style="margin-top:6px;"><i class="fas fa-camera-retro"></i> Screenshot 2D</button>
+            </div>
+            <div class="hide-in-2d">
+                <div class="row"><button id="resetCameraBtn" class="btn-secondary"><i class="fas fa-camera"></i> Reset Camera</button><button id="toggleGridBtn" class="btn-secondary"><i class="fas fa-border-all"></i> Toggle Grid</button><button id="toggleAxesBtn" class="btn-secondary"><i class="fas fa-chart-line"></i> Toggle Axes</button><button id="toggleWireframeBtn" class="btn-secondary"><i class="fas fa-border-all"></i> Wireframe</button><button id="screenshotBtn" class="btn-secondary"><i class="fas fa-camera-retro"></i> Screenshot</button></div>
+            </div>
+            <div class="config-block">
+                <div class="block-header" id="listHeader"><span><i class="fas fa-list"></i> Object List</span><span class="block-icon" id="listIcon"><i class="fas fa-chevron-right"></i></span></div>
+                <div class="block-content" id="listContent">
+                    <ul id="objectsList"></ul>
+                    <div class="row"><button id="addModelBtn" class="btn-secondary"><i class="fas fa-plus"></i> Add</button><button id="undoBtn" class="btn-secondary" disabled><i class="fas fa-undo"></i> Undo</button><button id="exportSceneBtn" class="btn-secondary"><i class="fas fa-download"></i> Export</button></div>
+                </div>
+            </div>
+            <div class="config-block show-in-2d">
+                <div class="block-header" id="chartStyleHeader"><span><i class="fas fa-palette"></i> Chart Style</span><span class="block-icon" id="chartStyleIcon"><i class="fas fa-chevron-right"></i></span></div>
+                <div class="block-content" id="chartStyleContent">
+                    <div class="form-group"><label>Grid Display</label><select id="gridDisplay"><option value="both">Both</option><option value="x">X-Axis Only</option><option value="y">Y-Axis Only</option><option value="none">None</option></select></div>
+                    <div class="form-group"><label>Grid Color</label><input type="color" id="gridColor" value="#e0e0e0"></div>
+                    <div class="form-group"><label>Tick Label Color</label><input type="color" id="tickColor" value="#666666"></div>
+                    <div class="form-group"><label>Axis Color</label><input type="color" id="borderColor" value="#cccccc"></div>
+                    <div class="form-group"><label>Background Color</label><input type="color" id="chartBgColor" value="#ffffff"></div>
+                    <div class="switch-group"><label>Smart Annotations</label><input type="checkbox" id="smartAnnotationToggle" checked></div>
+                    <div class="switch-group"><label>Zoom & Pan</label><input type="checkbox" id="zoomPanToggle" checked></div>
+                    <button id="applyChartStyle" class="btn-secondary" style="margin-top:8px;">Apply Style</button>
+                </div>
+            </div>
+            <div class="config-block hide-in-2d">
+                <div class="block-header" id="advancedHeader"><span><i class="fas fa-sliders-h"></i> Rendering Settings</span><span class="block-icon" id="advancedIcon"><i class="fas fa-chevron-right"></i></span></div>
+                <div class="block-content" id="advancedContent">
+                    <div class="form-group"><label>Far Plane</label><input type="number" id="farPlane" value="100000" step="10000"></div>
+                    <div class="form-group"><label>Ambient Intensity</label><input type="range" id="ambientIntensity" min="0" max="1" step="0.01" value="0.4"></div>
+                    <div class="form-group"><label>Main Light</label><input type="range" id="mainLightIntensity" min="0" max="1.5" step="0.01" value="1.0"></div>
+                    <div class="form-group"><label>Fill Light</label><input type="range" id="fillLightIntensity" min="0" max="1.5" step="0.01" value="0.6"></div>
+                    <div class="form-group"><label>Back Light</label><input type="range" id="backLightIntensity" min="0" max="1.5" step="0.01" value="0.5"></div>
+                    <button id="applySettingsBtn" class="btn-secondary">Apply Settings</button>
+                </div>
+            </div>
+            <div class="config-block">
+                <div class="block-header" id="apiHeader"><span><i class="fas fa-plug"></i> Pollinations API Settings</span><span class="block-icon" id="apiIcon"><i class="fas fa-chevron-right"></i></span></div>
+                <div class="block-content" id="apiContent">
+                    <div id="apiConfigPanel">
+                        <div class="form-group"><label>API Key</label><input type="password" id="apiKey" placeholder="pk_..." style="margin-bottom:6px;"><div class="row" style="margin:0;gap:8px;"><button id="polliLoginBtn" class="btn-secondary" style="width:auto;font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Login with Pollinations</button><button id="polliLogoutBtn" class="btn-secondary" style="width:auto;font-size:0.7rem;display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button></div><div id="polliUserInfo" style="font-size:0.65rem;color:#666;margin-top:4px;display:none;"></div></div>
+                        <div class="form-group"><label>API URL</label><input type="text" id="apiUrl" value="https://gen.pollinations.ai/v1/chat/completions"></div>
+                        <div class="form-group"><label>Model</label><div class="row" style="margin:0;gap:8px;"><input type="text" id="modelDisplay" readonly placeholder="Loading models..." style="flex:1;background:#f5f5f7;"><button id="selectModelBtn" class="btn-secondary" style="width:auto;"><i class="fas fa-list"></i> Browse</button></div></div>
+                        <hr class="settings-divider">
+                        <div class="form-group">
+                            <div style="display:flex;justify-content:space-between;align-items:center;"><label style="margin-bottom:0;">Temperature (0-1)</label><span id="temperatureValue" style="font-size:0.7rem;color:#495057;font-weight:500;">0.20</span></div>
+                            <input type="range" id="temperatureSlider" min="0" max="1" step="0.05" value="0.2" style="margin-top:4px;">
+                        </div>
+                        <div class="form-group"><label>Max Tokens</label><input type="number" id="maxTokens" value="2000" min="100" max="8000" step="100"></div>
+                        <div class="form-group"><label>Memory Length</label><input type="number" id="memoryLength" value="5" min="0" max="20" step="1"></div>
+                        <hr class="settings-divider">
+                        <div class="switch-group"><label>Enable Streaming</label><input type="checkbox" id="streamToggle"></div><div class="sub-options" id="streamSubOptions"><div class="form-group"><label>Render Speed (ms/char)</label><input type="number" id="renderSpeed" value="15" min="1" max="200" step="1"></div></div>
+                        <hr class="settings-divider">
+                        <div class="switch-group"><label>Auto Retry</label><input type="checkbox" id="autoRetryToggle"></div><div class="sub-options" id="retrySubOptions"><div class="form-group"><label>Max Retries</label><input type="number" id="maxRetries" value="2" min="1" max="5" step="1"></div><div class="form-group"><label>Retry Delay (ms)</label><input type="number" id="retryDelay" value="1000" min="200" max="10000" step="100"></div><div class="switch-group"><label>Feedback error to AI</label><input type="checkbox" id="retryFeedbackToggle" checked></div></div>
+                        <hr class="settings-divider">
+                        <div class="form-group"><label>AI Panel Background</label><input type="color" id="aiPanelBgColor" value="#ffffff"></div>
+                        <div class="form-group"><label>Custom System Prompt</label><textarea id="systemPrompt" rows="4" placeholder="Leave blank to use built-in prompt"></textarea></div>
+                        <button id="testApiBtn" class="btn-secondary">Test Connection</button>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">&copy;
+                <script>document.write(new Date().getFullYear())</script> FastNow Studio
+            </div>
+        </div>
+    </div>
+    <div id="modelModal" class="modal"><div class="modal-content"><h3><i class="fas fa-microchip"></i> Select Model</h3><input type="text" id="modelSearchInput" class="model-search-input" placeholder="Search models..."><div class="model-list" id="modelListContainer"></div><div class="modal-buttons"><button id="cancelModelBtn" class="clear-btn">Cancel</button></div></div></div>
+    <div id="editModal" class="modal"><div class="modal-content"><h3><i class="fas fa-code"></i> Edit Object (JSON)</h3><textarea id="editCode" rows="12"></textarea><div class="modal-buttons"><button id="saveEditBtn" class="btn-secondary">Save</button><button id="cancelEditBtn" class="clear-btn">Cancel</button></div></div></div>
+    <div id="addModal" class="modal"><div class="modal-content"><h3><i class="fas fa-plus-circle"></i> Add New Model (JSON)</h3><textarea id="addCode" rows="12" placeholder='{"expression":"y = sin(x)","xRange":[-10,10],"color":"#3b82f6"}'></textarea><div class="modal-buttons"><button id="confirmAddBtn" class="btn-secondary">Add</button><button id="cancelAddBtn" class="clear-btn">Cancel</button></div></div></div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        
+        let renderMode = '3d';
+        const canvasContainer = document.getElementById('canvasContainer');
+        const chartContainer = document.getElementById('chartContainer');
+        const render3dBtn = document.getElementById('render3dBtn');
+        const render2dBtn = document.getElementById('render2dBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const sampleDisplay = document.getElementById('sampleDisplay');
+        const aiPanel = document.getElementById('aiPanel');
+        const aiPanelContent = document.getElementById('aiPanelContent');
+        const tokenDisplaySpan = document.getElementById('tokenDisplay');
+        const emptyOverlay = document.getElementById('emptyOverlay');
+        const tempSlider = document.getElementById('temperatureSlider');
+        const tempValueSpan = document.getElementById('temperatureValue');
+        const loadingFrame = document.getElementById('loadingFrame');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        let currentSampleLevel = 200;
+        let conversationHistory = [];
+        let lastTokenUsage = 0;
+        let currentSpecs = null;
+        let sceneObjects = [];
+        let chartInstance = null;
+        let selectedObjectIndex = -1;
+        let wireframeMode = false;
+        let editTargetIndex = null;
+        let animations = [];
+        let animating = false,
+            animCurrentTime = 0,
+            animFrameId = null,
+            globalPeriod = 10,
+            globalSpeed = 1.0;
+        const timeSlider = document.getElementById('timeSlider');
+        let sliderLock = false;
+        let lastAnimT = -1;
+        const T_EPSILON = 0.001;
+        const pointsCache = new Map();
+        const deletedStack = [];
+        let availableModels = [];
+        let selectedModelId = '';
+        let currentAbortController = null;
+        let streamRenderQueue = [];
+        let streamRenderTimer = null;
+        const modelDisplay = document.getElementById('modelDisplay');
+        const selectModelBtn = document.getElementById('selectModelBtn');
+        const modelModal = document.getElementById('modelModal');
+        const modelSearchInput = document.getElementById('modelSearchInput');
+        const modelListContainer = document.getElementById('modelListContainer');
+        const cancelModelBtn = document.getElementById('cancelModelBtn');
+        const undoBtn = document.getElementById('undoBtn');
+
+        // ---------- Loading simulation (frame clockwise progress) ----------
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += Math.random() * 10;
+            if (progress > 90) progress = 90;
+            loadingFrame.style.setProperty('--progress', Math.min(progress, 100));
+        }, 250);
+        window.addEventListener('load', () => {
+            clearInterval(loadingInterval);
+            loadingFrame.style.setProperty('--progress', 100);
+            setTimeout(() => {
+                loadingOverlay.classList.add('fade-out');
+                setTimeout(() => loadingOverlay.remove(), 500);
+            }, 300);
+        });
+
+        // ---------- Pollinations OAuth ----------
+        const POLLI_CLIENT_ID = 'pk_your_publishable_key';
+        const POLLI_REDIRECT_URI = window.location.origin + window.location.pathname;
+        const POLLI_AUTH_URL = 'https://enter.pollinations.ai/authorize';
+        const polliLoginBtn = document.getElementById('polliLoginBtn');
+        const polliLogoutBtn = document.getElementById('polliLogoutBtn');
+        const polliUserInfo = document.getElementById('polliUserInfo');
+
+        function updatePolliUI() {
+            const oauthKey = localStorage.getItem('polli_oauth_key');
+            const oauthUser = localStorage.getItem('polli_oauth_user');
+            if (oauthKey) {
+                document.getElementById('apiKey').value = oauthKey;
+                polliLoginBtn.style.display = 'none';
+                polliLogoutBtn.style.display = 'inline-block';
+                polliUserInfo.style.display = 'block';
+                polliUserInfo.textContent = oauthUser ? `Logged in as: ${oauthUser}` : 'Logged in via Pollinations';
+                autoSaveConfig();
+            } else {
+                polliLoginBtn.style.display = 'inline-block';
+                polliLogoutBtn.style.display = 'none';
+                polliUserInfo.style.display = 'none';
+            }
+        }
+        polliLoginBtn.addEventListener('click', () => {
+            const params = new URLSearchParams({ redirect_uri: POLLI_REDIRECT_URI, client_id: POLLI_CLIENT_ID });
+            window.location.href = `${POLLI_AUTH_URL}?${params}`;
+        });
+        polliLogoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('polli_oauth_key');
+            localStorage.removeItem('polli_oauth_user');
+            document.getElementById('apiKey').value = '';
+            updatePolliUI();
+        });
+        (function checkOAuthCallback() {
+            const hash = location.hash.slice(1);
+            if (!hash) return;
+            const params = new URLSearchParams(hash);
+            const apiKey = params.get('api_key');
+            if (apiKey) {
+                localStorage.setItem('polli_oauth_key', apiKey);
+                document.getElementById('apiKey').value = apiKey;
+                fetch('https://gen.pollinations.ai/account/profile', { headers: { 'Authorization': `Bearer ${apiKey}` } })
+                    .then(r => r.json()).then(data => {
+                        const user = data.github_username || data.name || data.email || '';
+                        if (user) localStorage.setItem('polli_oauth_user', user);
+                        updatePolliUI();
+                    }).catch(() => updatePolliUI());
+                history.replaceState(null, '', location.pathname);
+            }
+        })();
+        updatePolliUI();
+
+        // ---------- Helpers ----------
+        function updateSampleDisplay() { sampleDisplay.textContent = `Samples: ${currentSampleLevel}`; }
+        updateSampleDisplay();
+
+        function showAiMessage(msg, isError = false) {
+            if (!msg) return;
+            aiPanelContent.textContent = msg;
+            aiPanelContent.style.color = isError ? '#dc3545' : '#333';
+            aiPanel.classList.remove('hidden');
+            aiPanel.style.backgroundColor = document.getElementById('aiPanelBgColor').value;
+            tokenDisplaySpan.textContent = `${lastTokenUsage} tokens`;
+        }
+
+        function appendAiMessage(chunk) {
+            aiPanelContent.textContent += chunk;
+            aiPanelContent.style.color = '#333';
+            aiPanel.classList.remove('hidden');
+            aiPanel.style.backgroundColor = document.getElementById('aiPanelBgColor').value;
+            aiPanelContent.scrollTop = aiPanelContent.scrollHeight;
+        }
+
+        function showError(msg) { showAiMessage(`${msg}`, true); }
+        document.getElementById('hideAiPanelBtn').addEventListener('click', () => aiPanel.classList.add('hidden'));
+
+        function parseAPIError(body) {
+            try {
+                const json = JSON.parse(body);
+                if (json.error) {
+                    const err = json.error;
+                    let msg = err.message || 'Unknown API error';
+                    if (err.code) msg += ` (code: ${err.code})`;
+                    if (err.type) msg += ` [${err.type}]`;
+                    if (err.retry_after) msg += ` Retry after ${err.retry_after}s`;
+                    return msg;
+                }
+            } catch (e) {}
+            return `API request failed: ${body.substring(0, 200)}`;
+        }
+
+        function setRenderMode(mode) {
+            renderMode = mode;
+            if (mode === '3d') {
+                canvasContainer.style.display = 'block';
+                chartContainer.style.display = 'none';
+                render3dBtn.style.background = '#0d6efd';
+                render3dBtn.style.color = 'white';
+                render2dBtn.style.background = '';
+                render2dBtn.style.color = '';
+                document.body.classList.remove('render-mode-2d');
+                if (currentSpecs) renderCurrentSpecs();
+            } else {
+                canvasContainer.style.display = 'none';
+                chartContainer.style.display = 'block';
+                render2dBtn.style.background = '#0d6efd';
+                render2dBtn.style.color = 'white';
+                render3dBtn.style.background = '';
+                render3dBtn.style.color = '';
+                document.body.classList.add('render-mode-2d');
+                if (currentSpecs) render2D(currentSpecs, true);
+                else render2D([], true);
+            }
+        }
+        render3dBtn.addEventListener('click', () => setRenderMode('3d'));
+        render2dBtn.addEventListener('click', () => setRenderMode('2d'));
+
+        // ---------- Three.js Setup ----------
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf0f2f5);
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
+        camera.position.set(8, 6, 10);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        canvasContainer.appendChild(renderer.domElement);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.target.set(0, 0, 0);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+        const mainLight = new THREE.DirectionalLight(0xffeedd, 1.0);
+        mainLight.position.set(-3, 5, 2);
+        mainLight.castShadow = true;
+        scene.add(mainLight);
+        const fillLight = new THREE.DirectionalLight(0x88aaff, 0.6);
+        fillLight.position.set(3, -2, -2);
+        scene.add(fillLight);
+        const backLight = new THREE.DirectionalLight(0xffccaa, 0.5);
+        backLight.position.set(0, 0, -5);
+        scene.add(backLight);
+        let gridHelper = new THREE.GridHelper(100, 50, 0xd0d0d0, 0xd0d0d0);
+        gridHelper.position.y = -0.2;
+        scene.add(gridHelper);
+        let axesHelper = new THREE.AxesHelper(8);
+        scene.add(axesHelper);
+
+        document.getElementById('resetCameraBtn').addEventListener('click', () => {
+            camera.position.set(8, 6, 10);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        });
+        document.getElementById('toggleGridBtn').addEventListener('click', () => { gridHelper.visible = !gridHelper.visible; });
+        document.getElementById('toggleAxesBtn').addEventListener('click', () => { axesHelper.visible = !axesHelper.visible; });
+        document.getElementById('toggleWireframeBtn').addEventListener('click', () => {
+            wireframeMode = !wireframeMode;
+            sceneObjects.forEach(i => applyWireframeToObject(i.obj, wireframeMode));
+        });
+        document.getElementById('applySettingsBtn').addEventListener('click', () => {
+            camera.far = parseFloat(document.getElementById('farPlane').value);
+            camera.updateProjectionMatrix();
+            ambientLight.intensity = parseFloat(document.getElementById('ambientIntensity').value);
+            mainLight.intensity = parseFloat(document.getElementById('mainLightIntensity').value);
+            fillLight.intensity = parseFloat(document.getElementById('fillLightIntensity').value);
+            backLight.intensity = parseFloat(document.getElementById('backLightIntensity').value);
+        });
+
+        function applyWireframeToObject(obj, enabled) {
+            if (!obj) return;
+            if (obj.material) {
+                if (Array.isArray(obj.material)) obj.material.forEach(m => m.wireframe = enabled);
+                else obj.material.wireframe = enabled;
+            }
+            if (obj.children) obj.children.forEach(c => applyWireframeToObject(c, enabled));
+        }
+
+        function applyColorToObject(obj, col) {
+            if (!obj) return;
+            if (obj.material) {
+                if (Array.isArray(obj.material)) obj.material.forEach(m => { if (m.color) m.color.set(col); });
+                else if (obj.material.color) obj.material.color.set(col);
+            }
+            if (obj.children) obj.children.forEach(c => applyColorToObject(c, col));
+        }
+
+        // ---------- Geometry Creation ----------
+        function createSolid(prim, params, col) {
+            const mat = new THREE.MeshStandardMaterial({ color: col });
+            let geo;
+            switch (prim) {
+                case 'cylinder':
+                    geo = new THREE.CylinderGeometry(params.radius || 1, params.radius || 1, params.height || 2, 32);
+                    break;
+                case 'cone':
+                    geo = new THREE.ConeGeometry(params.radius || 1, params.height || 2, 32);
+                    break;
+                case 'cube':
+                case 'box':
+                    geo = new THREE.BoxGeometry(params.width || 1, params.height || 1, params.depth || 1);
+                    break;
+                case 'sphere':
+                    geo = new THREE.SphereGeometry(params.radius || 1, 32, 32);
+                    break;
+                case 'torus':
+                    geo = new THREE.TorusGeometry(params.radius || 1, params.tube || 0.4, 32, 64);
+                    break;
+                default:
+                    return null;
+            }
+            const mesh = new THREE.Mesh(geo, mat);
+            if (params.position) mesh.position.set(params.position.x || 0, params.position.y || 0, params.position.z || 0);
+            if (params.rotation) mesh.rotation.set(params.rotation.x || 0, params.rotation.y || 0, params.rotation.z || 0);
+            return mesh;
+        }
+
+        function normalizeSpec(raw) {
+            const spec = { ...raw };
+            if (spec.type === 'primitive') spec.type = 'solid';
+            if (!spec.color) spec.color = '#3b82f6';
+            if (spec.params) {
+                ['position', 'rotation'].forEach(prop => {
+                    if (Array.isArray(spec.params[prop])) {
+                        const arr = spec.params[prop];
+                        spec.params[prop] = { x: arr[0] || 0, y: arr[1] || 0, z: arr[2] || 0 };
+                    }
+                });
+            }
+            if (spec.expression) {
+                let expr = spec.expression.trim();
+                if (!expr.includes('=') && !expr.includes('z') && !/^\(.*\)$/.test(expr)) expr = `y = ${expr}`;
+                spec.expression = expr;
+            }
+            if (spec.expression && /^y\s*=/.test(spec.expression) && !spec.xRange) spec.xRange = [-10, 10];
+            return spec;
+        }
+
+        function parseCircleEquation(e) {
+            if (e.includes('z')) return null;
+            const eq = e.replace(/\s/g, '');
+            if (!eq.includes('=')) return null;
+            const [l, r] = eq.split('=');
+            let r2;
+            try { r2 = math.evaluate(r); } catch (e) { return null; }
+            if (r2 <= 0) return null;
+            const rad = Math.sqrt(r2);
+            let cx = 0,
+                cy = 0;
+            const xm = l.match(/\(x\s*-\s*([^)]+)\)\^2|\(x\s*\+\s*([^)]+)\)\^2|x\^2/);
+            if (xm) { if (xm[1]) cx = parseFloat(xm[1]);
+            else if (xm[2]) cx = -parseFloat(xm[2]); }
+            const ym = l.match(/\(y\s*-\s*([^)]+)\)\^2|\(y\s*\+\s*([^)]+)\)\^2|y\^2/);
+            if (ym) { if (ym[1]) cy = parseFloat(ym[1]);
+            else if (ym[2]) cy = -parseFloat(ym[2]); }
+            return /x\*y|y\*x/.test(l) ? null : { radius: rad, center: { x: cx, y: cy } };
+        }
+
+        function marchingSquares(eq, col) {
+            const [xMin, xMax, yMin, yMax] = [-10, 10, -10, 10];
+            const res = 200,
+                dx = (xMax - xMin) / res,
+                dy = (yMax - yMin) / res;
+            const vals = Array(res + 1);
+            for (let i = 0; i <= res; i++) {
+                vals[i] = Array(res + 1);
+                const x = xMin + i * dx;
+                for (let j = 0; j <= res; j++) {
+                    const y = yMin + j * dy;
+                    try {
+                        let ex = eq;
+                        if (ex.includes('=')) { const p = ex.split('=');
+                            ex = `(${p[0]}) - (${p[1]})`; }
+                        vals[i][j] = math.evaluate(ex, { x, y });
+                    } catch (e) { vals[i][j] = NaN; }
+                }
+            }
+            const verts = [],
+                lines = [];
+
+            function interp(p1, p2, v1, v2) {
+                if (Math.abs(v1 - v2) < 1e-6) return [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+                const t = -v1 / (v2 - v1);
+                return [p1[0] + t * (p2[0] - p1[0]), p1[1] + t * (p2[1] - p1[1])];
+            }
+            for (let i = 0; i < res; i++)
+                for (let j = 0; j < res; j++) {
+                    const x0 = xMin + i * dx,
+                        y0 = yMin + j * dy,
+                        x1 = x0 + dx,
+                        y1 = y0 + dy;
+                    const v00 = vals[i][j],
+                        v10 = vals[i + 1][j],
+                        v11 = vals[i + 1][j + 1],
+                        v01 = vals[i][j + 1];
+                    let idx = 0;
+                    if (v00 < 0) idx |= 1;
+                    if (v10 < 0) idx |= 2;
+                    if (v11 < 0) idx |= 4;
+                    if (v01 < 0) idx |= 8;
+                    if (idx === 0 || idx === 15) continue;
+                    const e = [interp([x0, y0], [x1, y0], v00, v10), interp([x1, y0], [x1, y1], v10, v11), interp([x1, y1],
+                        [x0, y1], v11, v01), interp([x0, y1], [x0, y0], v01, v00)];
+                    const conn = { 1: [0, 3], 2: [1, 0], 3: [1, 3], 4: [2, 1], 5: [0, 2, 1, 3], 6: [2, 0], 7: [2, 3], 8: [3,
+                            2], 9: [0, 1, 2, 3], 10: [1, 2], 11: [1, 3, 2, 0], 12: [3, 0], 13: [0, 1, 3, 2], 14: [1, 2, 0, 3]
+                        } [idx];
+                    if (conn)
+                        for (let k = 0; k < conn.length; k += 2) { const p1 = e[conn[k]],
+                                p2 = e[conn[k + 1]]; if (p1 && p2) { verts.push(new THREE.Vector3(p1[0], p1[1], 0));
+                                verts.push(new THREE.Vector3(p2[0], p2[1], 0));
+                                lines.push(verts.length - 2, verts.length - 1); } }
+                }
+            if (verts.length === 0) return null;
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(verts.length * 3);
+            verts.forEach((v, i) => { pos[i * 3] = v.x;
+                pos[i * 3 + 1] = v.y;
+                pos[i * 3 + 2] = v.z; });
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setIndex(lines);
+            return new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: col }));
+        }
+
+        function createFromSpec(spec, col) {
+            let obj = null;
+            let isDynamic = false;
+            if (spec.expression && spec.expression.includes('t')) isDynamic = true;
+            if (spec.type === 'solid') obj = createSolid(spec.primitive, spec.params, col);
+            else if (spec.type === 'custom') {
+                try { const fn = new Function('THREE', 'color', spec.code);
+                    const res = fn(THREE, col); if (res && (res.isObject3D || res.isGroup)) obj = res; } catch (e) {}
+            } else if (spec.expression) {
+                const expr = spec.expression;
+                if (expr.includes('z')) {
+                    const pts = [];
+                    for (let x = -8; x <= 8; x += 0.3)
+                        for (let y = -8; y <= 8; y += 0.3)
+                            for (let z = -8; z <= 8; z += 0.3) {
+                                try {
+                                    let ex = expr;
+                                    if (ex.includes('=')) { const p = ex.split('=');
+                                        ex = `(${p[0]}) - (${p[1]})`; }
+                                    if (Math.abs(math.evaluate(ex, { x, y, z })) < 0.15) pts.push(new THREE.Vector3(x, y,
+                                        z));
+                                } catch (e) {}
+                            }
+                    if (pts.length) obj = new THREE.Points(new THREE.BufferGeometry().setFromPoints(pts), new THREE
+                        .PointsMaterial({ color: col, size: 0.12 }));
+                } else {
+                    const pm = expr.match(
+                        /Point\s*\(([^)]+)\)|\((\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)(?:,\s*(\d+(?:\.\d+)?))?\)/);
+                    if (pm) {
+                        let x = 0,
+                            y = 0,
+                            z = 0;
+                        if (pm[1]) { const c = pm[1].split(',').map(Number);
+                            x = c[0];
+                            y = c[1];
+                            z = c[2] || 0; } else { x = parseFloat(pm[2]);
+                            y = parseFloat(pm[3]);
+                            z = parseFloat(pm[4]) || 0; }
+                        const geo = new THREE.BufferGeometry();
+                        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([x, y, z]), 3));
+                        obj = new THREE.Points(geo, new THREE.PointsMaterial({ color: col, size: 0.2 }));
+                        if (expr.includes('t')) isDynamic = true;
+                    } else if (/^y\s*=/.test(expr)) {
+                        let rhs = expr.split('=')[1].trim().replace(/\^/g, '**');
+                        const pts = [];
+                        const [s, e] = spec.xRange || [-10, 10];
+                        const step = (e - s) / currentSampleLevel;
+                        for (let x = s; x <= e + 1e-6; x += step) {
+                            try { const y = math.evaluate(rhs, { x, t: 0 }); if (isFinite(y)) pts.push(new THREE.Vector3(
+                                    x, y, 0)); } catch (e) {}
+                        }
+                        if (pts.length) obj = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+                            new THREE.LineBasicMaterial({ color: col }));
+                    } else {
+                        const circle = parseCircleEquation(expr);
+                        if (circle) {
+                            const pts = [];
+                            for (let i = 0; i <= 64; i++) { const a = i * Math.PI * 2 / 64;
+                                pts.push(new THREE.Vector3(circle.center.x + circle.radius * Math.cos(a), circle.center
+                                    .y + circle.radius * Math.sin(a), 0)); }
+                            obj = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),
+                                new THREE.LineBasicMaterial({ color: col }));
+                            if (expr.includes('t')) isDynamic = true;
+                        } else {
+                            const ms = marchingSquares(expr, col);
+                            if (ms) obj = ms;
+                            else {
+                                let rhs = expr.includes('=') ? expr.split('=')[1].trim().replace(/\^/g, '**') : expr;
+                                const pts = [];
+                                for (let x = -10; x <= 10; x += 0.2) {
+                                    try { const y = math.evaluate(rhs, { x }); if (isFinite(y)) pts.push(new THREE.Vector3(
+                                            x, y, 0)); } catch (e) {}
+                                }
+                                if (pts.length) obj = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+                                    new THREE.LineBasicMaterial({ color: col }));
+                            }
+                        }
+                    }
+                }
+            }
+            if (obj) { obj.userData.isDynamic = isDynamic;
+                obj.userData.spec = spec;
+                obj.userData.color = col; }
+            return obj;
+        }
+
+        function addObject(spec, color) {
+            const obj = createFromSpec(spec, color);
+            if (!obj) return false;
+            scene.add(obj);
+            sceneObjects.push({ obj, spec, color });
+            applyWireframeToObject(obj, wireframeMode);
+            refreshAnimations();
+            updateObjectsList();
+            clear2DCache();
+            if (renderMode === '2d' && currentSpecs) render2D(currentSpecs, true);
+            return true;
+        }
+
+        function deleteObject(idx, pushToStack = true) {
+            const item = sceneObjects[idx];
+            if (!item) return;
+            if (pushToStack) { deletedStack.push({ spec: item.spec, color: item.color, index: idx });
+                undoBtn.disabled = false; }
+            scene.remove(item.obj);
+            if (item.obj.geometry) item.obj.geometry.dispose();
+            if (item.obj.material)(Array.isArray(item.obj.material) ? item.obj.material : [item.obj.material]).forEach(m =>
+                m.dispose());
+            sceneObjects.splice(idx, 1);
+            refreshAnimations();
+            updateObjectsList();
+            clear2DCache();
+            if (renderMode === '2d' && currentSpecs) render2D(currentSpecs, true);
+        }
+
+        function undoDelete() {
+            if (deletedStack.length === 0) return;
+            const last = deletedStack.pop();
+            addObject(last.spec, last.color);
+            if (deletedStack.length === 0) undoBtn.disabled = true;
+        }
+        undoBtn.addEventListener('click', undoDelete);
+
+        function replaceObject(idx, newSpec, newColor) {
+            const old = sceneObjects[idx];
+            if (!old) return false;
+            const newObj = createFromSpec(newSpec, newColor);
+            if (!newObj) return false;
+            scene.remove(old.obj);
+            scene.add(newObj);
+            if (old.obj.geometry) old.obj.geometry.dispose();
+            if (old.obj.material)(Array.isArray(old.obj.material) ? old.obj.material : [old.obj.material]).forEach(m => m
+                .dispose());
+            sceneObjects[idx] = { obj: newObj, spec: newSpec, color: newColor };
+            applyWireframeToObject(newObj, wireframeMode);
+            refreshAnimations();
+            updateObjectsList();
+            clear2DCache();
+            if (renderMode === '2d' && currentSpecs) render2D(currentSpecs, true);
+            return true;
+        }
+
+        function updateObjectsList() {
+            const ul = document.getElementById('objectsList');
+            ul.innerHTML = '';
+            sceneObjects.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.className = idx === selectedObjectIndex ? 'selected' : '';
+                const desc = item.spec.expression || `${item.spec.primitive||item.spec.type||'Graphic'}`;
+                const vis = item.obj.visible;
+                li.innerHTML =
+                    `<span class="obj-name ${vis?'':'strikethrough'}"><i class="fas fa-cube"></i> ${desc.substring(0,30)}</span><div class="obj-actions"><button class="visibility-btn ${vis?'visible':'hidden'}"><i class="fas ${vis?'fa-eye':'fa-eye-slash'}"></i></button><button class="focus-btn"><i class="fas fa-crosshairs"></i></button><button class="edit-btn"><i class="fas fa-pen"></i></button><button class="delete-btn"><i class="fas fa-trash"></i></button><div class="color-preview" style="background-color:${item.color}"></div></div>`;
+                li.querySelector('.obj-name').addEventListener('click', () => { selectedObjectIndex = idx;
+                    updateObjectsList(); });
+                li.querySelector('.visibility-btn').addEventListener('click', (e) => { e.stopPropagation();
+                    item.obj.visible = !item.obj.visible;
+                    updateObjectsList();
+                    clear2DCache(); if (renderMode === '2d') render2D(currentSpecs, true); });
+                li.querySelector('.focus-btn').addEventListener('click', () => { const box = new THREE.Box3()
+                        .setFromObject(item.obj); const c = box.getCenter(new THREE.Vector3()); const d = Math
+                        .max(box.getSize(new THREE.Vector3()).length() * 1.5, 5);
+                    camera.position.set(c.x + d, c.y + d * 0.6, c.z + d);
+                    controls.target.copy(c);
+                    controls.update(); });
+                li.querySelector('.edit-btn').addEventListener('click', () => { editTargetIndex = idx;
+                    document.getElementById('editCode').value = JSON.stringify(item.spec, null, 2);
+                    document.getElementById('editModal').style.display = 'flex'; });
+                li.querySelector('.delete-btn').addEventListener('click', () => deleteObject(idx, true));
+                li.querySelector('.color-preview').addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    const inp = document.createElement('input');
+                    inp.type = 'color';
+                    inp.value = item.color;
+                    Object.assign(inp.style, { position: 'fixed', top: ev.clientY + 'px', left: ev.clientX +
+                            'px', zIndex: 99999 });
+                    document.body.appendChild(inp);
+                    inp.click();
+                    inp.addEventListener('change', () => { const nc = inp.value;
+                        applyColorToObject(item.obj, nc);
+                        item.color = nc;
+                        item.spec.color = nc;
+                        updateObjectsList();
+                        clear2DCache(); if (renderMode === '2d' && chartInstance) render2D(currentSpecs,
+                            true);
+                        document.body.removeChild(inp); });
+                    inp.addEventListener('blur', () => { if (document.body.contains(inp)) document.body
+                            .removeChild(inp); });
+                });
+                ul.appendChild(li);
+            });
+        }
+
+        function clearAllObjects() { while (sceneObjects.length > 0) deleteObject(0, false);
+            deletedStack.length = 0;
+            undoBtn.disabled = true; }
+
+        document.getElementById('screenshotBtn').addEventListener('click', () => {
+            const dataURL = renderer.domElement.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `FSChart_${new Date().toISOString().slice(0,10)}.png`;
+            link.href = dataURL;
+            link.click();
+        });
+        document.getElementById('screenshot2dBtn').addEventListener('click', () => {
+            if (!chartInstance) return;
+            const url = chartInstance.toBase64Image('image/png');
+            const link = document.createElement('a');
+            link.download = `FSChart_2d_${new Date().toISOString().slice(0,10)}.png`;
+            link.href = url;
+            link.click();
+        });
+        document.getElementById('exportSceneBtn').addEventListener('click', () => {
+            const specs = sceneObjects.map(i => i.spec);
+            const json = JSON.stringify(specs, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `FSChart_scene_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // ---------- 2D Rendering ----------
+        function render2D(specs, forceUpdate = false) {
+            if (!specs) specs = [];
+            if (!forceUpdate && Math.abs(animCurrentTime - lastAnimT) < T_EPSILON) return;
+            lastAnimT = animCurrentTime;
+            const datasets = [];
+            specs.forEach((spec, i) => {
+                if (!sceneObjects[i]?.obj.visible) return;
+                if (spec.expression && /^y\s*=/.test(spec.expression)) {
+                    const pts = computeCurvePoints(spec, i, animCurrentTime);
+                    if (pts.length) datasets.push({ label: spec.expression, data: pts, borderColor: sceneObjects[i]
+                            ?.color || spec.color, borderWidth: 2.5, pointRadius: 0, showLine: true, tension: 0 });
+                }
+            });
+            if (datasets.length === 0) {
+                emptyOverlay.style.display = 'block';
+                if (chartInstance) { chartInstance.destroy();
+                    chartInstance = null; }
+                document.getElementById('chartCanvas').style.display = 'none';
+            } else {
+                emptyOverlay.style.display = 'none';
+                document.getElementById('chartCanvas').style.display = 'block';
+                if (!chartInstance) {
+                    const ctx = document.getElementById('chartCanvas').getContext('2d');
+                    chartInstance = new Chart(ctx, { type: 'scatter', data: { datasets }, options: { responsive: true,
+                            maintainAspectRatio: false, animation: false, scales: { x: { grid: { color: '#e0e0e0' } },
+                                y: { grid: { color: '#e0e0e0' } } }, plugins: { legend: { display: false } } } });
+                    chartInstance.canvas.style.backgroundColor = '#ffffff';
+                } else { chartInstance.data.datasets = datasets;
+                    chartInstance.update('none'); }
+            }
+        }
+
+        function computeCurvePoints(spec, i, t) {
+            const key = `${i}_${spec.expression}_${currentSampleLevel}`;
+            if (!spec.expression.includes('t') && pointsCache.has(key)) return pointsCache.get(key).points;
+            let rhs = spec.expression.split('=')[1].trim().replace(/\^/g, '**');
+            const [s, e] = spec.xRange || [-10, 10];
+            const step = (e - s) / currentSampleLevel;
+            const pts = [];
+            for (let x = s; x <= e + 1e-6; x += step) {
+                try { const y = math.evaluate(rhs, { x, t: spec.expression.includes('t') ? t : 0 }); if (isFinite(y)) pts
+                        .push({ x, y }); } catch (e) {}
+            }
+            if (!spec.expression.includes('t')) pointsCache.set(key, { points: pts, lastSampleLevel: currentSampleLevel });
+            return pts;
+        }
+
+        function clear2DCache() { pointsCache.clear();
+            lastAnimT = -1; }
+
+        function renderCurrentSpecs() { if (renderMode === '2d' && currentSpecs) render2D(currentSpecs, true);
+        else if (renderMode === '2d') render2D([], true); }
+
+        document.getElementById('increaseSampleBtn').addEventListener('click', () => { currentSampleLevel = Math.min(1200,
+                currentSampleLevel + 100);
+            updateSampleDisplay();
+            clear2DCache(); if (renderMode === '2d') render2D(currentSpecs, true); });
+        document.getElementById('decreaseSampleBtn').addEventListener('click', () => { currentSampleLevel = Math.max(100,
+                currentSampleLevel - 100);
+            updateSampleDisplay();
+            clear2DCache(); if (renderMode === '2d') render2D(currentSpecs, true); });
+
+        // ---------- Animation System ----------
+        function hasDynamicContent() { return sceneObjects.some(i => i.spec.expression?.includes('t') || i.spec.animation); }
+
+        function refreshAnimations() {
+            animations = sceneObjects.filter(item => item.spec.animation).map(item => {
+                try { let c = item.spec.animation.trim(); if (c.startsWith('function')) { const m = c.match(
+                            /\{([\s\S]*)\}/); if (m) c = m[1]; } return { obj: item.obj, func: new Function('obj', 't',
+                        c) }; } catch (e) { return null; }
+            }).filter(a => a);
+            const ctrl = document.getElementById('animationControls');
+            if (animations.length || hasDynamicContent()) { ctrl.classList.remove('hidden'); if (!animating)
+            resetAnimation(); } else { ctrl.classList.add('hidden'); if (animating) stopAnimation(); }
+        }
+
+        function syncSlider(p) { if (!sliderLock && timeSlider) timeSlider.value = Math.min(1, Math.max(0, p)).toFixed(3); }
+
+        function updateAnimations(t) {
+            animations.forEach(a => { try { a.func(a.obj, t); } catch (e) {} });
+            sceneObjects.forEach(item => {
+                if (item.obj.userData.isDynamic) {
+                    const oldObj = item.obj,
+                        spec = oldObj.userData.spec,
+                        color = oldObj.userData.color;
+                    let newObj = null;
+                    if (spec.expression && !spec.expression.includes('z') && /^y\s*=/.test(spec.expression)) {
+                        let rhs = spec.expression.split('=')[1].trim().replace(/\^/g, '**');
+                        const pts = [];
+                        const [s, e] = spec.xRange || [-10, 10];
+                        const step = (e - s) / currentSampleLevel;
+                        for (let x = s; x <= e + 1e-6; x += step) {
+                            try { const y = math.evaluate(rhs, { x, t }); if (isFinite(y)) pts.push(new THREE.Vector3(x,
+                                    y, 0)); } catch (e) {}
+                        }
+                        if (pts.length) { const geo = new THREE.BufferGeometry().setFromPoints(pts);
+                            newObj = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: color })); }
+                    }
+                    if (newObj) {
+                        scene.remove(oldObj);
+                        if (oldObj.geometry) oldObj.geometry.dispose();
+                        newObj.userData.isDynamic = true;
+                        newObj.userData.spec = spec;
+                        newObj.userData.color = color;
+                        applyWireframeToObject(newObj, wireframeMode);
+                        scene.add(newObj);
+                        item.obj = newObj;
+                    }
+                }
+            });
+            if (renderMode === '2d' && currentSpecs) render2D(currentSpecs, false);
+        }
+
+        function stopAnimation() { if (animFrameId) cancelAnimationFrame(animFrameId);
+            animating = false;
+            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i> Play'; }
+
+        function startAnimation() { if (animations.length === 0 && !hasDynamicContent()) return;
+            stopAnimation();
+            animating = true;
+            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i> Pause';
+            let last = performance.now();
+
+            function step(now) { if (!animating) return;
+                const dt = (now - last) / 1000 * globalSpeed;
+                last = now;
+                animCurrentTime += dt; if (animCurrentTime >= globalPeriod) animCurrentTime %= globalPeriod;
+                syncSlider(animCurrentTime / globalPeriod);
+                updateAnimations(animCurrentTime);
+                animFrameId = requestAnimationFrame(step); }
+            animFrameId = requestAnimationFrame(step);
+        }
+
+        function setAnimTime(p) { const was = animating; if (was) stopAnimation();
+            animCurrentTime = p * globalPeriod;
+            syncSlider(p);
+            updateAnimations(animCurrentTime); if (was) startAnimation(); }
+
+        function resetAnimation() { sliderLock = true;
+            timeSlider.value = 0;
+            sliderLock = false;
+            setAnimTime(0); }
+        document.getElementById('playPauseBtn').addEventListener('click', () => animating ? stopAnimation() :
+            startAnimation());
+        timeSlider.addEventListener('input', (e) => { sliderLock = true;
+            setAnimTime(e.target.value);
+            sliderLock = false; });
+        document.getElementById('animPeriod').addEventListener('change', e => { globalPeriod = Math.max(0.5, parseFloat(e
+                .target.value) || 10);
+            syncSlider(animCurrentTime / globalPeriod); });
+        document.getElementById('animSpeed').addEventListener('input', e => { globalSpeed = parseFloat(e.target.value);
+            document.getElementById('speedValue').textContent = globalSpeed.toFixed(2) + 'x'; });
+
+        const animCtrl = document.getElementById('animationControls');
+        const collapseBtn = document.getElementById('collapseAnimBtn');
+        let animCollapsed = true;
+
+        function updateAnimCollapse() { animCtrl.classList.toggle('collapsed', animCollapsed);
+            collapseBtn.innerHTML = animCollapsed ? '<i class="fas fa-chevron-right"></i>' :
+            '<i class="fas fa-chevron-left"></i>'; }
+        collapseBtn.addEventListener('click', () => { animCollapsed = !animCollapsed;
+            updateAnimCollapse(); });
+        updateAnimCollapse();
+        let animDragging = false,
+            dragStartX = 0,
+            dragStartY = 0;
+        animCtrl.addEventListener('mousedown', e => { if (e.target === collapseBtn) return;
+            animDragging = true;
+            const r = animCtrl.getBoundingClientRect();
+            dragStartX = e.clientX - r.left;
+            dragStartY = e.clientY - r.top;
+            e.preventDefault(); });
+        window.addEventListener('mousemove', e => { if (!animDragging) return;
+            let l = e.clientX - dragStartX,
+                b = window.innerHeight - e.clientY - dragStartY;
+            l = Math.max(0, Math.min(window.innerWidth - animCtrl.offsetWidth, l));
+            b = Math.max(0, Math.min(window.innerHeight - animCtrl.offsetHeight, b));
+            animCtrl.style.left = l + 'px';
+            animCtrl.style.bottom = b + 'px'; });
+        window.addEventListener('mouseup', () => animDragging = false);
+        animCtrl.style.left = '24px';
+        animCtrl.style.bottom = '90px';
+
+        // ---------- Model & API ----------
+        async function loadModelList() {
+            try {
+                const resp = await fetch('https://gen.pollinations.ai/text/models');
+                if (!resp.ok) throw new Error('Failed to load models');
+                const data = await resp.json();
+                availableModels = Array.isArray(data) ? data : (data.data || []);
+                const savedModelId = localStorage.getItem('geom_model_pollinations');
+                if (savedModelId) { const found = availableModels.find(m => m.name === savedModelId); if (found) {
+                        selectedModelId = savedModelId;
+                        modelDisplay.value = found.aliases?.[0] || found.name; } }
+                if (!selectedModelId && availableModels.length > 0) { selectedModelId = availableModels[0].name;
+                    modelDisplay.value = availableModels[0].aliases?.[0] || availableModels[0].name; }
+            } catch (e) {
+                availableModels = [{ name: 'gpt-5.4-mini', aliases: ['GPT-5.4 Mini'] }];
+                selectedModelId = 'gpt-5.4-mini';
+                modelDisplay.value = 'GPT-5.4 Mini';
+            }
+        }
+
+        function renderModelList(filter = '') {
+            const container = modelListContainer;
+            container.innerHTML = '';
+            const filtered = availableModels.filter(m => {
+                const search = filter.toLowerCase();
+                return (m.aliases?.[0] || m.name).toLowerCase().includes(search) || m.name.toLowerCase().includes(
+                    search);
+            });
+            filtered.forEach(m => {
+                const display = m.aliases?.[0] || m.name;
+                const item = document.createElement('div');
+                item.className = 'model-list-item' + (m.name === selectedModelId ? ' active' : '');
+                item.innerHTML = `<span class="model-name">${display}</span>`;
+                item.addEventListener('click', () => { selectedModelId = m.name;
+                    modelDisplay.value = display;
+                    modelModal.style.display = 'none';
+                    localStorage.setItem('geom_model_pollinations', selectedModelId); });
+                container.appendChild(item);
+            });
+        }
+        selectModelBtn.addEventListener('click', async () => { if (availableModels.length === 0) await loadModelList();
+            modelModal.style.display = 'flex';
+            renderModelList();
+            modelSearchInput.focus(); });
+        cancelModelBtn.addEventListener('click', () => modelModal.style.display = 'none');
+        modelSearchInput.addEventListener('input', () => renderModelList(modelSearchInput.value));
+
+        async function generateFromAIStream(prompt, history, speedMs, signal) {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const model = selectedModelId;
+            const temperature = parseFloat(document.getElementById('temperatureSlider').value);
+            const maxTokens = parseInt(document.getElementById('maxTokens').value);
+            const customSystemPrompt = document.getElementById('systemPrompt').value.trim();
+            if (!apiUrl) throw new Error('Please enter API URL');
+            if (!model) throw new Error('Please select a model');
+            const defaultSys =
+                `You are a 3D/2D geometry expert. Output only JSON: {"say":"msg","graphics":[...]} or {"actions":[...]}. Current objects: ${JSON.stringify(sceneObjects.map(i=>i.spec))}`;
+            const systemContent = customSystemPrompt || defaultSys;
+            const messages = [{ role: "system", content: systemContent }, ...history];
+            const headers = { 'Content-Type': 'application/json' };
+            if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+            const resp = await fetch(apiUrl, { method: 'POST', headers, body: JSON.stringify({ model, messages, temperature,
+                    max_tokens: maxTokens, stream: true }), signal });
+            if (!resp.ok) { const errBody = await resp.text();
+                throw new Error(parseAPIError(errBody)); }
+            aiPanelContent.textContent = '';
+            aiPanel.classList.remove('hidden');
+            startStreamRender(speedMs);
+            const reader = resp.body.getReader();
+            const decoder = new TextDecoder();
+            let fullContent = '',
+                totalTokens = 0;
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line || !line.startsWith('data:')) continue;
+                    const dataStr = line.replace('data:', '').trim();
+                    if (dataStr === '[DONE]') continue;
+                    try { const json = JSON.parse(dataStr);
+                        const content = json.choices?.[0]?.delta?.content || ''; if (content) { fullContent += content;
+                            streamRenderQueue.push(...content.split('')); } if (json.usage?.total_tokens)
+                        totalTokens = json.usage.total_tokens; } catch (e) {}
+                }
+            }
+            while (streamRenderQueue.length > 0) { await new Promise(r => setTimeout(r, speedMs)); }
+            stopStreamRender();
+            lastTokenUsage = totalTokens;
+            tokenDisplaySpan.textContent = `${lastTokenUsage} tokens`;
+            return fullContent;
+        }
+
+        async function generateFromAINormal(prompt, history, signal) {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const model = selectedModelId;
+            const temperature = parseFloat(document.getElementById('temperatureSlider').value);
+            const maxTokens = parseInt(document.getElementById('maxTokens').value);
+            const customSystemPrompt = document.getElementById('systemPrompt').value.trim();
+            if (!apiUrl) throw new Error('Please enter API URL');
+            if (!model) throw new Error('Please select a model');
+            const defaultSys =
+                `You are a 3D/2D geometry expert. Output only JSON: {"say":"msg","graphics":[...]} or {"actions":[...]}. Current objects: ${JSON.stringify(sceneObjects.map(i=>i.spec))}`;
+            const systemContent = customSystemPrompt || defaultSys;
+            const messages = [{ role: "system", content: systemContent }, ...history];
+            const headers = { 'Content-Type': 'application/json' };
+            if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+            const resp = await fetch(apiUrl, { method: 'POST', headers, body: JSON.stringify({ model, messages, temperature,
+                    max_tokens: maxTokens }), signal });
+            if (!resp.ok) { const errBody = await resp.text();
+                throw new Error(parseAPIError(errBody)); }
+            const data = await resp.json();
+            const content = data.choices[0].message.content;
+            lastTokenUsage = data.usage?.total_tokens || 0;
+            return content;
+        }
+
+        function startStreamRender(speedMs) { if (streamRenderTimer) clearInterval(streamRenderTimer);
+            streamRenderTimer = setInterval(() => { if (streamRenderQueue.length === 0) { stopStreamRender(); return; }
+                const chunk = streamRenderQueue.shift();
+                appendAiMessage(chunk); }, Math.max(1, speedMs)); }
+
+        function stopStreamRender() { if (streamRenderTimer) { clearInterval(streamRenderTimer);
+                streamRenderTimer = null; }
+            streamRenderQueue = []; }
+
+        function parseAIResponseToSpecs(raw) {
+            let text = raw.trim();
+            const cm = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+            if (cm) text = cm[1];
+            const start = text.indexOf('{');
+            if (start === -1) throw new Error('No JSON found');
+            let brace = 0,
+                end = -1;
+            for (let i = start; i < text.length; i++) {
+                if (text[i] === '{') brace++;
+                else if (text[i] === '}') { brace--; if (brace === 0) { end = i;
+                        break; } }
+            }
+            if (end === -1) throw new Error('Unmatched braces');
+            const jsonStr = text.substring(start, end + 1);
+            const data = JSON.parse(jsonStr);
+            let graphics = [],
+                say = '',
+                actions = null;
+            if (data.actions) { actions = data.actions;
+                say = data.say || ''; return [{ specs: [], say, actions }]; }
+            if (data.graphics) graphics = Array.isArray(data.graphics) ? data.graphics : [data.graphics];
+            else if (Array.isArray(data)) graphics = data;
+            else graphics = [data];
+            say = data.say || '';
+            const specs = graphics.map(raw => normalizeSpec(raw)).filter(s => s.expression || s.type || s.primitive);
+            return [{ specs, say, actions }];
+        }
+
+        function applyParsedResult(parsed) {
+            if (!parsed || parsed.length === 0) return false;
+            const p = parsed[0];
+            if (p.say) showAiMessage(p.say);
+            if (p.actions && p.actions.length) {
+                for (let a of p.actions) {
+                    if (a.action === 'delete' && typeof a.index === 'number' && a.index >= 0 && a.index < sceneObjects
+                        .length) deleteObject(a.index, true);
+                    else if (a.action === 'add' && a.spec) { const norm = normalizeSpec(a.spec);
+                        addObject(norm, norm.color); } else if (a.action === 'replace' && typeof a.index === 'number' &&
+                        a.index >= 0 && a.index < sceneObjects.length && a.spec) { const norm = normalizeSpec(a.spec);
+                        replaceObject(a.index, norm, norm.color || sceneObjects[a.index].color); }
+                }
+            } else if (p.specs.length) {
+                clearAllObjects();
+                p.specs.forEach(s => addObject(s, s.color));
+            }
+            currentSpecs = sceneObjects.map(i => i.spec);
+            if (renderMode === '2d') render2D(currentSpecs, true);
+            if (sceneObjects.length) {
+                const box = new THREE.Box3();
+                sceneObjects.forEach(i => box.expandByObject(i.obj));
+                const c = box.getCenter(new THREE.Vector3()),
+                    d = Math.max(box.getSize(new THREE.Vector3()).length() * 1.5, 5);
+                camera.position.set(c.x + d * 0.8, c.y + d * 0.6, c.z + d);
+                controls.target.copy(c);
+                controls.update();
+            }
+            lastAnimT = -1;
+            return true;
+        }
+
+        async function onGenerate() {
+            const prompt = document.getElementById('userPrompt').value.trim();
+            if (!prompt) return;
+            if (currentAbortController) { currentAbortController.abort(); return; }
+            currentAbortController = new AbortController();
+            generateBtn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+            generateBtn.classList.add('stop-btn');
+            try {
+                const memLen = parseInt(document.getElementById('memoryLength').value) || 5;
+                const history = conversationHistory.slice(-memLen * 2);
+                const useStream = document.getElementById('streamToggle').checked;
+                const renderSpeed = parseInt(document.getElementById('renderSpeed').value) || 15;
+                let aiText;
+                if (useStream) aiText = await generateFromAIStream(prompt, history, renderSpeed, currentAbortController
+                    .signal);
+                else aiText = await generateFromAINormal(prompt, history, currentAbortController.signal);
+                if (!aiText || aiText.trim().length === 0) throw new Error('AI returned empty');
+                const parsedList = parseAIResponseToSpecs(aiText.replace(/Math\.PI/g, '3.141592653589793'));
+                if (!parsedList || parsedList.length === 0) throw new Error('Parsed result empty');
+                applyParsedResult(parsedList);
+                conversationHistory.push({ role: 'user', content: prompt }, { role: 'assistant', content: aiText });
+                while (conversationHistory.length > memLen * 2) conversationHistory.shift();
+                tokenDisplaySpan.textContent = `${lastTokenUsage} tokens`;
+            } catch (e) {
+                if (e.name !== 'AbortError') showError(`Processing failed: ${e.message}`);
+            } finally {
+                currentAbortController = null;
+                generateBtn.innerHTML = '<i class="fas fa-magic"></i> Send Command';
+                generateBtn.classList.remove('stop-btn');
+            }
+        }
+        generateBtn.addEventListener('click', onGenerate);
+
+        function updateTemperatureDisplay() { tempValueSpan.textContent = parseFloat(tempSlider.value).toFixed(2); }
+        tempSlider.addEventListener('input', updateTemperatureDisplay);
+        updateTemperatureDisplay();
+
+        function autoSaveConfig() {
+            localStorage.setItem('geom_key_pollinations', document.getElementById('apiKey').value.trim());
+            localStorage.setItem('geom_url_pollinations', document.getElementById('apiUrl').value.trim());
+            localStorage.setItem('geom_temp_pollinations', document.getElementById('temperatureSlider').value);
+            localStorage.setItem('geom_max_tokens_pollinations', document.getElementById('maxTokens').value);
+            localStorage.setItem('geom_sys_prompt_pollinations', document.getElementById('systemPrompt').value);
+            localStorage.setItem('memory_len_pollinations', document.getElementById('memoryLength').value);
+            localStorage.setItem('geom_stream_pollinations', document.getElementById('streamToggle').checked);
+            localStorage.setItem('geom_render_speed_pollinations', document.getElementById('renderSpeed').value);
+            localStorage.setItem('geom_auto_retry_pollinations', document.getElementById('autoRetryToggle').checked);
+            localStorage.setItem('geom_max_retries_pollinations', document.getElementById('maxRetries').value);
+            localStorage.setItem('geom_retry_delay_pollinations', document.getElementById('retryDelay').value);
+            localStorage.setItem('geom_retry_feedback_pollinations', document.getElementById('retryFeedbackToggle')
+        .checked);
+        }
+        const saveIds = ['apiKey', 'apiUrl', 'temperatureSlider', 'maxTokens', 'systemPrompt', 'memoryLength',
+            'streamToggle', 'renderSpeed', 'autoRetryToggle', 'maxRetries', 'retryDelay', 'retryFeedbackToggle'
+        ];
+        saveIds.forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener((el.type ===
+                'checkbox' ? 'change' : 'input'), autoSaveConfig); });
+
+        document.getElementById('testApiBtn').addEventListener('click', async () => {
+            if (!selectedModelId) { alert('Please select a model first'); return; }
+            const url = document.getElementById('apiUrl').value.trim();
+            if (!url) return;
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                const key = document.getElementById('apiKey').value.trim();
+                if (key) headers['Authorization'] = `Bearer ${key}`;
+                const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify({ model: selectedModelId,
+                        messages: [{ role: 'user', content: 'ping' }], max_tokens: 5, temperature: 0 }) });
+                if (res.ok) alert('Connection successful');
+                else { const errBody = await res.text();
+                    alert(`Failed ${res.status}: ${parseAPIError(errBody)}`); }
+            } catch (e) { alert(`Failed: ${e.message}`); }
+        });
+
+        (function loadStored() {
+            document.getElementById('apiKey').value = localStorage.getItem('geom_key_pollinations') || '';
+            document.getElementById('apiUrl').value = localStorage.getItem('geom_url_pollinations') ||
+                'https://gen.pollinations.ai/v1/chat/completions';
+            const storedTemp = localStorage.getItem('geom_temp_pollinations') || '0.2';
+            document.getElementById('temperatureSlider').value = storedTemp;
+            tempValueSpan.textContent = parseFloat(storedTemp).toFixed(2);
+            document.getElementById('maxTokens').value = localStorage.getItem('geom_max_tokens_pollinations') || '2000';
+            document.getElementById('systemPrompt').value = localStorage.getItem('geom_sys_prompt_pollinations') || '';
+            document.getElementById('memoryLength').value = localStorage.getItem('memory_len_pollinations') || '5';
+            document.getElementById('streamToggle').checked = localStorage.getItem('geom_stream_pollinations') ===
+                'true';
+            document.getElementById('renderSpeed').value = localStorage.getItem('geom_render_speed_pollinations') || '15';
+            document.getElementById('autoRetryToggle').checked = localStorage.getItem('geom_auto_retry_pollinations') ===
+                'true';
+            document.getElementById('maxRetries').value = localStorage.getItem('geom_max_retries_pollinations') || '2';
+            document.getElementById('retryDelay').value = localStorage.getItem('geom_retry_delay_pollinations') || '1000';
+            document.getElementById('retryFeedbackToggle').checked = localStorage.getItem(
+                'geom_retry_feedback_pollinations') !== 'false';
+            updateSubOptionsVisibility();
+            document.getElementById('streamToggle').addEventListener('change', updateSubOptionsVisibility);
+            document.getElementById('autoRetryToggle').addEventListener('change', updateSubOptionsVisibility);
+            document.getElementById('memoryLength').addEventListener('change', e => localStorage.setItem(
+                'memory_len_pollinations', e.target.value));
+            loadModelList().then(() => {
+                const savedModelId = localStorage.getItem('geom_model_pollinations');
+                if (savedModelId) { const found = availableModels.find(m => m.name === savedModelId); if (found) {
+                        selectedModelId = savedModelId;
+                        modelDisplay.value = found.aliases?.[0] || found.name; } }
+                if (!selectedModelId && availableModels.length > 0) { selectedModelId = availableModels[0].name;
+                    modelDisplay.value = availableModels[0].aliases?.[0] || availableModels[0].name; }
+            });
+        })();
+
+        function updateSubOptionsVisibility() {
+            document.getElementById('streamSubOptions').classList.toggle('visible', document.getElementById('streamToggle')
+                .checked);
+            document.getElementById('retrySubOptions').classList.toggle('visible', document.getElementById('autoRetryToggle')
+                .checked);
+        }
+
+        function setupCollapsible(hId, cId, iId, def) {
+            const h = document.getElementById(hId),
+                c = document.getElementById(cId),
+                i = document.getElementById(iId);
+            if (!h || !c || !i) return;
+            let exp = def;
+            i.innerHTML = exp ? '<i class="fas fa-chevron-down"></i>' : '<i class="fas fa-chevron-right"></i>';
+            h.addEventListener('click', () => { exp = !exp;
+                c.classList.toggle('expanded', exp);
+                i.innerHTML = exp ? '<i class="fas fa-chevron-down"></i>' : '<i class="fas fa-chevron-right"></i>'; });
+        }
+        setupCollapsible('listHeader', 'listContent', 'listIcon', false);
+        setupCollapsible('chartStyleHeader', 'chartStyleContent', 'chartStyleIcon', false);
+        setupCollapsible('advancedHeader', 'advancedContent', 'advancedIcon', false);
+        setupCollapsible('apiHeader', 'apiContent', 'apiIcon', false);
+        document.getElementById('panelHeader').addEventListener('click', () => {
+            const col = document.getElementById('panelContent').classList.toggle('collapsed');
+            document.getElementById('toggleIcon').innerHTML = col ? '<i class="fas fa-chevron-up"></i>' :
+                '<i class="fas fa-chevron-down"></i>';
+        });
+
+        function animate() { requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera); }
+        animate();
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight); if (chartInstance) chartInstance.resize(); });
+        setRenderMode('3d');
+    </script>
+</body>
+</html>
