@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="IMADreamer – Free AI image generator powered by Pollinations. Create stunning art from text prompts, use reference images, switch models, polish prompts, and more. No login required.">
+    <meta name="keywords" content="AI image generator, Pollinations AI, text to image, free AI art tool, prompt polish, AI art studio, Flux model, GPT image generator, Img2Img, creative AI">
+    <title>IMADreamer | Free AI Image Generator with Pollinations API</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#1e1e2f;min-height:100vh}
+        .container{max-width:900px;margin:0 auto;padding:20px}
+        .header{text-align:center;margin:40px 0 30px}
+        .header h1{font-size:2rem;font-weight:600;margin-bottom:6px;letter-spacing:-0.5px}
+        .header p{color:#6c757d;font-size:0.95rem;font-weight:400}
+        .preview-area{background:#fff;border-radius:12px;padding:24px;min-height:380px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.08);box-shadow:0 4px 20px rgba(0,0,0,.03);margin-bottom:24px;flex-direction:column;gap:16px}
+        .preview-area img{max-width:100%;max-height:60vh;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+        .preview-placeholder{color:#adb5bd;text-align:center}
+        .preview-placeholder i{font-size:3rem;margin-bottom:12px;display:block}
+        .bottom-panel{background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-radius:12px;border:.5px solid rgba(0,0,0,.1);box-shadow:0 4px 20px rgba(0,0,0,.05);padding:20px}
+        .form-group{margin-bottom:14px;width:100%}
+        label{display:block;margin-bottom:4px;font-weight:500;font-size:.75rem;color:#495057}
+        input,select,textarea{width:100%;padding:10px 14px;background:#fff;border:.5px solid #ced4da;color:#212529;border-radius:8px;font-size:.8rem;font-family:monospace;box-sizing:border-box}
+        textarea{resize:vertical}
+        button{background:#0d6efd;border:none;color:#fff;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:500;transition:.2s;font-size:.8rem;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+        button:hover{background:#0b5ed7}
+        .btn-secondary{background:#f8f9fa;color:#1e1e2f;border:.5px solid #dee2e6}
+        .btn-secondary:hover{background:#e9ecef}
+        .row{display:flex;gap:8px;margin-top:8px;width:100%;flex-wrap:wrap;align-items:center}
+        .model-selector{display:flex;gap:8px;align-items:center}
+        .model-selector input[readonly]{flex:1;background:#f5f5f7}
+        .model-selector button{width:auto}
+        .settings-divider{border:none;border-top:1px solid rgba(0,0,0,.08);margin:14px 0}
+        .switch-group{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+        .switch-group label{margin-bottom:0;font-size:.8rem;cursor:pointer}
+        .switch-group input{width:auto;margin:0;transform:scale(1.1);cursor:pointer}
+        .model-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center}
+        .model-modal-content{background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:70vh;overflow:auto;padding:20px}
+        .model-search-input{width:100%;padding:10px;margin-bottom:12px;border:1px solid #ced4da;border-radius:8px;font-size:0.8rem}
+        .model-list{max-height:300px;overflow-y:auto}
+        .model-list-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;font-size:0.8rem;background:#fff;display:flex;justify-content:space-between;align-items:center}
+        .model-list-item:first-child{border-radius:4px 4px 0 0}
+        .model-list-item:last-child{border-radius:0 0 4px 4px;border-bottom:none}
+        .model-list-item:hover{background:#f5f5f7}
+        .model-list-item.active{background:#d0ebff}
+        .img2img-badge{font-size:0.65rem;background:#e9ecef;padding:2px 8px;border-radius:12px;margin-left:8px;color:#495057}
+        .download-btn{background:#198754!important}
+        .image-upload-wrapper{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+        .image-upload-wrapper input[type="file"]{display:none}
+        .upload-preview{width:80px;height:80px;border-radius:8px;object-fit:cover;border:1px solid #ddd;background:#f8f9fa}
+        .polish-config{display:none;margin-top:8px}
+        .polish-config.visible{display:block}
+        .polish-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-start;width:100%}
+        .polish-row .auto-label{margin-left:auto}
+        .feedback-message{font-size:0.7rem;margin-top:4px;min-height:18px}
+        .advanced-block{border:1px solid rgba(0,0,0,.08);border-radius:12px;margin-top:16px;overflow:hidden;background:#fafafa}
+        .advanced-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;cursor:pointer;font-size:0.8rem;font-weight:500;color:#1e1e2f;background:transparent;border-bottom:1px solid transparent}
+        .advanced-header:hover{background:rgba(0,0,0,.02)}
+        .advanced-body{display:none;padding:16px;background:#fff}
+        .advanced-body.visible{display:block}
+        .size-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+        .size-preset-btn{padding:6px 12px;font-size:0.7rem;background:#f0f0f2;border:1px solid #ddd;border-radius:8px;cursor:pointer;color:#333;white-space:nowrap}
+        .size-preset-btn.active{background:#0d6efd;color:#fff;border-color:#0d6efd}
+        .custom-size-row{display:none;gap:8px;align-items:center;margin-top:8px}
+        .custom-size-row.visible{display:flex}
+        .action-row{display:flex;gap:8px;margin-top:8px;align-items:center}
+        .action-row .generate-btn{flex:3}
+        .action-row .polish-btn{flex:1}
+        @media (max-width:700px){.header h1{font-size:1.5rem}.bottom-panel{padding:16px}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>IMADreamer</h1>
+        <p>Start with a description, get an image.</p>
+    </div>
+    
+    <div class="preview-area" id="previewArea">
+        <div class="preview-placeholder"><i class="fas fa-image"></i><p>Your image will appear here</p></div>
+    </div>
+
+    <div class="bottom-panel">
+        <div>
+            <div class="form-group" style="margin-bottom:8px">
+                <label>Prompt</label>
+                <textarea id="promptInput" rows="3" placeholder="A cozy pixel art robot and a bee in a digital garden..."></textarea>
+                <div class="feedback-message" id="promptFeedback"></div>
+            </div>
+
+            <div class="action-row">
+                <button id="generateBtn" class="generate-btn"><i class="fas fa-magic"></i> Generate</button>
+                <button type="button" id="polishPromptBtn" class="btn-secondary polish-btn"><i class="fas fa-magic"></i> Polish</button>
+            </div>
+
+            <div class="form-group" style="margin-top:14px">
+                <label>Reference Image (optional)</label>
+                <div class="image-upload-wrapper">
+                    <img id="refImagePreview" class="upload-preview" style="display:none">
+                    <button type="button" id="uploadImageBtn" class="btn-secondary"><i class="fas fa-upload"></i> Choose File</button>
+                    <button type="button" id="removeRefImageBtn" class="btn-secondary" style="display:none"><i class="fas fa-times"></i> Remove</button>
+                    <input type="file" id="refImageInput" accept="image/*">
+                </div>
+                <div id="refImageStatus" style="font-size:0.7rem;color:#6c757d;margin-top:4px"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Size</label>
+                <div class="size-presets" id="sizePresets">
+                    <span class="size-preset-btn active" data-w="1024" data-h="1024">1024×1024</span>
+                    <span class="size-preset-btn" data-w="1920" data-h="1080">1920×1080</span>
+                    <span class="size-preset-btn" data-w="1080" data-h="1920">1080×1920</span>
+                    <span class="size-preset-btn" data-w="2560" data-h="1440">2560×1440</span>
+                    <span class="size-preset-btn" data-w="3840" data-h="2160">3840×2160</span>
+                    <span class="size-preset-btn custom" data-w="custom">Custom</span>
+                </div>
+                <div class="custom-size-row" id="customSizeRow">
+                    <input type="number" id="widthInput" value="1024" min="64" max="4096" step="64" placeholder="Width">
+                    <span>×</span>
+                    <input type="number" id="heightInput" value="1024" min="64" max="4096" step="64" placeholder="Height">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Model</label>
+                <div class="model-selector">
+                    <input type="text" id="modelDisplay" readonly placeholder="Loading models..." style="flex:1">
+                    <button type="button" id="selectModelBtn" class="btn-secondary"><i class="fas fa-list"></i> Browse</button>
+                </div>
+            </div>
+
+            <div class="switch-group">
+                <label>Translate to English (auto)</label>
+                <input type="checkbox" id="translateToggle">
+            </div>
+
+            <!-- Advanced Options Block -->
+            <div class="advanced-block">
+                <div class="advanced-header" id="advancedToggle">
+                    <span><i class="fas fa-sliders-h"></i> Advanced Options</span>
+                    <i class="fas fa-chevron-right" id="advToggleIcon"></i>
+                </div>
+                <div class="advanced-body" id="advancedPanel">
+                    <div class="switch-group">
+                        <label>Enhance prompt (AI optimization)</label>
+                        <input type="checkbox" id="enhanceToggle">
+                    </div>
+                    <div class="switch-group">
+                        <label>Polish prompt with AI</label>
+                        <input type="checkbox" id="polishToggle">
+                    </div>
+                    <div class="polish-config" id="polishConfig">
+                        <div class="polish-row">
+                            <span style="font-size:0.7rem;color:#6c757d;">Model:</span>
+                            <input type="text" id="polishModelDisplay" readonly style="width:130px;background:#f5f5f7;font-size:0.7rem;padding:4px 8px;">
+                            <button type="button" id="selectPolishModelBtn" class="btn-secondary" style="width:auto;font-size:0.65rem;padding:4px 8px;">Change</button>
+                            <label class="auto-label" style="display:flex;align-items:center;gap:4px;font-size:0.7rem;color:#6c757d;white-space:nowrap;">
+                                <input type="checkbox" id="autoPolishToggle"> Auto before generate
+                            </label>
+                        </div>
+                    </div>
+                    <hr class="settings-divider">
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" id="apiKey" placeholder="sk_...">
+                        <div class="row" style="margin-top:6px;gap:6px;justify-content:space-between">
+                            <div style="display:flex;gap:6px">
+                                <button id="polliLoginBtn" class="btn-secondary" style="font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Login with Pollinations</button>
+                                <button id="polliLogoutBtn" class="btn-secondary" style="font-size:0.7rem;display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                            </div>
+                            <button id="saveConfigBtn" class="btn-secondary" style="font-size:0.7rem;"><i class="fas fa-save"></i> Save Config</button>
+                        </div>
+                        <div class="feedback-message" id="configFeedback"></div>
+                        <div id="polliUserInfo" style="font-size:0.65rem;color:#666;display:none;"></div>
+                    </div>
+                    <footer style="font-size: 0.8rem; color: #666; text-align: center;"> &copy; <script>document.write(new Date().getFullYear())</script> FastNow Studio | BSD 3-Clause</footer>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modelModal" class="model-modal">
+    <div class="model-modal-content">
+        <h3 style="margin-bottom:12px">Select Image Model</h3>
+        <input type="text" id="modelSearchInput" class="model-search-input" placeholder="Search models...">
+        <div class="model-list" id="modelListContainer"></div>
+        <div style="margin-top:12px;text-align:right"><button id="cancelModelBtn" class="btn-secondary">Cancel</button></div>
+    </div>
+</div>
+
+<div id="polishModelModal" class="model-modal">
+    <div class="model-modal-content">
+        <h3 style="margin-bottom:12px">Select Polish Model</h3>
+        <input type="text" id="polishModelSearchInput" class="model-search-input" placeholder="Search text models...">
+        <div class="model-list" id="polishModelListContainer"></div>
+        <div style="margin-top:12px;text-align:right"><button id="cancelPolishModelBtn" class="btn-secondary">Cancel</button></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const POLLI_CLIENT_ID = 'pk_Vo2eOjZvbc3c4BRs';
+    const POLLI_AUTH_URL = 'https://enter.pollinations.ai/authorize';
+    const CLEAN_REDIRECT_URI = window.location.origin + window.location.pathname;
+
+    let availableModels = [], selectedModelId = 'flux', uploadedImageUrl = null;
+    let textModels = [], selectedPolishModelId = 'gpt-5.4-mini';
+    let currentWidth = 1024, currentHeight = 1024;
+
+    const $ = id => document.getElementById(id);
+    const modelDisplay = $('modelDisplay'), selectModelBtn = $('selectModelBtn');
+    const modelModal = $('modelModal'), modelSearchInput = $('modelSearchInput');
+    const modelListContainer = $('modelListContainer'), cancelModelBtn = $('cancelModelBtn');
+    const generateBtn = $('generateBtn'), promptInput = $('promptInput');
+    const previewArea = $('previewArea'), widthInput = $('widthInput'), heightInput = $('heightInput');
+    const enhanceToggle = $('enhanceToggle'), apiKeyInput = $('apiKey');
+    const saveConfigBtn = $('saveConfigBtn'), configFeedback = $('configFeedback');
+    const promptFeedback = $('promptFeedback');
+    const polishToggle = $('polishToggle'), polishConfig = $('polishConfig');
+    const polishPromptBtn = $('polishPromptBtn'), autoPolishToggle = $('autoPolishToggle');
+    const polishModelDisplay = $('polishModelDisplay'), selectPolishModelBtn = $('selectPolishModelBtn');
+    const polishModelModal = $('polishModelModal'), polishModelSearchInput = $('polishModelSearchInput');
+    const polishModelListContainer = $('polishModelListContainer'), cancelPolishModelBtn = $('cancelPolishModelBtn');
+    const translateToggle = $('translateToggle');
+    const advancedToggle = $('advancedToggle'), advancedPanel = $('advancedPanel');
+    const sizePresets = $('sizePresets'), customSizeRow = $('customSizeRow');
+
+    let advancedVisible = false;
+    advancedToggle.addEventListener('click', () => {
+        advancedVisible = !advancedVisible;
+        advancedPanel.classList.toggle('visible', advancedVisible);
+        $('advToggleIcon').className = advancedVisible ? 'fas fa-chevron-down' : 'fas fa-chevron-right';
+    });
+
+    polishToggle.addEventListener('change', () => polishConfig.classList.toggle('visible', polishToggle.checked));
+
+    sizePresets.addEventListener('click', (e) => {
+        const btn = e.target.closest('.size-preset-btn');
+        if (!btn) return;
+        sizePresets.querySelectorAll('.size-preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (btn.dataset.w === 'custom') {
+            customSizeRow.classList.add('visible');
+            widthInput.value = currentWidth;
+            heightInput.value = currentHeight;
+        } else {
+            customSizeRow.classList.remove('visible');
+            currentWidth = parseInt(btn.dataset.w);
+            currentHeight = parseInt(btn.dataset.h);
+            widthInput.value = currentWidth;
+            heightInput.value = currentHeight;
+        }
+    });
+
+    widthInput.addEventListener('input', () => { currentWidth = parseInt(widthInput.value) || 1024; });
+    heightInput.addEventListener('input', () => { currentHeight = parseInt(heightInput.value) || 1024; });
+
+    function showFeedback(el, msg, isError = false, duration = 2500) {
+        el.textContent = msg;
+        el.style.color = isError ? '#dc3545' : '#198754';
+        if (duration > 0) setTimeout(() => { el.textContent = ''; }, duration);
+    }
+
+    saveConfigBtn.addEventListener('click', () => {
+        localStorage.setItem('img_key', apiKeyInput.value);
+        localStorage.setItem('img_model', selectedModelId);
+        localStorage.setItem('img_width', currentWidth);
+        localStorage.setItem('img_height', currentHeight);
+        localStorage.setItem('img_enhance', enhanceToggle.checked);
+        localStorage.setItem('img_polish_toggle', polishToggle.checked);
+        localStorage.setItem('img_auto_polish', autoPolishToggle.checked);
+        localStorage.setItem('img_polish_model', selectedPolishModelId);
+        localStorage.setItem('img_translate', translateToggle.checked);
+        showFeedback(configFeedback, 'Configuration saved');
+    });
+
+    (function loadStored() {
+        const savedKey = localStorage.getItem('img_key');
+        if (savedKey && !localStorage.getItem('polli_img_key')) apiKeyInput.value = savedKey;
+        const savedModel = localStorage.getItem('img_model'); if (savedModel) selectedModelId = savedModel;
+        const savedWidth = localStorage.getItem('img_width'); if (savedWidth) currentWidth = parseInt(savedWidth);
+        const savedHeight = localStorage.getItem('img_height'); if (savedHeight) currentHeight = parseInt(savedHeight);
+        widthInput.value = currentWidth; heightInput.value = currentHeight;
+        const savedEnhance = localStorage.getItem('img_enhance'); if (savedEnhance !== null) enhanceToggle.checked = savedEnhance === 'true';
+        const savedPolishToggle = localStorage.getItem('img_polish_toggle');
+        if (savedPolishToggle !== null) { polishToggle.checked = savedPolishToggle === 'true'; if (polishToggle.checked) polishConfig.classList.add('visible'); }
+        const savedAutoPolish = localStorage.getItem('img_auto_polish'); if (savedAutoPolish !== null) autoPolishToggle.checked = savedAutoPolish === 'true';
+        const savedPolishModel = localStorage.getItem('img_polish_model'); if (savedPolishModel) selectedPolishModelId = savedPolishModel;
+        const savedTranslate = localStorage.getItem('img_translate');
+        if (savedTranslate !== null) translateToggle.checked = savedTranslate === 'true';
+    })();
+
+    function updatePolliUI() {
+        const oauthKey = localStorage.getItem('polli_img_key');
+        const oauthUser = localStorage.getItem('polli_img_user');
+        if (oauthKey) {
+            apiKeyInput.value = oauthKey;
+            $('polliLoginBtn').style.display = 'none';
+            $('polliLogoutBtn').style.display = 'inline-block';
+            $('polliUserInfo').style.display = 'block';
+            $('polliUserInfo').style.marginTop = '2px';
+            $('polliUserInfo').textContent = oauthUser ? `Logged in as: ${oauthUser}` : 'Logged in via Pollinations';
+        } else {
+            $('polliLoginBtn').style.display = 'inline-block';
+            $('polliLogoutBtn').style.display = 'none';
+            $('polliUserInfo').style.display = 'none';
+            $('polliUserInfo').style.marginTop = '0';
+        }
+    }
+    $('polliLoginBtn').addEventListener('click', () => {
+        const params = new URLSearchParams({
+            redirect_uri: CLEAN_REDIRECT_URI,
+            client_id: POLLI_CLIENT_ID
+        });
+        window.location.href = `${POLLI_AUTH_URL}?${params}`;
+    });
+    $('polliLogoutBtn').addEventListener('click', () => { 
+        localStorage.removeItem('polli_img_key'); 
+        localStorage.removeItem('polli_img_user'); 
+        apiKeyInput.value = ''; 
+        updatePolliUI(); 
+    });
+    (function checkOAuth() {
+        const hash = location.hash.slice(1); 
+        if (!hash) return;
+        const params = new URLSearchParams(hash); 
+        const apiKey = params.get('api_key');
+        if (apiKey) { 
+            localStorage.setItem('polli_img_key', apiKey); 
+            apiKeyInput.value = apiKey; 
+            fetch('https://gen.pollinations.ai/account/profile', {
+                headers: { 'Authorization': `Bearer ${apiKey}` }
+            }).then(r => r.json()).then(d => {
+                if (d.github_username || d.name || d.email) 
+                    localStorage.setItem('polli_img_user', d.github_username || d.name || d.email); 
+                updatePolliUI(); 
+            }).catch(() => updatePolliUI()); 
+            history.replaceState(null, '', location.pathname); 
+        }
+    })();
+    updatePolliUI();
+
+    const uploadImageBtn = $('uploadImageBtn'), refImageInput = $('refImageInput'), removeRefImageBtn = $('removeRefImageBtn');
+    const refImagePreview = $('refImagePreview'), refImageStatus = $('refImageStatus');
+    uploadImageBtn.addEventListener('click', () => refImageInput.click());
+    refImageInput.addEventListener('change', async () => {
+        const file = refImageInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => { refImagePreview.src = e.target.result; refImagePreview.style.display = 'block'; removeRefImageBtn.style.display = 'inline-flex'; };
+        reader.readAsDataURL(file);
+        refImageStatus.textContent = 'Uploading...';
+        try {
+            const formData = new FormData(); formData.append('file', file);
+            const key = apiKeyInput.value.trim();
+            const headers = {}; if (key) headers['Authorization'] = `Bearer ${key}`;
+            const resp = await fetch('https://gen.pollinations.ai/upload', { method: 'POST', headers, body: formData });
+            if (!resp.ok) throw new Error('Upload failed');
+            const data = await resp.json();
+            uploadedImageUrl = `https://gen.pollinations.ai/${data.hash}`;
+            refImageStatus.textContent = 'Reference image ready'; refImageStatus.style.color = '#198754';
+        } catch (err) {
+            refImageStatus.textContent = `Upload error: ${err.message}`; refImageStatus.style.color = '#dc3545'; uploadedImageUrl = null;
+        }
+    });
+    removeRefImageBtn.addEventListener('click', () => {
+        refImageInput.value = ''; refImagePreview.style.display = 'none'; removeRefImageBtn.style.display = 'none';
+        refImageStatus.textContent = ''; uploadedImageUrl = null;
+    });
+
+    async function loadImageModels() {
+        try {
+            const resp = await fetch('https://gen.pollinations.ai/image/models'); 
+            if (!resp.ok) throw new Error('Failed');
+            const data = await resp.json(); 
+            let models = Array.isArray(data) ? data : (data.data || []);
+            availableModels = models.filter(m => !(m.type==='video' || (m.outputModalities && !m.outputModalities.includes('image'))));
+            if (availableModels.length === 0) availableModels = models.slice(0,10);
+            if (!availableModels.find(m => m.name === selectedModelId)) selectedModelId = availableModels[0]?.name || 'flux';
+            modelDisplay.value = availableModels.find(m => m.name === selectedModelId)?.aliases?.[0] || selectedModelId;
+        } catch(e) { 
+            availableModels = [{name:'flux', aliases:['Flux']},{name:'gptimage', aliases:['GPT Image'], input_modalities:['text','image']}]; 
+        }
+    }
+    function renderModelList(filter = '') {
+        modelListContainer.innerHTML = '';
+        availableModels.filter(m => (m.aliases?.[0] || m.name).toLowerCase().includes(filter.toLowerCase()) || m.name.toLowerCase().includes(filter.toLowerCase())).forEach(m => {
+            const item = document.createElement('div'); 
+            item.className = 'model-list-item' + (m.name === selectedModelId ? ' active' : '');
+            item.innerHTML = `<span>${m.aliases?.[0] || m.name}</span>${m.input_modalities?.includes('image') ? '<span class="img2img-badge">Img2Img</span>' : ''}`;
+            item.addEventListener('click', () => { 
+                selectedModelId = m.name; 
+                modelDisplay.value = m.aliases?.[0] || m.name; 
+                modelModal.style.display = 'none'; 
+            });
+            modelListContainer.appendChild(item);
+        });
+    }
+    selectModelBtn.addEventListener('click', async () => { 
+        if (!availableModels.length) await loadImageModels(); 
+        modelModal.style.display = 'flex'; 
+        renderModelList(); 
+    });
+    cancelModelBtn.addEventListener('click', () => modelModal.style.display = 'none');
+    modelSearchInput.addEventListener('input', () => renderModelList(modelSearchInput.value));
+    modelModal.addEventListener('click', e => { if (e.target === modelModal) modelModal.style.display = 'none'; });
+
+    async function loadTextModels() {
+        try {
+            const resp = await fetch('https://gen.pollinations.ai/text/models'); 
+            if (!resp.ok) throw new Error('Failed');
+            const data = await resp.json(); 
+            let allModels = Array.isArray(data) ? data : (data.data || []);
+            textModels = allModels.filter(m => !(m.name || '').toLowerCase().includes('guard') && !(m.description || '').toLowerCase().includes('guard'));
+            if (textModels.length === 0) textModels = [{name:'gpt-5.4-mini', aliases:['GPT-5.4 Mini']},{name:'mistral-4', aliases:['Mistral 4']}];
+            const found = textModels.find(m => m.name === selectedPolishModelId);
+            if (found) polishModelDisplay.value = found.aliases?.[0] || found.name;
+            else if (textModels.length) { 
+                selectedPolishModelId = textModels[0].name; 
+                polishModelDisplay.value = textModels[0].aliases?.[0] || textModels[0].name; 
+            }
+        } catch(e) { textModels = [{name:'gpt-5.4-mini', aliases:['GPT-5.4 Mini']}]; }
+    }
+    function renderPolishModelList(filter = '') {
+        polishModelListContainer.innerHTML = '';
+        textModels.filter(m => (m.aliases?.[0] || m.name).toLowerCase().includes(filter.toLowerCase())).forEach(m => {
+            const item = document.createElement('div'); 
+            item.className = 'model-list-item' + (m.name === selectedPolishModelId ? ' active' : '');
+            item.textContent = m.aliases?.[0] || m.name;
+            item.addEventListener('click', () => { 
+                selectedPolishModelId = m.name; 
+                polishModelDisplay.value = m.aliases?.[0] || m.name; 
+                polishModelModal.style.display = 'none'; 
+            });
+            polishModelListContainer.appendChild(item);
+        });
+    }
+    selectPolishModelBtn.addEventListener('click', async () => { 
+        if (!textModels.length) await loadTextModels(); 
+        polishModelModal.style.display = 'flex'; 
+        renderPolishModelList(); 
+    });
+    cancelPolishModelBtn.addEventListener('click', () => polishModelModal.style.display = 'none');
+    polishModelSearchInput.addEventListener('input', () => renderPolishModelList(polishModelSearchInput.value));
+    polishModelModal.addEventListener('click', e => { if (e.target === polishModelModal) polishModelModal.style.display = 'none'; });
+
+    async function callTextModel(prompt, system = 'You are a helpful assistant.') {
+        const key = apiKeyInput.value.trim();
+        if (!key) throw new Error('Please fill in your API Key');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        try {
+            const resp = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+                body: JSON.stringify({ 
+                    model: selectedPolishModelId, 
+                    messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], 
+                    temperature: 0.8, 
+                    max_tokens: 300 
+                }),
+                signal: controller.signal
+            });
+            if (!resp.ok) throw new Error('Request failed');
+            const data = await resp.json();
+            let result = data.choices?.[0]?.message?.content?.trim();
+            if (!result || result.startsWith('Safety:')) throw new Error('Invalid response');
+            return result.replace(/^["']|["']$/g, '');
+        } finally {
+            clearTimeout(timeoutId);
+        }
+    }
+
+    async function translateToEnglish(text) {
+        return await callTextModel(text, 'Translate the following text to English. Output only the translation, nothing else.');
+    }
+
+    async function polishPrompt(originalPrompt) {
+        return await callTextModel(originalPrompt, 'Enhance this image prompt: add artistic details, lighting, composition. Output only the new prompt.');
+    }
+
+    polishPromptBtn.addEventListener('click', async () => {
+        if (polishPromptBtn.disabled) return;
+        let text = promptInput.value.trim();
+        if (!text) { showFeedback(promptFeedback, 'Please enter a prompt first', true); return; }
+        polishPromptBtn.disabled = true;
+        polishPromptBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Polishing...';
+        try {
+            if (translateToggle.checked) { text = await translateToEnglish(text); promptInput.value = text; }
+            promptInput.value = await polishPrompt(text);
+            showFeedback(promptFeedback, 'Prompt polished');
+        } catch(e) { showFeedback(promptFeedback, e.message, true); }
+        finally { 
+            polishPromptBtn.disabled = false; 
+            polishPromptBtn.innerHTML = '<i class="fas fa-magic"></i> Polish'; 
+        }
+    });
+
+    generateBtn.addEventListener('click', async () => {
+        let prompt = promptInput.value.trim();
+        if (!prompt) return;
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        try {
+            if (translateToggle.checked) { prompt = await translateToEnglish(prompt); promptInput.value = prompt; }
+            if (polishToggle.checked && autoPolishToggle.checked) { 
+                try { prompt = await polishPrompt(prompt); promptInput.value = prompt; } catch(e) {} 
+            }
+            const key = apiKeyInput.value.trim();
+            const params = new URLSearchParams({ model: selectedModelId, width: currentWidth, height: currentHeight });
+            if (enhanceToggle.checked) params.set('enhance', 'true');
+            if (uploadedImageUrl) params.set('image', uploadedImageUrl);
+            const url = `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?${params}`;
+            const fetchOptions = {};
+            if (key) fetchOptions.headers = { 'Authorization': `Bearer ${key}` };
+            previewArea.innerHTML = '<div class="preview-placeholder"><i class="fas fa-spinner fa-spin"></i><p>Generating...</p></div>';
+            const resp = await fetch(url, fetchOptions);
+            if (!resp.ok) throw new Error('Generation failed');
+            const blob = await resp.blob();
+            const imgUrl = URL.createObjectURL(blob);
+            const img = new Image();
+            img.src = imgUrl;
+            img.alt = 'Generated image';
+            await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = () => reject(new Error('Failed to load image')); });
+            previewArea.innerHTML = `<img src="${imgUrl}" alt="Generated image"><div class="row" style="justify-content:center"><button class="download-btn" id="downloadBtn"><i class="fas fa-download"></i> Download</button></div>`;
+            $('downloadBtn').addEventListener('click', () => { 
+                const a = document.createElement('a'); 
+                a.href = imgUrl; 
+                a.download = `pollinations_${Date.now()}.png`; 
+                a.click(); 
+            });
+        } catch(e) { 
+            previewArea.innerHTML = `<div class="preview-placeholder" style="color:#dc3545"><i class="fas fa-exclamation-triangle"></i><p>${e.message}</p></div>`; 
+        } finally { 
+            generateBtn.disabled = false; 
+            generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate'; 
+        }
+    });
+
+    Promise.all([loadImageModels(), loadTextModels()]).then(() => {
+        const imgFound = availableModels.find(m => m.name === selectedModelId);
+        if (imgFound) modelDisplay.value = imgFound.aliases?.[0] || imgFound.name;
+        const polFound = textModels.find(m => m.name === selectedPolishModelId);
+        if (polFound) polishModelDisplay.value = polFound.aliases?.[0] || polFound.name;
+        if (polishToggle.checked) polishConfig.classList.add('visible');
+    });
+})();
+</script>
+</body>
+</html>
