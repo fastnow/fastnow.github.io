@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多功能 GitHub 文件下载工具</title>
+<meta name="description" content="在线下载 GitHub 仓库任意文件或文件夹，勾选文件打包成 ZIP。支持 jsDelivr 加速与自定义代理，纯浏览器运行。">
+<meta name="keywords" content="GitHub文件夹下载,GitHub目录下载,GitHub文件下载,github下载zip,github tree下载,jsDelivr加速">
+<script src="https://fastly.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #11151c;
+    --surface-2: #161b22;
+    --border: #262c36;
+    --border-light: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --text-muted: #6e7681;
+    --accent: #4493f8;
+    --accent-hover: #58a6ff;
+    --green: #3fb950;
+    --green-hover: #46c95a;
+    --red: #f85149;
+    --yellow: #d29922;
+    --radius: 10px;
+    --radius-sm: 7px;
+  }
+  [data-theme="light"] {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --surface-2: #f6f8fa;
+    --border: #d0d7de;
+    --border-light: #d8dee4;
+    --text: #1f2328;
+    --text-dim: #656d76;
+    --text-muted: #8c959f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px 64px;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    transition: background .2s, color .2s;
+  }
+  .app { width: 100%; max-width: 900px; }
+
+  .header { margin-bottom: 24px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .header-left h1 {
+    font-size: 20px;
+    font-weight: 650;
+    letter-spacing: -0.2px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-left p {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    margin-left: 30px;
+  }
+  .theme-btn {
+    width: 36px; height: 36px;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .input-group { display: flex; gap: 8px; margin-bottom: 10px; }
+  .input-wrap { flex: 1; position: relative; }
+  .input-wrap .icon {
+    position: absolute; left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    display: flex;
+  }
+  input[type="text"], input[type="password"], select {
+    width: 100%;
+    padding: 10px 14px 10px 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+    font-family: inherit;
+  }
+  input:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(68, 147, 248, .15);
+  }
+  input::placeholder { color: var(--text-muted); }
+  select { cursor: pointer; }
+
+  button {
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 550;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--text);
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, transform .05s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    justify-content: center;
+  }
+  button:hover { background: var(--surface-2); border-color: var(--text-muted); }
+  button:active { transform: scale(.985); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  button.green { background: var(--green); border-color: var(--green); color: #fff; }
+  button.green:hover { background: var(--green-hover); border-color: var(--green-hover); }
+  button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+  details {
+    margin-top: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  summary {
+    padding: 11px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-dim);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color .15s;
+    list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { color: var(--text); }
+  summary .chev { margin-left: auto; transition: transform .2s; color: var(--text-muted); display: flex; }
+  details[open] summary .chev { transform: rotate(90deg); }
+  .details-body {
+    padding: 16px 14px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    gap: 14px;
+  }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 550;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    letter-spacing: .2px;
+  }
+  .field .hint { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; line-height: 1.6; }
+  .field .hint code {
+    background: var(--surface-2);
+    padding: 1.5px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    color: var(--accent);
+  }
+  .field input, .field select { padding-left: 14px; }
+
+  .search-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    align-items: center;
+  }
+  .search-bar .input-wrap { flex: 1; }
+  .search-bar .input-wrap input { padding-left: 36px; }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding: 0 2px 10px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .toolbar .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .toolbar .actions button { padding: 5px 11px; font-size: 12px; font-weight: 500; }
+  .toolbar .stat-num { color: var(--text); font-weight: 600; }
+
+  #tree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    max-height: 460px;
+    overflow-y: auto;
+    padding: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-light) transparent;
+  }
+  #tree::-webkit-scrollbar { width: 10px; }
+  #tree::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 10px;
+    border: 3px solid var(--surface);
+  }
+
+  .node {
+    display: flex;
+    align-items: center;
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: background .1s;
+  }
+  .node:hover { background: var(--surface-2); }
+  .node.hidden { display: none; }
+  .node .arrow {
+    width: 16px;
+    color: var(--text-muted);
+    font-size: 9px;
+    flex-shrink: 0;
+    transition: transform .15s;
+    text-align: center;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .node .arrow.open { transform: rotate(90deg); }
+  .node .icon { margin-right: 7px; flex-shrink: 0; display: flex; align-items: center; color: var(--text-muted); }
+  .node.folder .icon { color: var(--accent); }
+  .node.folder .name { color: var(--accent); font-weight: 500; }
+  .node .name { overflow: hidden; text-overflow: ellipsis; }
+  .node .size {
+    margin-left: auto;
+    padding-left: 14px;
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+  .node mark {
+    background: rgba(210, 153, 34, .3);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+
+  .children { display: none; }
+  .children.open { display: block; }
+
+  .cb {
+    width: 15px; height: 15px;
+    border: 1.5px solid var(--text-muted);
+    border-radius: 4px;
+    margin-right: 9px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: transparent;
+    transition: all .12s;
+    background: transparent;
+  }
+  .cb:hover { border-color: var(--accent); }
+  .cb.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .cb.partial { background: transparent; border-color: var(--accent); color: var(--accent); }
+
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .footer .count {
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .footer .count b { color: var(--text); font-weight: 600; }
+  .footer .count .size-line { font-size: 11.5px; color: var(--text-muted); }
+  .footer .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  #log {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 12px;
+    line-height: 1.75;
+    max-height: 240px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    display: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-light) transparent;
+  }
+  #log.show { display: block; }
+  #log::-webkit-scrollbar { width: 10px; }
+  #log::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 10px;
+    border: 3px solid var(--surface);
+  }
+  .ok { color: var(--green); }
+  .err { color: var(--red); }
+  .info { color: var(--accent); }
+  .warn { color: var(--yellow); }
+
+  .progress-wrap { margin-top: 14px; display: none; }
+  .progress-wrap.show { display: block; }
+  .progress-bar { height: 4px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    width: 0%;
+    border-radius: 4px;
+    transition: width .2s ease;
+  }
+  .progress-text {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 18px;
+    font-size: 13px;
+    color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    opacity: 0;
+    transition: transform .25s, opacity .25s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  #toast.ok { border-color: var(--green); }
+  #toast.err { border-color: var(--red); }
+
+  .drop-hint {
+    position: fixed;
+    inset: 0;
+    background: rgba(68, 147, 248, .1);
+    border: 3px dashed var(--accent);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent);
+    z-index: 998;
+    pointer-events: none;
+  }
+  .drop-hint.show { display: flex; }
+
+  .history {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: none;
+  }
+  .history.show { display: block; }
+  .history h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .history h3 button { padding: 4px 10px; font-size: 11.5px; }
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+  }
+  .history-item:first-of-type { border-top: none; }
+  .history-item .hname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+  .history-item .hstatus { font-size: 11.5px; flex-shrink: 0; }
+  .history-item .hstatus.ok { color: var(--green); }
+  .history-item .hstatus.err { color: var(--red); }
+  .history-item button { padding: 3px 9px; font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="drop-hint" id="dropHint">松开以填入 GitHub 地址</div>
+<div id="toast"></div>
+
+<div class="app">
+  <div class="header">
+    <div class="header-left">
+      <h1>
+        <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+        </svg>
+        多功能 GitHub 文件下载工具
+      </h1>
+      <p>勾选文件树中的内容，打包成 ZIP 下载</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" title="切换主题">
+      <svg id="themeIcon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M9.598 1.591a.749.749 0 0 1 .785-.175 7.001 7.001 0 1 1-8.967 8.967.75.75 0 0 1 .961-.96 5.5 5.5 0 0 0 7.046-7.046.75.75 0 0 1 .175-.786Z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="input-group">
+    <div class="input-wrap">
+      <span class="icon">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"/>
+        </svg>
+      </span>
+      <input type="text" id="folderUrl" placeholder="github.com/owner/repo/tree/branch/path">
+    </div>
+    <button id="loadBtn" class="primary">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M6.5 1.75a.75.75 0 0 1 1.5 0v4.5h4.5a.75.75 0 0 1 0 1.5H8v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5H6.5v-4.5Z"/>
+      </svg>
+      加载
+    </button>
+  </div>
+
+  <div class="input-group">
+    <div class="input-wrap">
+      <span class="icon">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M4 4a4 4 0 0 1 8 0v2h.25c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25v-5.5C2 6.784 2.784 6 3.75 6H4V4Zm1.5 2h5V4a2.5 2.5 0 0 0-5 0v2Z"/>
+        </svg>
+      </span>
+      <input type="password" id="token" placeholder="GitHub Token（可选）">
+    </div>
+  </div>
+
+  <details id="proxyPanel">
+    <summary>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm4.879-2.773 4.264 2.559a.25.25 0 0 1 0 .428l-4.264 2.559A.25.25 0 0 1 6 10.559V5.442a.25.25 0 0 1 .379-.215Z"/>
+      </svg>
+      代理设置
+      <span class="chev">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/>
+        </svg>
+      </span>
+    </summary>
+    <div class="details-body">
+      <div class="field">
+        <label>代理类型</label>
+        <select id="proxyMode">
+          <option value="none">不使用代理（直连）</option>
+          <option value="custom">自定义代理</option>
+          <option value="jsdelivr">jsDelivr（仅文件下载，不代理 API）</option>
+        </select>
+      </div>
+      <div class="field" id="proxyUrlField" style="display:none;">
+        <label>代理地址前缀</label>
+        <input type="text" id="proxyUrl" placeholder="https://your-worker.workers.dev/">
+      </div>
+      <div class="field" id="proxyRewriteField" style="display:none;">
+        <label>代理重写规则</label>
+        <input type="text" id="proxyRewrite" placeholder="api.github.com=api.example.com">
+      </div>
+      <div class="field" id="jsdelivrField" style="display:none;">
+        <label>jsDelivr 节点</label>
+        <select id="jsdelivrNode">
+          <option value="cdn.jsdelivr.net">cdn.jsdelivr.net</option>
+          <option value="gcore.jsdelivr.net">gcore.jsdelivr.net</option>
+          <option value="fastly.jsdelivr.net">fastly.jsdelivr.net</option>
+          <option value="testingcf.jsdelivr.net">testingcf.jsdelivr.net</option>
+          <option value="test1.jsdelivr.net">test1.jsdelivr.net</option>
+          <option value="custom">自定义节点...</option>
+        </select>
+      </div>
+      <div class="field" id="jsdelivrCustomField" style="display:none;">
+        <label>自定义 jsDelivr 节点</label>
+        <input type="text" id="jsdelivrCustom" placeholder="cdn.example.com">
+      </div>
+    </div>
+  </details>
+
+  <div class="search-bar" id="searchBar" style="display:none;">
+    <div class="input-wrap">
+      <span class="icon">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11.5 7a4.499 4.499 0 1 0-8.997 0A4.499 4.499 0 0 0 11.5 7Z"/>
+        </svg>
+      </span>
+      <input type="text" id="searchInput" placeholder="搜索文件名...">
+    </div>
+    <select id="extFilter" style="width:auto; padding-left:14px;">
+      <option value="">全部类型</option>
+    </select>
+  </div>
+
+  <div class="toolbar" id="toolbar" style="display:none;">
+    <span><span class="stat-num" id="stats">0</span> 个文件</span>
+    <div class="actions">
+      <button id="selectAll">全选</button>
+      <button id="selectNone">全不选</button>
+      <button id="selectFiltered">选中筛选结果</button>
+      <button id="expandAll">展开</button>
+      <button id="collapseAll">折叠</button>
+    </div>
+  </div>
+
+  <div id="tree"></div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText"></div>
+  </div>
+
+  <div class="footer" id="footer" style="display:none;">
+    <div class="count">
+      <span>已选 <b id="selectedCount">0</b> 个文件</span>
+      <span class="size-line">压缩后约 <b id="selectedSize">0 B</b></span>
+    </div>
+    <div class="btn-group">
+      <button id="retryBtn" style="display:none;">重试失败项</button>
+      <button id="downloadBtn" class="green" disabled>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14H2.75Z"/>
+          <path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"/>
+        </svg>
+        下载 ZIP
+      </button>
+    </div>
+  </div>
+
+  <div class="history" id="history">
+    <h3>
+      下载历史
+      <button id="clearHistory">清空</button>
+    </h3>
+    <div id="historyList"></div>
+  </div>
+
+  <div id="log"></div>
+  <footer style="margin-top: 24px; font-size: 12px; color: var(--text-muted); text-align: center;">
+    © <span id="year"></span> FastNow Studio | BSD 3-Clause
+  </footer>
+</div>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+const $ = id => document.getElementById(id);
+const logEl = $('log');
+const LOG_MAX = 200;
+
+function toast(msg, type = '') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = type;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function log(msg, cls = '') {
+  logEl.classList.add('show');
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  logEl.appendChild(line);
+  while (logEl.childElementCount > LOG_MAX) logEl.removeChild(logEl.firstChild);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+}
+
+const THEME_ICONS = {
+  dark: '<path d="M9.598 1.591a.749.749 0 0 1 .785-.175 7.001 7.001 0 1 1-8.967 8.967.75.75 0 0 1 .961-.96 5.5 5.5 0 0 0 7.046-7.046.75.75 0 0 1 .175-.786Z"/>',
+  light: '<path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13ZM0 8a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H.75A.75.75 0 0 1 0 8Zm13 0a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5A.75.75 0 0 1 13 8ZM2.343 2.343a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.06 1.061l-1.06-1.06a.75.75 0 0 1 0-1.061Zm9.193 9.193a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.06 1.061l-1.06-1.06a.75.75 0 0 1 0-1.061Zm0-9.193a.75.75 0 0 1 0 1.06l-1.06 1.061a.75.75 0 0 1-1.061-1.06l1.06-1.06a.75.75 0 0 1 1.061 0ZM3.404 11.536a.75.75 0 0 1 0 1.06l-1.06 1.061a.75.75 0 0 1-1.061-1.06l1.06-1.06a.75.75 0 0 1 1.061 0Z"/>'
+};
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  $('themeIcon').innerHTML = THEME_ICONS[theme];
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('ghdl_theme') || 'dark';
+  applyTheme(saved);
+})();
+
+$('themeBtn').addEventListener('click', () => {
+  const cur = document.documentElement.dataset.theme;
+  const next = cur === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('ghdl_theme', next);
+});
+
+function saveSettings() {
+  const s = {
+    folderUrl: $('folderUrl').value,
+    token: $('token').value,
+    proxyMode: $('proxyMode').value,
+    proxyUrl: $('proxyUrl').value,
+    proxyRewrite: $('proxyRewrite').value,
+    jsdelivrNode: $('jsdelivrNode').value,
+    jsdelivrCustom: $('jsdelivrCustom').value,
+    proxyOpen: $('proxyPanel').open
+  };
+  localStorage.setItem('ghdl_settings', JSON.stringify(s));
+}
+
+function loadSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem('ghdl_settings') || '{}');
+    if (s.folderUrl) $('folderUrl').value = s.folderUrl;
+    if (s.token) $('token').value = s.token;
+    if (s.proxyMode) $('proxyMode').value = s.proxyMode;
+    if (s.proxyUrl) $('proxyUrl').value = s.proxyUrl;
+    if (s.proxyRewrite) $('proxyRewrite').value = s.proxyRewrite;
+    if (s.jsdelivrNode) $('jsdelivrNode').value = s.jsdelivrNode;
+    if (s.jsdelivrCustom) $('jsdelivrCustom').value = s.jsdelivrCustom;
+    if (s.proxyOpen) $('proxyPanel').open = true;
+    $('proxyMode').dispatchEvent(new Event('change'));
+    $('jsdelivrNode').dispatchEvent(new Event('change'));
+  } catch (e) { console.error(e); }
+}
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('ghdl_history') || '[]'); }
+  catch (e) { return []; }
+}
+
+function saveHistoryItem(item) {
+  const h = getHistory();
+  h.unshift(item);
+  localStorage.setItem('ghdl_history', JSON.stringify(h.slice(0, 20)));
+  renderHistory();
+}
+
+function renderHistory() {
+  const h = getHistory();
+  const el = $('history');
+  const list = $('historyList');
+  if (!h.length) { el.classList.remove('show'); return; }
+  el.classList.add('show');
+  list.innerHTML = '';
+  h.forEach((item, idx) => {
+    const row = document.createElement('div');
+    row.className = 'history-item';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'hname';
+    nameSpan.textContent = item.name;
+    const statusSpan = document.createElement('span');
+    statusSpan.className = 'hstatus ' + (item.failed ? 'err' : 'ok');
+    statusSpan.textContent = `${item.success}/${item.total}${item.failed ? ' 失败 ' + item.failed : ''}`;
+    const btn = document.createElement('button');
+    btn.textContent = '重新下载';
+    btn.addEventListener('click', () => {
+      $('folderUrl').value = item.url;
+      loadTree();
+    });
+    row.appendChild(nameSpan);
+    row.appendChild(statusSpan);
+    row.appendChild(btn);
+    list.appendChild(row);
+  });
+}
+
+$('clearHistory').addEventListener('click', () => {
+  localStorage.removeItem('ghdl_history');
+  renderHistory();
+  toast('历史已清空');
+});
+
+function getProxyConfig() {
+  const mode = $('proxyMode').value;
+  if (mode === 'none') return { mode: 'none' };
+  if (mode === 'jsdelivr') {
+    let node = $('jsdelivrNode').value;
+    if (node === 'custom') {
+      node = $('jsdelivrCustom').value.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '');
+      if (!node) node = 'cdn.jsdelivr.net';
+    }
+    return { mode: 'jsdelivr', node };
+  }
+  const prefix = $('proxyUrl').value.trim();
+  const rewriteRaw = $('proxyRewrite').value.trim();
+  const rewrite = {};
+  if (rewriteRaw) {
+    rewriteRaw.split('\n').forEach(line => {
+      const i = line.indexOf('=');
+      if (i < 0) return;
+      const from = line.slice(0, i).trim();
+      const to = line.slice(i + 1).trim();
+      if (from && to) rewrite[from] = to;
+    });
+  }
+  return { mode: 'custom', prefix, rewrite };
+}
+
+function applyProxy(url, cfg, isApi = false) {
+  if (!cfg || cfg.mode === 'none') return url;
+  if (cfg.mode === 'jsdelivr') {
+    if (isApi) return url;
+    const m = url.match(/^https:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/?#]+)\/([^?#]+)(\?.*)?$/);
+    if (m) return `https://${cfg.node}/gh/${m[1]}/${m[2]}@${m[3]}/${m[4]}${m[5] || ''}`;
+    return url;
+  }
+  if (cfg.mode === 'custom') {
+    if (Object.keys(cfg.rewrite).length) {
+      try {
+        const u = new URL(url);
+        if (cfg.rewrite[u.host]) { u.host = cfg.rewrite[u.host]; return u.toString(); }
+      } catch (e) {}
+    }
+    if (cfg.prefix) {
+      const sep = cfg.prefix.endsWith('/') ? '' : '/';
+      return cfg.prefix + sep + url;
+    }
+    return url;
+  }
+  return url;
+}
+
+function parseInput(raw) {
+  raw = raw.trim().replace(/\/+$/, '');
+  if (!raw) throw new Error('请输入 GitHub 地址');
+  if (!/^https?:\/\//.test(raw)) raw = 'https://' + raw;
+  let u;
+  try { u = new URL(raw); } catch (e) { throw new Error('地址无法解析'); }
+  if (u.hostname !== 'github.com') throw new Error('只支持 github.com 地址');
+  const parts = u.pathname.split('/').filter(Boolean).map(decodeURIComponent);
+  if (parts.length < 2) throw new Error('缺少 owner/repo');
+  const owner = parts[0], repo = parts[1];
+  let branch = '', path = '';
+  if (parts.length >= 4 && (parts[2] === 'tree' || parts[2] === 'blob')) {
+    branch = parts[3];
+    path = parts.slice(4).join('/');
+  } else if (parts.length >= 3) {
+    branch = parts[2];
+    path = parts.slice(3).join('/');
+  }
+  if (!branch) throw new Error('缺少分支名');
+  return { owner, repo, branch, path };
+}
+
+function buildTree(files, prefix) {
+  const root = { name: '', path: '', type: 'folder', children: [], size: 0, sel: 0, total: 0 };
+  for (const f of files) {
+    const rel = prefix ? f.path.slice(prefix.length) : f.path;
+    const parts = rel.split('/');
+    let node = root;
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const isLast = i === parts.length - 1;
+      let child = node.children.find(c => c.name === part);
+      if (!child) {
+        child = {
+          name: part,
+          path: isLast ? f.path : (prefix + parts.slice(0, i + 1).join('/')),
+          type: isLast ? 'file' : 'folder',
+          children: [],
+          size: isLast ? (f.size || 0) : 0,
+          sel: 0, total: 0,
+          sha: f.sha,
+          parent: node
+        };
+        node.children.push(child);
+      }
+      node = child;
+    }
+  }
+  const finalize = n => {
+    if (n.type === 'file') { n.total = 1; return 1; }
+    let total = 0;
+    n.children.forEach(c => { total += finalize(c); });
+    n.total = total;
+    n.children.sort((a, b) => {
+      if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+    return total;
+  };
+  root.children.forEach(finalize);
+  root.total = root.children.reduce((s, c) => s + c.total, 0);
+  return root;
+}
+
+const SVG_FILE = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"/></svg>';
+const SVG_FOLDER = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"/></svg>';
+
+let currentRoot = null;
+let currentRepo = null;
+let failedFiles = [];
+let searchTerm = '';
+let extFilterValue = '';
+
+function collectFiles(node, out) {
+  if (node.type === 'file') { out.push(node); return out; }
+  for (const c of node.children) collectFiles(c, out);
+  return out;
+}
+
+function formatSelectedCount() {
+  if (!currentRoot) return;
+  let sel = 0, total = 0;
+  for (const c of currentRoot.children) { sel += c.sel; total += c.total; }
+  $('selectedCount').textContent = sel;
+  $('stats').textContent = total;
+}
+
+function refreshNode(node) {
+  if (node.type === 'file') {
+    node.sel = node._selected ? 1 : 0;
+  } else {
+    let sel = 0;
+    for (const c of node.children) {
+      refreshNode(c);
+      sel += c.sel;
+    }
+    node.sel = sel;
+  }
+  if (node._el) {
+    const cb = node._el.cb;
+    if (node.type === 'file') {
+      cb.classList.toggle('on', !!node._selected);
+      cb.textContent = node._selected ? '✓' : '';
+    } else {
+      if (node.sel === 0) { cb.className = 'cb'; cb.textContent = ''; }
+      else if (node.sel === node.total) { cb.className = 'cb on'; cb.textContent = '✓'; }
+      else { cb.className = 'cb partial'; cb.textContent = '−'; }
+    }
+  }
+  return node.sel;
+}
+
+function updateFooter() {
+  if (!currentRoot) return;
+  let sel = 0, size = 0;
+  const stack = [currentRoot];
+  while (stack.length) {
+    const n = stack.pop();
+    if (n.type === 'file') {
+      if (n._selected) { sel++; size += n.size || 0; }
+    } else {
+      for (const c of n.children) stack.push(c);
+    }
+  }
+  $('selectedCount').textContent = sel;
+  $('selectedSize').textContent = fmtSize(size);
+  $('downloadBtn').disabled = sel === 0;
+}
+
+function toggleSelect(node, on) {
+  const stack = [node];
+  while (stack.length) {
+    const n = stack.pop();
+    if (n.type === 'file') {
+      n._selected = on;
+    } else {
+      for (const c of n.children) stack.push(c);
+    }
+  }
+  refreshNode(currentRoot);
+  updateFooter();
+}
+
+function makeNode(node, depth) {
+  const el = document.createElement('div');
+  const row = document.createElement('div');
+  row.className = 'node' + (node.type === 'folder' ? ' folder' : '');
+  row.style.paddingLeft = (8 + depth * 16) + 'px';
+
+  const arrow = document.createElement('span');
+  arrow.className = 'arrow';
+  if (node.type === 'folder') arrow.textContent = '▶';
+  row.appendChild(arrow);
+
+  const cb = document.createElement('span');
+  cb.className = 'cb';
+  row.appendChild(cb);
+
+  const icon = document.createElement('span');
+  icon.className = 'icon';
+  icon.innerHTML = node.type === 'folder' ? SVG_FOLDER : SVG_FILE;
+  row.appendChild(icon);
+
+  const name = document.createElement('span');
+  name.className = 'name';
+  name.textContent = node.name;
+  row.appendChild(name);
+
+  if (node.size && node.type === 'file') {
+    const size = document.createElement('span');
+    size.className = 'size';
+    size.textContent = fmtSize(node.size);
+    row.appendChild(size);
+  }
+
+  el.appendChild(row);
+
+  node._el = { el, row, cb, arrow, nameEl: name, childrenEl: null, childNodes: null };
+
+  if (node.type === 'folder') {
+    const childrenEl = document.createElement('div');
+    childrenEl.className = 'children';
+    el.appendChild(childrenEl);
+    node._el.childrenEl = childrenEl;
+    node._el.childNodes = [];
+
+    const buildChildren = () => {
+      if (node._el.childNodes.length) return;
+      const frag = document.createDocumentFragment();
+      for (const c of node.children) {
+        const childEl = makeNode(c, depth + 1);
+        frag.appendChild(childEl);
+        node._el.childNodes.push(childEl);
+      }
+      childrenEl.appendChild(frag);
+    };
+
+    const toggleOpen = () => {
+      const willOpen = !childrenEl.classList.contains('open');
+      if (willOpen) buildChildren();
+      childrenEl.classList.toggle('open', willOpen);
+      arrow.classList.toggle('open', willOpen);
+    };
+
+    arrow.addEventListener('click', e => { e.stopPropagation(); toggleOpen(); });
+    node._el.toggleOpen = toggleOpen;
+  }
+
+  const handleToggle = e => {
+    e.stopPropagation();
+    const on = !cb.classList.contains('on') && !cb.classList.contains('partial');
+    toggleSelect(node, on);
+  };
+  row.addEventListener('click', e => {
+    if (e.target === arrow) return;
+    handleToggle(e);
+  });
+  cb.addEventListener('click', handleToggle);
+
+  return el;
+}
+
+function renderTree(root) {
+  const container = $('tree');
+  container.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  for (const c of root.children) frag.appendChild(makeNode(c, 0));
+  container.appendChild(frag);
+  refreshNode(root);
+}
+
+function nodeMatches(node) {
+  if (!searchTerm && !extFilterValue) return true;
+  const n = node.name;
+  const nameMatch = !searchTerm || n.toLowerCase().includes(searchTerm);
+  const dot = n.lastIndexOf('.');
+  const ext = dot > 0 ? n.slice(dot + 1).toLowerCase() : '';
+  const extMatch = !extFilterValue || ext === extFilterValue;
+  return nameMatch && extMatch;
+}
+
+function applyFilter() {
+  searchTerm = $('searchInput').value.trim().toLowerCase();
+  extFilterValue = $('extFilter').value;
+  if (!currentRoot) return;
+
+  const filtering = !!(searchTerm || extFilterValue);
+
+  const walk = node => {
+    if (node.type === 'file') {
+      const visible = nodeMatches(node);
+      node._el.el.classList.toggle('hidden', !visible);
+      const nm = node._el.nameEl;
+      if (searchTerm && visible) {
+        const idx = node.name.toLowerCase().indexOf(searchTerm);
+        nm.textContent = '';
+        if (idx >= 0) {
+          nm.appendChild(document.createTextNode(node.name.slice(0, idx)));
+          const mark = document.createElement('mark');
+          mark.textContent = node.name.slice(idx, idx + searchTerm.length);
+          nm.appendChild(mark);
+          nm.appendChild(document.createTextNode(node.name.slice(idx + searchTerm.length)));
+        } else {
+          nm.textContent = node.name;
+        }
+      } else if (nm.firstChild && nm.firstChild.nodeType === 3) {
+        if (nm.childElementCount === 0 && nm.textContent === node.name) return visible;
+        nm.textContent = node.name;
+      } else {
+        nm.textContent = node.name;
+      }
+      return visible;
+    }
+
+    let anyVisible = false;
+    for (const c of node.children) {
+      const vis = walk(c);
+      if (vis) anyVisible = true;
+    }
+    if (filtering) {
+      node._el.el.classList.toggle('hidden', !anyVisible);
+      if (anyVisible && node._el.toggleOpen && !node._el.childrenEl.classList.contains('open')) {
+        node._el.toggleOpen();
+      }
+    } else {
+      node._el.el.classList.remove('hidden');
+    }
+    return anyVisible;
+  };
+
+  for (const c of currentRoot.children) walk(c);
+}
+
+async function fetchFile(owner, repo, branch, filePath, token, proxyCfg) {
+  let url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filePath}`;
+  url = applyProxy(url, proxyCfg, false);
+  const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+  const res = await fetch(url, { headers });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.blob();
+}
+
+function setProgress(done, total, text) {
+  const wrap = $('progressWrap');
+  const fill = $('progressFill');
+  const txt = $('progressText');
+  if (!wrap.classList.contains('show')) wrap.classList.add('show');
+  const pct = total ? Math.round(done / total * 100) : 0;
+  fill.style.width = pct + '%';
+  txt.textContent = text || `${done} / ${total} (${pct}%)`;
+}
+
+async function loadTree() {
+  const btn = $('loadBtn');
+  btn.disabled = true;
+  logEl.innerHTML = '';
+  logEl.classList.remove('show');
+  $('tree').innerHTML = '';
+  $('toolbar').style.display = 'none';
+  $('footer').style.display = 'none';
+  $('searchBar').style.display = 'none';
+  $('progressWrap').classList.remove('show');
+  $('retryBtn').style.display = 'none';
+  failedFiles = [];
+  currentRoot = null;
+  saveSettings();
+
+  try {
+    const { owner, repo, branch, path } = parseInput($('folderUrl').value);
+    const token = $('token').value.trim();
+    const proxyCfg = getProxyConfig();
+    currentRepo = { owner, repo, branch, path, token, proxyCfg };
+
+    log(`仓库：${owner}/${repo}`, 'info');
+    log(`分支：${branch}`);
+    if (proxyCfg.mode === 'jsdelivr') log(`jsDelivr 节点：${proxyCfg.node}`, 'info');
+    else if (proxyCfg.mode === 'custom') log(`代理前缀：${proxyCfg.prefix || '(域名重写)'}`, 'info');
+    log('正在获取文件列表...', 'info');
+
+    const headers = { 'Accept': 'application/vnd.github+json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const branchUrl = applyProxy(
+      `https://api.github.com/repos/${owner}/${repo}/branches/${encodeURIComponent(branch)}`,
+      proxyCfg, true
+    );
+    const bRes = await fetch(branchUrl, { headers });
+    if (!bRes.ok) throw new Error(`获取分支失败 (${bRes.status})`);
+    const bData = await bRes.json();
+    const treeSha = bData.commit.commit.tree.sha;
+
+    const treeUrl = applyProxy(
+      `https://api.github.com/repos/${owner}/${repo}/git/trees/${treeSha}?recursive=1`,
+      proxyCfg, true
+    );
+    const tRes = await fetch(treeUrl, { headers });
+    if (!tRes.ok) throw new Error(`获取文件树失败 (${tRes.status})`);
+    const tData = await tRes.json();
+    if (tData.truncated) log('警告：文件树被截断，可能漏掉部分文件。', 'warn');
+
+    const prefix = path ? path.replace(/\/+$/, '') + '/' : '';
+    const files = tData.tree.filter(item =>
+      item.type === 'blob' && (prefix ? item.path.startsWith(prefix) : true)
+    );
+    if (files.length === 0) throw new Error('该路径下没有文件');
+
+    log(`共找到 ${files.length} 个文件。`, 'ok');
+    currentRoot = buildTree(files, prefix);
+    renderTree(currentRoot);
+
+    const exts = new Set();
+    files.forEach(f => {
+      const name = f.path.split('/').pop();
+      const dot = name.lastIndexOf('.');
+      if (dot > 0) exts.add(name.slice(dot + 1).toLowerCase());
+    });
+    const extSel = $('extFilter');
+    extSel.innerHTML = '<option value="">全部类型</option>';
+    [...exts].sort().forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e;
+      opt.textContent = '.' + e;
+      extSel.appendChild(opt);
+    });
+
+    $('stats').textContent = files.length;
+    $('toolbar').style.display = 'flex';
+    $('footer').style.display = 'flex';
+    $('searchBar').style.display = 'flex';
+    updateFooter();
+    toast(`加载成功，共 ${files.length} 个文件`, 'ok');
+
+  } catch (e) {
+    console.error(e);
+    log(`错误：${e.message}`, 'err');
+    toast(e.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function fetchWithRetry(url, options, retries = 3) {
+  let delay = 500;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) return res;
+      if (res.status >= 500 || res.status === 429) {
+        if (i < retries) {
+          await new Promise(r => setTimeout(r, delay));
+          delay *= 2;
+          continue;
+        }
+      }
+      return res;
+    } catch (e) {
+      if (i < retries) {
+        await new Promise(r => setTimeout(r, delay));
+        delay *= 2;
+        continue;
+      }
+      throw e;
+    }
+  }
+}
+
+async function downloadConcurrent(files, owner, repo, branch, token, proxyCfg, onProgress) {
+  const concurrency = 5;
+  const results = new Array(files.length);
+  let idx = 0;
+  let done = 0;
+
+  async function worker() {
+    while (idx < files.length) {
+      const myIdx = idx++;
+      const f = files[myIdx];
+      try {
+        let url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${f.path}`;
+        url = applyProxy(url, proxyCfg, false);
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const res = await fetchWithRetry(url, { headers });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        results[myIdx] = { ok: true, blob: await res.blob(), file: f };
+      } catch (e) {
+        results[myIdx] = { ok: false, error: e.message, file: f };
+      }
+      done++;
+      onProgress(done, files.length);
+    }
+  }
+
+  const workers = [];
+  for (let i = 0; i < Math.min(concurrency, files.length); i++) {
+    workers.push(worker());
+  }
+  await Promise.all(workers);
+  return results;
+}
+
+async function downloadZip(retryOnly = false) {
+  const btn = $('downloadBtn');
+  const retryBtn = $('retryBtn');
+  btn.disabled = true;
+  retryBtn.disabled = true;
+  logEl.innerHTML = '';
+  logEl.classList.add('show');
+  saveSettings();
+
+  const { owner, repo, branch, token, proxyCfg } = currentRepo;
+  const selected = retryOnly
+    ? failedFiles.slice()
+    : collectFiles(currentRoot, []).filter(f => f._selected);
+
+  if (!selected.length) {
+    log('没有可下载的文件。', 'warn');
+    btn.disabled = false;
+    retryBtn.disabled = false;
+    return;
+  }
+
+  log(`开始下载 ${selected.length} 个文件（并发 5）...`, 'info');
+  const total = selected.length;
+
+  const results = await downloadConcurrent(
+    selected, owner, repo, branch, token, proxyCfg,
+    (done) => setProgress(done, total, `下载中 ${done} / ${total}`)
+  );
+
+  const zip = new JSZip();
+  let success = 0;
+  failedFiles = [];
+
+  for (const r of results) {
+    if (r.ok) {
+      zip.file(r.file.path, r.blob);
+      success++;
+      log(`✓ ${r.file.path}`, 'ok');
+    } else {
+      failedFiles.push(r.file);
+      log(`✗ ${r.file.path} — ${r.error}`, 'err');
+    }
+  }
+
+  if (success === 0) {
+    log('所有文件都下载失败，无法生成 ZIP。', 'err');
+    toast('全部失败', 'err');
+    $('retryBtn').style.display = failedFiles.length ? 'inline-flex' : 'none';
+    $('progressWrap').classList.remove('show');
+    btn.disabled = false;
+    retryBtn.disabled = false;
+    return;
+  }
+
+  log('正在生成 ZIP 压缩包...', 'info');
+  setProgress(total, total, '正在压缩...');
+  const zipBlob = await zip.generateAsync(
+    { type: 'blob', streamFiles: true },
+    meta => setProgress(total, total, `压缩中 ${Math.round(meta.percent)}%`)
+  );
+
+  const zipName = `${repo}-${branch}${currentRepo.path ? '-' + currentRepo.path.replace(/\//g, '_') : ''}.zip`;
+  const url = URL.createObjectURL(zipBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = zipName;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+  log(`完成：成功 ${success} 个，失败 ${failedFiles.length} 个。`, 'info');
+  log(`已生成 ${zipName}（${fmtSize(zipBlob.size)}）`, 'ok');
+  setProgress(total, total, '完成');
+  toast(`下载完成：${success} 个文件`, 'ok');
+
+  saveHistoryItem({
+    name: zipName,
+    url: $('folderUrl').value,
+    total,
+    success,
+    failed: failedFiles.length,
+    time: Date.now()
+  });
+
+  $('retryBtn').style.display = failedFiles.length ? 'inline-flex' : 'none';
+  btn.disabled = false;
+  retryBtn.disabled = false;
+}
+
+let dragCounter = 0;
+window.addEventListener('dragenter', e => {
+  e.preventDefault();
+  dragCounter++;
+  if (dragCounter === 1) $('dropHint').classList.add('show');
+});
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('dragleave', e => {
+  e.preventDefault();
+  dragCounter--;
+  if (dragCounter <= 0) { $('dropHint').classList.remove('show'); dragCounter = 0; }
+});
+window.addEventListener('drop', e => {
+  e.preventDefault();
+  dragCounter = 0;
+  $('dropHint').classList.remove('show');
+  const text = e.dataTransfer.getData('text');
+  if (text && text.includes('github.com')) {
+    $('folderUrl').value = text.trim();
+    toast('已填入地址', 'ok');
+  } else {
+    toast('请拖入 GitHub 链接', 'err');
+  }
+});
+
+$('loadBtn').addEventListener('click', loadTree);
+$('downloadBtn').addEventListener('click', () => downloadZip(false));
+$('retryBtn').addEventListener('click', () => downloadZip(true));
+
+$('proxyMode').addEventListener('change', () => {
+  const mode = $('proxyMode').value;
+  $('proxyUrlField').style.display = mode === 'custom' ? 'block' : 'none';
+  $('proxyRewriteField').style.display = mode === 'custom' ? 'block' : 'none';
+  $('jsdelivrField').style.display = mode === 'jsdelivr' ? 'block' : 'none';
+  $('jsdelivrCustomField').style.display =
+    (mode === 'jsdelivr' && $('jsdelivrNode').value === 'custom') ? 'block' : 'none';
+});
+$('jsdelivrNode').addEventListener('change', () => {
+  $('jsdelivrCustomField').style.display =
+    $('jsdelivrNode').value === 'custom' ? 'block' : 'none';
+});
+
+let searchTimer;
+$('searchInput').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(applyFilter, 200);
+});
+$('extFilter').addEventListener('change', applyFilter);
+
+$('selectAll').addEventListener('click', () => {
+  if (!currentRoot) return;
+  const stack = [currentRoot];
+  while (stack.length) {
+    const n = stack.pop();
+    if (n.type === 'file') n._selected = true;
+    else for (const c of n.children) stack.push(c);
+  }
+  refreshNode(currentRoot);
+  updateFooter();
+});
+$('selectNone').addEventListener('click', () => {
+  if (!currentRoot) return;
+  const stack = [currentRoot];
+  while (stack.length) {
+    const n = stack.pop();
+    if (n.type === 'file') n._selected = false;
+    else for (const c of n.children) stack.push(c);
+  }
+  refreshNode(currentRoot);
+  updateFooter();
+});
+$('selectFiltered').addEventListener('click', () => {
+  if (!currentRoot) return;
+  const stack = [currentRoot];
+  while (stack.length) {
+    const n = stack.pop();
+    if (n.type === 'file') {
+      if (!n._el.el.classList.contains('hidden')) n._selected = true;
+    } else {
+      for (const c of n.children) stack.push(c);
+    }
+  }
+  refreshNode(currentRoot);
+  updateFooter();
+  toast('已选中筛选结果', 'ok');
+});
+
+function walkAllOpen(open) {
+  if (!currentRoot) return;
+  const stack = [currentRoot];
+  while (stack.length) {
+    const n = stack.pop();
+    if (n.type !== 'folder') continue;
+    if (n._el && n._el.toggleOpen) {
+      const isOpen = n._el.childrenEl.classList.contains('open');
+      if (open && !isOpen) n._el.toggleOpen();
+      else if (!open && isOpen) n._el.toggleOpen();
+      else if (open) n._el.toggleOpen();
+    }
+    for (const c of n.children) stack.push(c);
+  }
+}
+
+$('expandAll').addEventListener('click', () => {
+  if (!currentRoot) return;
+  const stack = [currentRoot];
+  while (stack.length) {
+    const n = stack.pop();
+    if (n.type !== 'folder') continue;
+    if (n._el && n._el.toggleOpen && !n._el.childrenEl.classList.contains('open')) {
+      n._el.toggleOpen();
+    }
+    for (const c of n.children) stack.push(c);
+  }
+});
+$('collapseAll').addEventListener('click', () => {
+  if (!currentRoot) return;
+  const stack = [currentRoot];
+  while (stack.length) {
+    const n = stack.pop();
+    if (n.type !== 'folder') continue;
+    if (n._el && n._el.toggleOpen && n._el.childrenEl.classList.contains('open')) {
+      n._el.toggleOpen();
+    }
+    for (const c of n.children) stack.push(c);
+  }
+});
+
+['folderUrl', 'token', 'proxyUrl', 'proxyRewrite', 'jsdelivrCustom'].forEach(id => {
+  $(id).addEventListener('change', saveSettings);
+});
+$('proxyPanel').addEventListener('toggle', saveSettings);
+
+loadSettings();
+renderHistory();
+</script>
+</body>
+</html>
